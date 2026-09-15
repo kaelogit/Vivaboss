@@ -25,8 +25,8 @@ const FIELDS: Array<{
   { key: "heroTagline", label: "Hero mantra (owner line)", area: true },
   { key: "pathChooserEyebrow", label: "Path chooser eyebrow" },
   { key: "pathChooserTitle", label: "Path chooser title" },
-  { key: "craftHeadline", label: "Craft section headline" },
-  { key: "craftBody", label: "Craft section body", area: true },
+  { key: "craftHeadline", label: "Founder story headline" },
+  { key: "craftBody", label: "Founder story body (legacy / unused on storefront)", area: true },
 ];
 
 export default function HomepageContentClient() {

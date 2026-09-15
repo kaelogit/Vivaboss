@@ -43,10 +43,7 @@ export default async function HomePage() {
       <HomeCourierBand />
       <HomeNeedFinder />
       <HomeReviews reviews={reviews} />
-      <HomeBrandStory
-        headline={homepage.craftHeadline}
-        body={homepage.craftBody}
-      />
+      <HomeBrandStory />
       <HomeTrust />
       <HomeClosing />
     </main>

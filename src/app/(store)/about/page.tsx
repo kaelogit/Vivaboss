@@ -2,30 +2,34 @@ import Image from "next/image";
 import Link from "next/link";
 import SectionIntro from "@/components/store/SectionIntro";
 import { ClosingCta } from "@/components/store/MarketingBlocks";
-import { aboutArms, brandLines } from "@/lib/content/marketing";
+import {
+  aboutArms,
+  aboutPageStory,
+  brandLines,
+  founderStoryLong,
+} from "@/lib/content/marketing";
 import { marketingImages } from "@/lib/content/marketingImages";
-import { getPublicPages } from "@/lib/content/siteSettings";
 import { siteConfig } from "@/lib/site";
 
 export const metadata = {
   title: "About",
-  description: `${siteConfig.name} — ${siteConfig.tagline}`,
+  description: `${siteConfig.name} — ${brandLines.founded}`,
 };
 
 export default async function AboutPage() {
-  const pages = await getPublicPages();
+  const intro = aboutPageStory.intro;
 
   return (
     <main>
       <SectionIntro
         eyebrow="About"
         title={siteConfig.shortName}
-        description={brandLines.attract}
+        description={brandLines.founded}
         image={marketingImages.ecosystem}
         imageAlt="Vivaboss Fusion — craft, home, and delivery"
       >
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-vb-paper/75 sm:text-lg">
-          {pages.aboutIntro || siteConfig.tagline}
+          {intro}
         </p>
       </SectionIntro>
 
@@ -70,47 +74,55 @@ export default async function AboutPage() {
       </section>
 
       <section className="border-b border-vb-line bg-vb-white py-16 sm:py-20">
-        <div className="vb-container grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
-          <div>
-            <p className="vb-eyebrow">The brand</p>
-            <h2 className="mt-3 font-heading text-3xl font-bold uppercase tracking-tight sm:text-4xl">
-              One umbrella. Many arms. One standard.
-            </h2>
-            <div className="mt-6 space-y-5 text-base leading-relaxed text-vb-muted">
-              <p>
-                Vivaboss Fusion Services is not a random mix of trades — it is one
-                brand spanning craft, home, and delivery. Shop handmade fashion
-                and personalised gifts. Buy smart-home and home equipment. Book
-                repairs and installs. Move medical, legal, or event items across
-                the UK.
-              </p>
-              <p>
-                Each arm has its own job. Together they share the same promise:
-                culture in the craft, creativity in the make, and care in every
-                handover — whether that is a leather bag, an engraved memorial,
-                a lock install, or a same-day courier run.
-              </p>
-            </div>
-          </div>
-          <div className="border-l border-vb-line pl-0 lg:pl-10">
-            <p className="font-heading text-2xl font-bold uppercase tracking-tight text-vb-ink sm:text-3xl">
-              {brandLines.fashion}
+        <div className="vb-container max-w-3xl">
+          <p className="vb-eyebrow">Our story</p>
+          <h2 className="mt-3 font-heading text-3xl font-bold uppercase tracking-tight sm:text-4xl">
+            Culture. Creativity. Honest work.
+          </h2>
+          <div className="mt-8 space-y-5 text-base leading-relaxed text-vb-muted sm:text-[17px]">
+            {aboutPageStory.paragraphs.map((p) => (
+              <p key={p.slice(0, 48)}>{p}</p>
+            ))}
+            <p>{aboutPageStory.closing}</p>
+            <p className="font-heading text-lg font-semibold uppercase tracking-tight text-vb-ink">
+              {aboutPageStory.signature}
             </p>
-            <p className="mt-4 text-sm leading-relaxed text-vb-muted">
-              Fashion is the heart of Vivaboss — African creativity meeting
-              modern style. {brandLines.fashionSub}
-            </p>
-            <Link
-              href="/shop/fashion"
-              className="mt-8 inline-flex font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-accent"
-            >
-              Shop fashion →
-            </Link>
           </div>
         </div>
       </section>
 
       <section className="border-b border-vb-line bg-vb-paper py-16 sm:py-20">
+        <div className="vb-container grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-20">
+          <div className="relative aspect-[4/5] overflow-hidden bg-vb-mist lg:sticky lg:top-24">
+            <Image
+              src={marketingImages.craft.workshopAlt}
+              alt="Habeeb — Vivaboss craftsmanship"
+              fill
+              sizes="(max-width: 1024px) 100vw, 40vw"
+              className="object-cover"
+            />
+          </div>
+          <div>
+            <p className="vb-eyebrow">{founderStoryLong.eyebrow}</p>
+            <h2 className="mt-3 font-heading text-3xl font-bold uppercase tracking-tight sm:text-4xl">
+              {founderStoryLong.title}
+            </h2>
+            <p className="mt-4 font-heading text-sm font-semibold uppercase tracking-[0.14em] text-vb-accent">
+              {founderStoryLong.lead}
+            </p>
+            <div className="mt-8 space-y-5 text-base leading-relaxed text-vb-muted sm:text-[17px]">
+              {founderStoryLong.paragraphs.map((p) => (
+                <p key={p.slice(0, 48)}>{p}</p>
+              ))}
+              <p className="font-heading text-lg font-semibold uppercase tracking-tight text-vb-ink">
+                {founderStoryLong.closing}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-vb-line bg-vb-white py-16 sm:py-20">
         <div className="vb-container">
           <p className="vb-eyebrow">Arms of the business</p>
           <h2 className="mt-3 max-w-xl font-heading text-3xl font-bold uppercase tracking-tight sm:text-4xl">
@@ -142,12 +154,12 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="border-b border-vb-line bg-vb-white py-16 sm:py-20">
+      <section className="border-b border-vb-line bg-vb-paper py-16 sm:py-20">
         <div className="vb-container grid gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
             <p className="vb-eyebrow">Coverage</p>
             <h2 className="mt-3 font-heading text-3xl font-bold uppercase tracking-tight">
-              UK-wide by design
+              Darlington and beyond
             </h2>
             <p className="mt-4 text-base leading-relaxed text-vb-muted">
               Shop orders ship across the United Kingdom. Service visits and

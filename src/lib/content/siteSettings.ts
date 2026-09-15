@@ -117,10 +117,9 @@ export function defaultHomepage(): HomepageContent {
     heroTagline: siteConfig.fashionPunchline,
     pathChooserEyebrow: "What are you looking for?",
     pathChooserTitle: "Three ways into Vivaboss",
-    craftHeadline:
-      "You don’t have to be born beautiful to be wildly attractive.",
+    craftHeadline: "Vivaboss is a master of life.",
     craftBody:
-      "Fashion with African creativity at the core. Personalised pieces made to keep. Home made smarter. Deliveries handled with care. One Vivaboss standard across every arm.",
+      "Vivaboss began in 2008 with a needle, a thread, and a young craftsman turning ripped jeans into a crossbag. What started as creativity born from lack grew into a lifestyle brand shaped by culture, innovation, and honest work.",
   };
 }
 
@@ -130,7 +129,8 @@ export function defaultFaq(): FaqContent {
 
 export function defaultPages(): PagesContent {
   return {
-    aboutIntro: siteConfig.tagline,
+    aboutIntro:
+      "Vivaboss Fusion Services is a lifestyle brand built from culture, creativity, and honest work. What began in 2008 with a needle, a thread, and a single handmade crossbag has grown into a modern multi-service brand serving Darlington and beyond.",
     contactIntro:
       "Questions about an order, a custom piece, a home visit, or a courier run — reach us here. Bookings also have dedicated forms if you already know what you need.",
     announcement: "",

@@ -5,6 +5,52 @@ export const brandLines = {
   tagline: "Craftsmanship that turns heads. Style that holds attention.",
   fashion: "People will stare. Make it worth their while.",
   fashionSub: "Made to look good. Made to feel special. Made to last.",
+  masteredLife: "The Mastered Life",
+  founded: "Crafted with culture. Powered by innovation. Built from honest work.",
+} as const;
+
+/** Homepage founder story — short version */
+export const homepageFounderStory = {
+  eyebrow: "Since 2008",
+  headline: "Vivaboss is a master of life.",
+  paragraphs: [
+    "Vivaboss began in 2008 with a needle, a thread, and a young craftsman turning ripped jeans into a crossbag. What started as creativity born from lack grew into a lifestyle brand shaped by culture, innovation, and honest work. From denim to Ankara, from bags to shoes, from accessories to tech-infused craftsmanship, the vision expanded naturally — driven by authenticity and customer demand.",
+    "Over the years, Habeeb has trained 800+ people in bag-making and shoemaking, empowering new creators across communities. Today, Vivaboss Fusion Services blends handmade artistry with modern technology and everyday services — engraving, smart home installations, DIY repairs, and courier support — all delivered with care, precision, and purpose.",
+  ],
+  closing: "A fusion of culture, creativity, and innovation.",
+} as const;
+
+/** Full About page narrative */
+export const aboutPageStory = {
+  intro:
+    "Vivaboss Fusion Services is a lifestyle brand built from culture, creativity, and honest work. What began in 2008 with a needle, a thread, and a single handmade crossbag has grown into a modern multi-service brand serving Darlington and beyond.",
+  paragraphs: [
+    "Our roots are in craftsmanship. From turning ripped denim into art to shaping bold Ankara prints into luxury pieces, we founded Vivaboss on the belief that creativity can rise from any circumstance. Over the years, our handmade bags, shoes, and accessories earned recognition for their longevity, authenticity, and uniqueness — inspiring the name VIVABOSS, meaning The Mastered Life.",
+    "As demand grew, so did our vision. We expanded from fashion into tech-infused craftsmanship, introducing NFC authenticity tags, anti-counterfeit verification, smart keyholders, RFID-blocking pouches, and wearable products embedded with protective technology — a fusion of heritage craft and modern innovation.",
+    "Vivaboss has also evolved into a multi-service brand that supports everyday life. We offer engraving, smart home installations, DIY home repairs, and courier services — all delivered with the same care, precision, and reliability that shaped our early craft.",
+    "Our commitment to empowerment is part of our identity. To date, we have trained over 800+ people in bag-making and shoemaking, helping new creators build skills, confidence, and opportunity.",
+  ],
+  closing:
+    "Today, Vivaboss Fusion Services stands as a brand where culture meets technology, where creativity meets functionality, and where every product and service is intentional, personal, and beautifully done.",
+  signature: "This is Vivaboss — a fusion of everything we’ve built, and everything we’re becoming.",
+} as const;
+
+/** Long founder story — The Mastered Life Behind Vivaboss */
+export const founderStoryLong = {
+  eyebrow: "Founder story",
+  title: "The Mastered Life Behind Vivaboss",
+  lead: "Crafted with culture. Powered by innovation. Built from honest work.",
+  paragraphs: [
+    "Vivaboss began in 2008, with nothing but a needle, a thread, and a young craftsman determined to turn lack into creativity. Habeeb’s first creation was a crossbag made from his own ripped jeans — a simple idea that revealed something powerful. The rugged texture, the imperfections, the transformation from old fabric into something new sparked a vision that never left.",
+    "From denim, he moved to Ankara fabrics, drawn to their bold prints and cultural stories. Bag-making became his way of expressing identity and purpose. He wanted to create pieces that served multiple needs — bags that fit every outfit, every occasion, and still carried luxury. Products that stood out without trying.",
+    "Customers noticed the longevity, authenticity, and uniqueness of his work. Their reviews inspired the name VIVABOSS, meaning The Mastered Life. As demand grew, the brand expanded naturally from bags to shoes, accessories, and complete sets.",
+    "Over the years, Habeeb also became a teacher, sharing his craft with others. He has trained over 800+ people in bag-making and shoemaking, helping new creators build skills, confidence, and income.",
+    "Innovation pushed the brand even further. Vivaboss introduced tech-infused craftsmanship — smart wall clocks with hidden cameras, smart keyholders, NFC authenticity tags, anti-counterfeit verification, RFID-blocking pouches, and wearable products embedded with protective tech. A fusion of heritage craft and modern technology.",
+    "As the vision expanded, Vivaboss grew beyond fashion. Engraving became a way to turn memories into art. Smart home installations brought comfort and security. DIY home repairs supported families. Courier services delivered trust, not just packages.",
+    "Today, Vivaboss Fusion Services stands as a modern multi-service lifestyle brand serving Darlington and beyond — where culture meets technology, creativity meets functionality, and every service is delivered with dignity, care, and excellence.",
+  ],
+  closing:
+    "This is Vivaboss. A journey from a needle and thread to a mastered life. A fusion of everything we’ve built, and everything we’re becoming.",
 } as const;
 
 export const aboutArms = [
