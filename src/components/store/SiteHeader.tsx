@@ -106,11 +106,46 @@ export default function SiteHeader() {
     setMenu(null);
   }, [pathname]);
 
+  // iOS-safe lock: overflow:hidden alone still lets the page scroll under sticky nav
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
+    if (!open) return;
+
+    const scrollY = window.scrollY;
+    const { style } = document.body;
+    const prev = {
+      overflow: style.overflow,
+      position: style.position,
+      top: style.top,
+      left: style.left,
+      right: style.right,
+      width: style.width,
     };
+
+    style.overflow = "hidden";
+    style.position = "fixed";
+    style.top = `-${scrollY}px`;
+    style.left = "0";
+    style.right = "0";
+    style.width = "100%";
+
+    return () => {
+      style.overflow = prev.overflow;
+      style.position = prev.position;
+      style.top = prev.top;
+      style.left = prev.left;
+      style.right = prev.right;
+      style.width = prev.width;
+      window.scrollTo(0, scrollY);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
   const isActive = (href: string) =>
@@ -140,13 +175,14 @@ export default function SiteHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-vb-line/80 bg-vb-white">
-      <div className="vb-container flex h-14 items-center justify-between gap-4 sm:h-16">
-        <Link
-          href="/"
-          className="group flex shrink-0 items-center"
-          aria-label={`${siteConfig.shortName} home`}
-        >
+    <>
+      <header className="sticky top-0 z-50 border-b border-vb-line/80 bg-vb-white">
+        <div className="vb-container flex h-14 items-center justify-between gap-4 sm:h-16">
+          <Link
+            href="/"
+            className="group flex shrink-0 items-center"
+            aria-label={`${siteConfig.shortName} home`}
+          >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/brand/logo-nav.png"
@@ -244,85 +280,105 @@ export default function SiteHeader() {
           <button
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center text-vb-ink lg:hidden"
-            aria-label={open ? "Close menu" : "Open menu"}
+            aria-label="Open menu"
             aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => setOpen(true)}
           >
-            {open ? (
-              <X size={22} strokeWidth={1.75} />
-            ) : (
-              <Menu size={22} strokeWidth={1.75} />
-            )}
+            <Menu size={22} strokeWidth={1.75} />
           </button>
         </div>
       </div>
-
-      <div
-        className={cn(
-          "fixed inset-x-0 bottom-0 top-14 z-40 bg-vb-ink/40 transition-opacity lg:hidden",
-          open ? "visible opacity-100" : "invisible opacity-0"
-        )}
-        onClick={() => setOpen(false)}
-        aria-hidden={!open}
-      />
-      <div
-        className={cn(
-          "fixed inset-x-0 top-14 z-50 max-h-[calc(100dvh-3.5rem)] overflow-y-auto border-b border-vb-line bg-vb-white transition-transform duration-300 lg:hidden",
-          open ? "translate-y-0" : "-translate-y-[120%]"
-        )}
-      >
-        <nav className="vb-container space-y-1 py-6" aria-label="Mobile">
-          {primaryNav.map((item) => {
-            const children = mobileChildren(item.href);
-            return (
-              <div key={item.href}>
-                <Link
-                  href={item.href}
-                  className={cn(
-                    "block py-3 font-heading text-sm font-semibold uppercase tracking-[0.14em]",
-                    isActive(item.href) ? "text-vb-accent" : "text-vb-ink"
-                  )}
-                >
-                  {item.label}
-                </Link>
-                {children.length > 0 && (
-                  <ul className="mb-2 ml-1 border-l border-vb-line pl-4">
-                    {children.map((link) => (
-                      <li key={link.href + link.label}>
-                        <Link
-                          href={link.href}
-                          className="block py-2 text-sm text-vb-accent hover:text-vb-accent-hover"
-                        >
-                          {link.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            );
-          })}
-          {waLive ? (
-            <a
-              href={whatsappHref(
-                "Hi Vivaboss — I'd like to enquire about your services."
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 flex h-12 items-center justify-center bg-vb-accent font-heading text-xs font-semibold uppercase tracking-[0.18em] text-white"
-            >
-              Chat on WhatsApp
-            </a>
-          ) : (
-            <Link
-              href="/contact"
-              className="mt-4 flex h-12 items-center justify-center bg-vb-ink font-heading text-xs font-semibold uppercase tracking-[0.18em] text-vb-paper"
-            >
-              Contact us
-            </Link>
-          )}
-        </nav>
-      </div>
     </header>
+
+      {/* Full-viewport overlay (T40 pattern) — X lives here so page scroll can't hide it */}
+      {open && (
+        <div className="fixed inset-0 z-[100] flex flex-col bg-vb-white lg:hidden">
+          <div className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-vb-line px-5 sm:h-16 sm:px-8">
+            <Link
+              href="/"
+              className="flex shrink-0 items-center"
+              aria-label={`${siteConfig.shortName} home`}
+              onClick={() => setOpen(false)}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/brand/logo-nav.png"
+                alt={siteConfig.shortName}
+                width={220}
+                height={52}
+                className="h-11 w-auto sm:h-12"
+              />
+            </Link>
+            <button
+              type="button"
+              className="inline-flex h-10 w-10 items-center justify-center text-vb-ink"
+              aria-label="Close menu"
+              onClick={() => setOpen(false)}
+            >
+              <X size={22} strokeWidth={1.75} />
+            </button>
+          </div>
+
+          <nav
+            className="vb-container flex-1 space-y-1 overflow-y-auto overscroll-contain py-6"
+            aria-label="Mobile"
+          >
+            {primaryNav.map((item) => {
+              const children = mobileChildren(item.href);
+              return (
+                <div key={item.href}>
+                  <Link
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "block py-3 font-heading text-sm font-semibold uppercase tracking-[0.14em]",
+                      isActive(item.href) ? "text-vb-accent" : "text-vb-ink"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                  {children.length > 0 && (
+                    <ul className="mb-2 ml-1 border-l border-vb-line pl-4">
+                      {children.map((link) => (
+                        <li key={link.href + link.label}>
+                          <Link
+                            href={link.href}
+                            onClick={() => setOpen(false)}
+                            className="block py-2 text-sm text-vb-accent hover:text-vb-accent-hover"
+                          >
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+            {waLive ? (
+              <a
+                href={whatsappHref(
+                  "Hi Vivaboss — I'd like to enquire about your services."
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 flex h-12 items-center justify-center bg-vb-accent font-heading text-xs font-semibold uppercase tracking-[0.18em] text-white"
+                onClick={() => setOpen(false)}
+              >
+                Chat on WhatsApp
+              </a>
+            ) : (
+              <Link
+                href="/contact"
+                onClick={() => setOpen(false)}
+                className="mt-4 flex h-12 items-center justify-center bg-vb-ink font-heading text-xs font-semibold uppercase tracking-[0.18em] text-vb-paper"
+              >
+                Contact us
+              </Link>
+            )}
+          </nav>
+        </div>
+      )}
+    </>
   );
 }
