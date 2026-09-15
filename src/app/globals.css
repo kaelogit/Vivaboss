@@ -1,0 +1,171 @@
+@import "tailwindcss";
+
+/* ───────────────────────────────────────────────────────────
+   VIVABOSS FUSION — Design system
+   Warm craft × modern UK service. Not T40. Not Lee. Own lane.
+   ─────────────────────────────────────────────────────────── */
+
+@theme {
+  --color-vb-ink: #121110;
+  --color-vb-paper: #f9f8f6;
+  --color-vb-white: #ffffff;
+  --color-vb-muted: #6b6560;
+  --color-vb-mist: #efedea;
+  --color-vb-line: #ddd9d3;
+  --color-vb-accent: #b4532a;
+  --color-vb-accent-hover: #963f1c;
+  --color-vb-accent-soft: #f3e6de;
+  --color-vb-success: #1f6b4a;
+  --color-vb-danger: #b42318;
+
+  --font-heading: var(--font-montserrat);
+  --font-body: var(--font-lato);
+}
+
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  background-color: var(--color-vb-paper);
+  color: var(--color-vb-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--color-vb-accent-soft);
+  color: var(--color-vb-ink);
+}
+
+.vb-container {
+  @apply mx-auto w-full max-w-[1400px] px-5 sm:px-8 lg:px-10;
+}
+
+.vb-eyebrow {
+  @apply font-heading text-[11px] font-semibold uppercase tracking-[0.22em] text-vb-muted;
+}
+
+.vb-display {
+  @apply font-heading font-bold uppercase tracking-tight text-vb-ink;
+}
+
+@keyframes vb-fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.vb-fade-up {
+  animation: vb-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.vb-fade-up-delay-1 {
+  animation-delay: 0.12s;
+}
+
+.vb-fade-up-delay-2 {
+  animation-delay: 0.24s;
+}
+
+.vb-fade-up-delay-3 {
+  animation-delay: 0.36s;
+}
+
+/* Scroll reveals — compositor-only (opacity + transform), no layout thrash.
+   Hidden only when JS has armed motion (html.vb-motion), so no-JS stays readable. */
+html.vb-motion [data-vb-reveal]:not(.is-in) {
+  opacity: 0;
+  transform: translate3d(0, 1.35rem, 0);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html.vb-motion [data-vb-reveal="fade"]:not(.is-in) {
+  transform: none;
+}
+
+html.vb-motion [data-vb-reveal="left"]:not(.is-in) {
+  transform: translate3d(-1.25rem, 0, 0);
+}
+
+html.vb-motion [data-vb-reveal="right"]:not(.is-in) {
+  transform: translate3d(1.25rem, 0, 0);
+}
+
+html.vb-motion [data-vb-reveal="scale"]:not(.is-in) {
+  transform: translate3d(0, 0.75rem, 0) scale(0.985);
+}
+
+html.vb-motion [data-vb-reveal].is-in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .vb-fade-up,
+  .vb-fade-up-delay-1,
+  .vb-fade-up-delay-2,
+  .vb-fade-up-delay-3 {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  html.vb-motion [data-vb-reveal],
+  html.vb-motion [data-vb-reveal].is-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* Clear keyboard focus across the storefront */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-vb-accent);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.focus\:not-sr-only:focus {
+  position: absolute;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
