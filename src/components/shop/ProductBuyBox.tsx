@@ -385,7 +385,9 @@ export default function ProductBuyBox({ product }: { product: ProductDetail }) {
         <button
           type="button"
           disabled={busy || unavailable}
-          onClick={addToCart}
+          onClick={() => {
+            addToCart();
+          }}
           className="inline-flex h-12 items-center bg-vb-ink px-6 font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-paper hover:bg-vb-accent disabled:opacity-50"
         >
           {preorder ? "Pre-order" : "Add to bag"}

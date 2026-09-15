@@ -4,21 +4,17 @@ import {
   Children,
   cloneElement,
   isValidElement,
-  type CSSProperties,
   type ReactElement,
   type ReactNode,
 } from "react";
 import { cn } from "@/lib/utils";
 
+type RevealVariant = "up" | "fade" | "left" | "right" | "scale";
+
 type RevealProps = {
-  children: ReactElement<{
-    className?: string;
-    style?: CSSProperties;
-    "data-vb-reveal"?: string;
-    "data-vb-reveal-delay"?: string | number;
-  }>;
+  children: ReactElement;
   /** up | fade | left | right | scale */
-  variant?: "up" | "fade" | "left" | "right" | "scale";
+  variant?: RevealVariant;
   delay?: number;
   className?: string;
 };
@@ -32,11 +28,15 @@ export function Reveal({
 }: RevealProps) {
   if (!isValidElement(children)) return children;
 
+  const props = children.props as {
+    className?: string;
+  };
+
   return cloneElement(children, {
-    className: cn(children.props.className, className),
+    className: cn(props.className, className),
     "data-vb-reveal": variant === "up" ? "up" : variant,
-    "data-vb-reveal-delay": delay || undefined,
-  });
+    ...(delay > 0 ? { "data-vb-reveal-delay": delay } : {}),
+  } as Record<string, unknown>);
 }
 
 /** Stagger direct children that are valid elements. */
@@ -47,7 +47,7 @@ export function RevealStagger({
   className,
 }: {
   children: ReactNode;
-  variant?: RevealProps["variant"];
+  variant?: RevealVariant;
   step?: number;
   className?: string;
 }) {
@@ -57,7 +57,7 @@ export function RevealStagger({
         if (!isValidElement(child)) return child;
         return (
           <Reveal variant={variant} delay={i * step}>
-            {child as ReactElement}
+            {child}
           </Reveal>
         );
       })}
