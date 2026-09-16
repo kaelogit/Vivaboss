@@ -38,7 +38,18 @@ export async function PATCH(request: Request, { params }: Params) {
     status?: ServiceJobStatus;
     internal_notes?: string;
     scheduled_at?: string | null;
+    notify_customer?: boolean;
   };
+
+  const supabase = createAdminClient();
+  const { data: existing } = await supabase
+    .from("service_jobs")
+    .select("status")
+    .eq("id", id)
+    .maybeSingle();
+  if (!existing) {
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  }
 
   const updates: {
     status?: ServiceJobStatus;
@@ -63,7 +74,6 @@ export async function PATCH(request: Request, { params }: Params) {
     return NextResponse.json({ error: "Nothing to update." }, { status: 400 });
   }
 
-  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("service_jobs")
     .update(updates)
@@ -72,5 +82,27 @@ export async function PATCH(request: Request, { params }: Params) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ job: data });
+
+  const statusChanged =
+    Boolean(updates.status) && updates.status !== existing.status;
+  const shouldNotify =
+    statusChanged &&
+    updates.status !== "new" &&
+    body.notify_customer !== false;
+
+  if (shouldNotify) {
+    try {
+      const { sendServiceJobStatusEmail } = await import(
+        "@/lib/email/bookings"
+      );
+      await sendServiceJobStatusEmail(id);
+    } catch (err) {
+      console.error("service status email", err);
+    }
+  }
+
+  return NextResponse.json({
+    job: data,
+    customer_notified: shouldNotify,
+  });
 }

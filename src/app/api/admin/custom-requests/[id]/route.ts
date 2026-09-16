@@ -53,6 +53,7 @@ export async function PATCH(request: Request, { params }: Params) {
     status?: CustomRequestStatus;
     quote_amount_gbp?: number | null;
     quote_message?: string | null;
+    send_quote_email?: boolean;
   };
 
   const updates: {
@@ -90,35 +91,56 @@ export async function PATCH(request: Request, { params }: Params) {
         : null;
   }
 
-  if (!Object.keys(updates).length) {
+  if (!Object.keys(updates).length && !body.send_quote_email) {
     return NextResponse.json({ error: "Nothing to update." }, { status: 400 });
   }
 
   const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("custom_requests")
-    .update(updates)
-    .eq("id", id)
-    .select("*")
-    .single();
+  let data;
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (Object.keys(updates).length) {
+    const result = await supabase
+      .from("custom_requests")
+      .update(updates)
+      .eq("id", id)
+      .select("*")
+      .single();
+    if (result.error) {
+      return NextResponse.json({ error: result.error.message }, { status: 500 });
+    }
+    data = result.data;
+  } else {
+    const result = await supabase
+      .from("custom_requests")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (result.error) {
+      return NextResponse.json({ error: result.error.message }, { status: 500 });
+    }
+    if (!result.data) {
+      return NextResponse.json({ error: "Not found." }, { status: 404 });
+    }
+    data = result.data;
+  }
 
   const shouldSendQuote =
-    body.status === "quoted" &&
+    (body.send_quote_email === true || body.status === "quoted") &&
     data.quote_amount_gbp != null &&
     Number(data.quote_amount_gbp) > 0;
 
+  let quoteEmailed = false;
   if (shouldSendQuote) {
     try {
       const { sendCustomQuoteEmail } = await import("@/lib/email/orders");
       await sendCustomQuoteEmail(data.id);
+      quoteEmailed = true;
     } catch (err) {
       console.error("custom quote email failed", err);
     }
   }
 
-  return NextResponse.json({ request: data });
+  return NextResponse.json({ request: data, quoteEmailed });
 }
 
 /** Convert a quoted custom request into a pending order + Stripe Checkout session. */
@@ -127,12 +149,6 @@ export async function POST(request: Request, { params }: Params) {
   if (auth instanceof NextResponse) return auth;
   if (!hasAdminClient()) {
     return NextResponse.json({ error: "Not configured." }, { status: 503 });
-  }
-  if (!hasStripe()) {
-    return NextResponse.json(
-      { error: "Stripe is not configured." },
-      { status: 503 }
-    );
   }
 
   const { id } = await params;
@@ -144,7 +160,11 @@ export async function POST(request: Request, { params }: Params) {
     /* empty body is fine — default convert */
   }
 
-  if (action !== "convert") {
+  if (
+    action !== "convert" &&
+    action !== "email_pay_link" &&
+    action !== "email_quote"
+  ) {
     return NextResponse.json({ error: "Unknown action." }, { status: 400 });
   }
 
@@ -161,6 +181,73 @@ export async function POST(request: Request, { params }: Params) {
   if (!req) {
     return NextResponse.json({ error: "Not found." }, { status: 404 });
   }
+
+  // Email quote only (no Stripe)
+  if (action === "email_quote") {
+    if (req.quote_amount_gbp == null || Number(req.quote_amount_gbp) <= 0) {
+      return NextResponse.json(
+        { error: "Set a quote amount before emailing." },
+        { status: 400 }
+      );
+    }
+    try {
+      const { sendCustomQuoteEmail } = await import("@/lib/email/orders");
+      await sendCustomQuoteEmail(req.id);
+    } catch (err) {
+      console.error("custom quote email failed", err);
+      return NextResponse.json(
+        { error: "Could not send quote email. Check RESEND_API_KEY." },
+        { status: 500 }
+      );
+    }
+    return NextResponse.json({ request: req, quoteEmailed: true });
+  }
+
+  if (!hasStripe()) {
+    return NextResponse.json(
+      { error: "Stripe is not configured." },
+      { status: 503 }
+    );
+  }
+
+  // Resend an existing checkout link to the customer
+  if (action === "email_pay_link") {
+    const snapshot =
+      req.field_snapshot &&
+      typeof req.field_snapshot === "object" &&
+      !Array.isArray(req.field_snapshot)
+        ? (req.field_snapshot as Record<string, unknown>)
+        : {};
+    const checkoutUrl =
+      typeof snapshot.checkout_url === "string" ? snapshot.checkout_url : null;
+    const orderNumber =
+      typeof snapshot.order_number === "string" ? snapshot.order_number : undefined;
+
+    if (!checkoutUrl) {
+      return NextResponse.json(
+        { error: "No pay link yet. Create & email pay link first." },
+        { status: 400 }
+      );
+    }
+
+    try {
+      const { sendCustomPayLinkEmail } = await import("@/lib/email/orders");
+      await sendCustomPayLinkEmail(req.id, checkoutUrl, orderNumber);
+    } catch (err) {
+      console.error("custom pay link email failed", err);
+      return NextResponse.json(
+        { error: "Could not send pay link email." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      request: req,
+      checkoutUrl,
+      emailed: true,
+    });
+  }
+
   if (req.status === "converted_to_order") {
     return NextResponse.json(
       { error: "Already converted to an order." },
@@ -261,7 +348,7 @@ export async function POST(request: Request, { params }: Params) {
         },
       ],
       success_url: `${siteUrl}/order/success?order=${order.id}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/admin/custom-requests/${req.id}?cancelled=1`,
+      cancel_url: `${siteUrl}/contact?custom_pay=cancelled`,
       metadata: {
         order_id: order.id,
         order_number: order.order_number,
@@ -312,12 +399,22 @@ export async function POST(request: Request, { params }: Params) {
       );
     }
 
+    let emailed = false;
+    try {
+      const { sendCustomPayLinkEmail } = await import("@/lib/email/orders");
+      await sendCustomPayLinkEmail(req.id, session.url, order.order_number);
+      emailed = true;
+    } catch (err) {
+      console.error("custom pay link email failed", err);
+    }
+
     return NextResponse.json({
       request: updated,
       orderId: order.id,
       orderNumber: order.order_number,
       checkoutUrl: session.url,
       stripeSessionId: session.id,
+      emailed,
     });
   } catch (err) {
     await supabase.from("orders").delete().eq("id", order.id);

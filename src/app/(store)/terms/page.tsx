@@ -121,8 +121,11 @@ export default function TermsPage() {
           .
         </p>
         <p className="text-xs text-vb-muted">
-          This page is a working UK ecommerce template for launch. Have a solicitor
-          review before high-volume trading if you need firm-specific advice.
+          Need clarification on an order or booking?{" "}
+          <Link href="/contact" className="text-vb-accent">
+            Contact us
+          </Link>
+          .
         </p>
       </div>
     </main>

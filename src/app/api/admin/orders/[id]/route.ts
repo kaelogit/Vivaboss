@@ -64,11 +64,30 @@ export async function PATCH(request: Request, { params }: Params) {
   const body = (await request.json()) as {
     status?: OrderStatus;
     internal_notes?: string;
+    tracking_number?: string | null;
+    tracking_carrier?: string | null;
+    tracking_url?: string | null;
+    notify_shipped?: boolean;
   };
+
+  const supabase = createAdminClient();
+  const { data: existing } = await supabase
+    .from("orders")
+    .select("id, status, shipped_at, inventory_applied")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!existing) {
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  }
 
   const updates: {
     status?: OrderStatus;
     internal_notes?: string | null;
+    tracking_number?: string | null;
+    tracking_carrier?: string | null;
+    tracking_url?: string | null;
+    shipped_at?: string | null;
   } = {};
 
   if (body.status) {
@@ -80,12 +99,36 @@ export async function PATCH(request: Request, { params }: Params) {
   if (body.internal_notes !== undefined) {
     updates.internal_notes = body.internal_notes.trim() || null;
   }
+  if (body.tracking_number !== undefined) {
+    updates.tracking_number =
+      typeof body.tracking_number === "string"
+        ? body.tracking_number.trim() || null
+        : null;
+  }
+  if (body.tracking_carrier !== undefined) {
+    updates.tracking_carrier =
+      typeof body.tracking_carrier === "string"
+        ? body.tracking_carrier.trim() || null
+        : null;
+  }
+  if (body.tracking_url !== undefined) {
+    updates.tracking_url =
+      typeof body.tracking_url === "string"
+        ? body.tracking_url.trim() || null
+        : null;
+  }
+
+  const nextStatus = updates.status ?? existing.status;
+  const becomingShipped =
+    nextStatus === "shipped" && existing.status !== "shipped";
+  if (becomingShipped && !existing.shipped_at) {
+    updates.shipped_at = new Date().toISOString();
+  }
 
   if (!Object.keys(updates).length) {
     return NextResponse.json({ error: "Nothing to update." }, { status: 400 });
   }
 
-  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("orders")
     .update(updates)
@@ -94,5 +137,52 @@ export async function PATCH(request: Request, { params }: Params) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ order: data });
+
+  let order = data;
+
+  const becomingTerminal =
+    (nextStatus === "cancelled" || nextStatus === "refunded") &&
+    existing.status !== "cancelled" &&
+    existing.status !== "refunded";
+
+  let inventoryRestored = false;
+  if (becomingTerminal && existing.inventory_applied) {
+    try {
+      const { restoreOrderInventory } = await import("@/lib/orders/inventory");
+      await restoreOrderInventory(
+        id,
+        nextStatus === "refunded" ? "order_refunded" : "order_cancelled"
+      );
+      inventoryRestored = true;
+      const { data: refreshed } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("id", id)
+        .single();
+      if (refreshed) order = refreshed;
+    } catch (err) {
+      console.error("inventory restore failed", err);
+    }
+  }
+
+  const shouldEmail =
+    body.notify_shipped === true ||
+    (becomingShipped && body.notify_shipped !== false);
+
+  let shippedEmailSent = false;
+  if (shouldEmail && order.status === "shipped") {
+    try {
+      const { sendOrderShippedEmail } = await import("@/lib/email/orders");
+      await sendOrderShippedEmail(order.id);
+      shippedEmailSent = true;
+    } catch (err) {
+      console.error("ship email failed", err);
+    }
+  }
+
+  return NextResponse.json({
+    order,
+    shippedEmailSent,
+    inventoryRestored,
+  });
 }

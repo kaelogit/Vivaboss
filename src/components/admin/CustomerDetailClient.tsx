@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
+import { AdminDetailSkeleton } from "@/components/admin/AdminSkeleton";
 import AdminPageHeader, {
   AdminEmptyState,
 } from "@/components/admin/AdminPageHeader";
@@ -91,7 +92,7 @@ export default function CustomerDetailClient({
         action={{ href: "/admin/customers", label: "All customers" }}
       />
 
-      {loading && <p className="text-sm text-vb-muted">Loading…</p>}
+      {loading && <AdminDetailSkeleton />}
       {error && <AdminEmptyState title="Cannot load customer" body={error} />}
 
       {customer && (

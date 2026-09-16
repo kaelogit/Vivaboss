@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { AdminFormSkeleton } from "@/components/admin/AdminSkeleton";
 import AdminPageHeader, {
   AdminEmptyState,
 } from "@/components/admin/AdminPageHeader";
@@ -132,7 +133,7 @@ export default function SettingsClient() {
         description="Contact, WhatsApp, shipping rates, notification emails. Stripe keys stay in env."
       />
 
-      {loading && <p className="text-sm text-vb-muted">Loading…</p>}
+      {loading && <AdminFormSkeleton />}
       {!loading && !settings && error && (
         <AdminEmptyState title="Cannot load settings" body={error} />
       )}

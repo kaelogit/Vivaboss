@@ -7,13 +7,13 @@ import type { HomepageContent } from "@/lib/content/siteSettings";
 type HeroProps = {
   content?: Pick<
     HomepageContent,
-    "heroEyebrow" | "heroHeadline" | "heroSub" | "heroTagline"
+    "heroEyebrow" | "heroSub" | "heroTagline"
   >;
 };
 
 /**
  * Hero stack (kept lean on purpose):
- * 1. Brand name — hero-level signal
+ * 1. Full brand name — hero-level signal (black weight)
  * 2. Arms cue — Craft. Home. Delivery.
  * 3. Owner mantra — the one line people remember
  * 4. CTAs
@@ -23,7 +23,6 @@ type HeroProps = {
  */
 export default function HomeHero({ content }: HeroProps) {
   const brand = content?.heroEyebrow ?? siteConfig.name;
-  const headline = content?.heroHeadline ?? siteConfig.shortName;
   const arms = content?.heroSub ?? siteConfig.homepageLine;
   const mantra = content?.heroTagline ?? siteConfig.fashionPunchline;
 
@@ -63,19 +62,15 @@ export default function HomeHero({ content }: HeroProps) {
         />
 
         <div className="vb-container relative z-10 flex min-h-[min(88vh,860px)] flex-col justify-end pb-28 pt-24 sm:min-h-[min(92vh,920px)] sm:pb-32 sm:pt-32 lg:justify-center lg:pb-36">
-          <p className="vb-fade-up font-heading text-[11px] font-semibold uppercase tracking-[0.28em] text-vb-accent">
+          <h1 className="vb-fade-up max-w-5xl font-heading text-[2.35rem] font-black uppercase leading-[0.9] tracking-tight text-vb-paper sm:text-6xl sm:leading-[0.88] lg:text-7xl xl:text-8xl">
             {brand}
-          </p>
-
-          <h1 className="vb-fade-up vb-fade-up-delay-1 mt-4 max-w-4xl font-heading text-[2.75rem] font-extrabold uppercase leading-[0.92] tracking-tight text-vb-paper sm:mt-5 sm:text-7xl lg:text-8xl">
-            {headline}
           </h1>
 
-          <p className="vb-fade-up vb-fade-up-delay-2 mt-4 font-heading text-base font-semibold uppercase tracking-[0.22em] text-vb-paper/80 sm:text-lg">
+          <p className="vb-fade-up vb-fade-up-delay-1 mt-5 font-heading text-base font-semibold uppercase tracking-[0.22em] text-vb-paper/80 sm:mt-6 sm:text-lg">
             {arms}
           </p>
 
-          <p className="vb-fade-up vb-fade-up-delay-3 mt-6 max-w-xl font-heading text-xl font-semibold leading-snug tracking-tight text-vb-paper sm:text-2xl sm:leading-snug">
+          <p className="vb-fade-up vb-fade-up-delay-2 mt-6 max-w-xl font-heading text-xl font-semibold leading-snug tracking-tight text-vb-paper sm:text-2xl sm:leading-snug">
             {mantra}
           </p>
 

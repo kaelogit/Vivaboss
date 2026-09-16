@@ -1,8 +1,9 @@
 import {
-  adminNotifyEmails,
+  adminEmailsFor,
   emailFrom,
   getResend,
   hasResend,
+  resolveAdminNotifyEmails,
 } from "@/lib/email/client";
 import { getSiteUrl } from "@/lib/stripe";
 
@@ -14,9 +15,10 @@ export async function sendContactEmails(input: {
   message: string;
 }): Promise<void> {
   if (!hasResend()) {
+    const admins = await resolveAdminNotifyEmails();
     console.warn(
       "[email] RESEND_API_KEY missing — skipped contact notify to",
-      adminNotifyEmails().join(", ")
+      admins.join(", ")
     );
     throw new Error("Email is not configured (RESEND_API_KEY).");
   }
@@ -24,7 +26,7 @@ export async function sendContactEmails(input: {
   const resend = getResend();
   const from = emailFrom();
   const site = getSiteUrl();
-  const admins = adminNotifyEmails();
+  const admins = await adminEmailsFor("contact");
 
   await resend.emails.send({
     from,
@@ -39,12 +41,13 @@ export async function sendContactEmails(input: {
     `,
   });
 
-  await resend.emails.send({
-    from,
-    to: admins,
-    replyTo: input.email,
-    subject: `Contact — ${input.topic} · ${input.fullName}`,
-    html: `
+  if (admins.length) {
+    await resend.emails.send({
+      from,
+      to: admins,
+      replyTo: input.email,
+      subject: `Contact — ${input.topic} · ${input.fullName}`,
+      html: `
         <div style="font-family:sans-serif;">
           <h2>New contact message</h2>
           <p>${input.fullName} · ${input.email}${input.phone ? ` · ${input.phone}` : ""}</p>
@@ -53,5 +56,6 @@ export async function sendContactEmails(input: {
           <p><a href="${site}/admin">Open admin</a></p>
         </div>
       `,
-  });
+    });
+  }
 }

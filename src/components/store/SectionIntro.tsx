@@ -118,8 +118,7 @@ export function LinkList({
 export function ComingOnlineNote({ note }: { note?: string }) {
   return (
     <p className="mt-10 max-w-xl border-l-2 border-vb-accent pl-4 text-sm text-vb-muted">
-      {note ??
-        "This section is wired into the site shell. Catalogue, bookings, and checkout land in the next build steps."}
+      {note ?? "More from this section is on the way."}
     </p>
   );
 }

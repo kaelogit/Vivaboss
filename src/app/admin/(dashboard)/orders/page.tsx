@@ -6,6 +6,7 @@ import AdminPageHeader, {
   AdminEmptyState,
 } from "@/components/admin/AdminPageHeader";
 import { formatGbp } from "@/lib/products/money";
+import { AdminTableSkeleton } from "@/components/admin/AdminSkeleton";
 
 type OrderRow = {
   id: string;
@@ -44,7 +45,7 @@ export default function AdminOrdersPage() {
         title="Orders"
         description="Stripe checkouts with personalisation — open any row for fulfilment."
       />
-      {loading && <p className="text-sm text-vb-muted">Loading…</p>}
+      {loading && <AdminTableSkeleton rows={6} cols={5} />}
       {error && <AdminEmptyState title="Cannot load orders" body={error} />}
       {!loading && !error && orders.length === 0 && (
         <AdminEmptyState

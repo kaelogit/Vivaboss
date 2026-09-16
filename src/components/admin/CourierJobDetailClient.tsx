@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { AdminDetailSkeleton } from "@/components/admin/AdminSkeleton";
 import StorageLink from "@/components/admin/StorageLink";
 import {
   COURIER_JOB_STATUSES,
@@ -17,6 +18,7 @@ export default function CourierJobDetailClient({ jobId }: { jobId: string }) {
   const [job, setJob] = useState<CourierJob | null>(null);
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState<CourierJobStatus>("new");
+  const [notifyCustomer, setNotifyCustomer] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -51,7 +53,11 @@ export default function CourierJobDetailClient({ jobId }: { jobId: string }) {
       const res = await fetch(`/api/admin/courier-jobs/${jobId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, internal_notes: notes }),
+        body: JSON.stringify({
+          status,
+          internal_notes: notes,
+          notify_customer: notifyCustomer,
+        }),
       });
       const data = (await res.json()) as { job?: CourierJob; error?: string };
       if (!res.ok) throw new Error(data.error ?? "Save failed.");
@@ -64,7 +70,7 @@ export default function CourierJobDetailClient({ jobId }: { jobId: string }) {
   };
 
   if (loading) {
-    return <p className="text-sm text-vb-muted">Loading job…</p>;
+    return <AdminDetailSkeleton />;
   }
   if (!job) {
     return (
@@ -219,6 +225,16 @@ export default function CourierJobDetailClient({ jobId }: { jobId: string }) {
                 className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
               />
             </label>
+            {status !== job.status && status !== "new" && (
+              <label className="mt-4 flex items-center gap-2 text-sm text-vb-ink">
+                <input
+                  type="checkbox"
+                  checked={notifyCustomer}
+                  onChange={(e) => setNotifyCustomer(e.target.checked)}
+                />
+                Email customer about this status change
+              </label>
+            )}
             {error && (
               <p className="mt-3 text-sm text-vb-danger">{error}</p>
             )}
@@ -233,6 +249,8 @@ export default function CourierJobDetailClient({ jobId }: { jobId: string }) {
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving…
                 </>
+              ) : status !== job.status && notifyCustomer && status !== "new" ? (
+                "Save & email customer"
               ) : (
                 "Save"
               )}

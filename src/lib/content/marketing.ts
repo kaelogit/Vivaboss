@@ -15,7 +15,7 @@ export const homepageFounderStory = {
   headline: "Vivaboss is a master of life.",
   paragraphs: [
     "Vivaboss began in 2008 with a needle, a thread, and a young craftsman turning ripped jeans into a crossbag. What started as creativity born from lack grew into a lifestyle brand shaped by culture, innovation, and honest work. From denim to Ankara, from bags to shoes, from accessories to tech-infused craftsmanship, the vision expanded naturally — driven by authenticity and customer demand.",
-    "Over the years, Habeeb has trained 800+ people in bag-making and shoemaking, empowering new creators across communities. Today, Vivaboss Fusion Services blends handmade artistry with modern technology and everyday services — engraving, smart home installations, DIY repairs, and courier support — all delivered with care, precision, and purpose.",
+    "Over the years, Founder & Creative Director Habeeb Adewale Adesokan has trained 800+ creators across communities. Today, Vivaboss Fusion Services blends handmade fashion with engraving, smart home installations, DIY repairs, and courier support — all delivered with care, precision, and purpose.",
   ],
   closing: "A fusion of culture, creativity, and innovation.",
 } as const;
@@ -35,22 +35,38 @@ export const aboutPageStory = {
   signature: "This is Vivaboss — a fusion of everything we’ve built, and everything we’re becoming.",
 } as const;
 
-/** Long founder story — The Mastered Life Behind Vivaboss */
-export const founderStoryLong = {
-  eyebrow: "Founder story",
-  title: "The Mastered Life Behind Vivaboss",
-  lead: "Crafted with culture. Powered by innovation. Built from honest work.",
-  paragraphs: [
-    "Vivaboss began in 2008, with nothing but a needle, a thread, and a young craftsman determined to turn lack into creativity. Habeeb’s first creation was a crossbag made from his own ripped jeans — a simple idea that revealed something powerful. The rugged texture, the imperfections, the transformation from old fabric into something new sparked a vision that never left.",
-    "From denim, he moved to Ankara fabrics, drawn to their bold prints and cultural stories. Bag-making became his way of expressing identity and purpose. He wanted to create pieces that served multiple needs — bags that fit every outfit, every occasion, and still carried luxury. Products that stood out without trying.",
-    "Customers noticed the longevity, authenticity, and uniqueness of his work. Their reviews inspired the name VIVABOSS, meaning The Mastered Life. As demand grew, the brand expanded naturally from bags to shoes, accessories, and complete sets.",
-    "Over the years, Habeeb also became a teacher, sharing his craft with others. He has trained over 800+ people in bag-making and shoemaking, helping new creators build skills, confidence, and income.",
-    "Innovation pushed the brand even further. Vivaboss introduced tech-infused craftsmanship — smart wall clocks with hidden cameras, smart keyholders, NFC authenticity tags, anti-counterfeit verification, RFID-blocking pouches, and wearable products embedded with protective tech. A fusion of heritage craft and modern technology.",
-    "As the vision expanded, Vivaboss grew beyond fashion. Engraving became a way to turn memories into art. Smart home installations brought comfort and security. DIY home repairs supported families. Courier services delivered trust, not just packages.",
-    "Today, Vivaboss Fusion Services stands as a modern multi-service lifestyle brand serving Darlington and beyond — where culture meets technology, creativity meets functionality, and every service is delivered with dignity, care, and excellence.",
+/** Founder profile — About page */
+export const founderProfile = {
+  name: "Habeeb Adewale Adesokan",
+  role: "Founder & Creative Director, Vivaboss Fusion Services",
+  eyebrow: "Founder",
+  bio: [
+    "Habeeb Adewale Adesokan is a multi-disciplinary craftsman, designer, and innovator whose work blends African artistry with modern technology. His journey began in 2008 with a needle, a thread, and a crossbag made from ripped jeans — a moment that transformed creativity born from lack into a lifelong mission of purposeful craftsmanship.",
+    "From denim to Ankara, from handmade bags to custom shoes, Habeeb built Vivaboss as a brand rooted in authenticity, culture, and honest work. Over the years, he has trained 800+ creators across communities, empowering people with skills that open doors and build confidence.",
+    "As his vision expanded, so did the brand. Today, Habeeb leads Vivaboss Fusion Services, a multi-service company offering handmade fashion, engraving, smart home installations, DIY repairs, and courier support. His approach is simple: create meaningful products, deliver reliable services, and infuse every project with intention, precision, and innovation.",
+    "Habeeb’s work is shaped by culture, elevated by technology, and grounded in real everyday value. Vivaboss is his mastered life — and the movement he continues to build.",
   ],
-  closing:
-    "This is Vivaboss. A journey from a needle and thread to a mastered life. A fusion of everything we’ve built, and everything we’re becoming.",
+} as const;
+
+/** Founder’s statement — “What I Have to Say About Vivaboss” */
+export const founderStatement = {
+  eyebrow: "Founder’s statement",
+  title: "What I have to say about Vivaboss",
+  paragraphs: [
+    "Vivaboss is more than a brand to me — it’s a story of turning scarcity into mastery. I started with nothing but creativity and determination, and every step since then has been built on honest work, cultural identity, and the desire to create things that truly matter.",
+    "Vivaboss represents the fusion of everything I believe in: craftsmanship, innovation, reliability, and purpose. Whether I’m making a bag, engraving a gift, installing a smart home device, or helping someone with a simple repair, my goal is always the same — to deliver value that feels personal, intentional, and built to last.",
+    "This brand carries my journey, my culture, my skills, and my evolution. It’s a lifestyle, a service, a craft, and a commitment to excellence. Vivaboss is the mastered life, and I’m proud of what it has become and what it continues to grow into.",
+  ],
+  signature: "— Habeeb Adewale Adesokan",
+} as const;
+
+/** @deprecated Prefer founderProfile — kept for any lingering imports */
+export const founderStoryLong = {
+  eyebrow: founderProfile.eyebrow,
+  title: founderProfile.name,
+  lead: founderProfile.role,
+  paragraphs: founderProfile.bio,
+  closing: "Vivaboss is the mastered life — and the movement he continues to build.",
 } as const;
 
 export const aboutArms = [
@@ -250,17 +266,17 @@ export const faqItems: FaqItem[] = [
   {
     category: "Courier",
     q: "How do I book a courier?",
-    a: "Use /courier/book with pickup, drop-off, item details, and urgency. You’ll get email confirmation; WhatsApp is available when our number is live.",
+    a: "Use /courier/book with pickup, drop-off, item details, and urgency. You’ll get email confirmation, and you can continue on WhatsApp anytime.",
   },
   {
     category: "Orders",
     q: "How will I hear from you after booking or ordering?",
-    a: "Email is the default for order receipts and booking confirmations. You can also continue on WhatsApp when that channel is live, and our admin team can email or message you from the job or order record.",
+    a: "Email is the default for order receipts and booking confirmations. You can also continue on WhatsApp, and our team can email or message you from the job or order record.",
   },
   {
     category: "Orders",
     q: "Who do I contact with a question?",
-    a: "Use the contact form, email hello@vivabossfusion.co.uk (or the address shown on Contact), or WhatsApp when available. Include your order number or postcode so we can find you quickly.",
+    a: "Use the contact form, email hello@vivabossfusion.co.uk (or the address shown on Contact), or WhatsApp. Include your order number or postcode so we can find you quickly.",
   },
 ];
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { AdminDetailSkeleton } from "@/components/admin/AdminSkeleton";
 import StorageLink from "@/components/admin/StorageLink";
 import { formatGbp } from "@/lib/products/money";
 import type { CustomRequest, CustomRequestStatus, Json } from "@/types/database";
@@ -52,6 +53,10 @@ export default function CustomRequestDetailClient({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [converting, setConverting] = useState(false);
+  const [emailingLink, setEmailingLink] = useState(false);
+  const [emailingQuote, setEmailingQuote] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -84,6 +89,7 @@ export default function CustomRequestDetailClient({
   const save = async () => {
     setSaving(true);
     setError(null);
+    setNotice(null);
     try {
       const amountTrim = quoteAmount.trim();
       const quote_amount_gbp =
@@ -106,6 +112,7 @@ export default function CustomRequestDetailClient({
       });
       const data = (await res.json()) as {
         request?: CustomRequest;
+        quoteEmailed?: boolean;
         error?: string;
       };
       if (!res.ok) throw new Error(data.error ?? "Save failed.");
@@ -119,6 +126,15 @@ export default function CustomRequestDetailClient({
         );
         setQuoteMessage(data.request.quote_message ?? "");
       }
+      if (data.quoteEmailed) {
+        setNotice(
+          `Quote emailed to ${data.request?.email ?? "the customer"}.`
+        );
+      } else if (status === "quoted" && quote_amount_gbp && quote_amount_gbp > 0) {
+        setNotice(
+          "Saved, but the quote email did not send. Check RESEND_API_KEY."
+        );
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed.");
     } finally {
@@ -126,9 +142,69 @@ export default function CustomRequestDetailClient({
     }
   };
 
+  const emailQuote = async () => {
+    setEmailingQuote(true);
+    setError(null);
+    setNotice(null);
+    try {
+      // Persist amount/message first if edited
+      const amountTrim = quoteAmount.trim();
+      const quote_amount_gbp =
+        amountTrim === "" ? null : Number(amountTrim);
+      if (
+        amountTrim !== "" &&
+        (!Number.isFinite(quote_amount_gbp) || quote_amount_gbp! < 0)
+      ) {
+        throw new Error("Enter a valid quote amount.");
+      }
+      if (quote_amount_gbp == null || quote_amount_gbp <= 0) {
+        throw new Error("Set a quote amount before emailing.");
+      }
+
+      const patchRes = await fetch(`/api/admin/custom-requests/${requestId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: status === "new" || status === "reviewing" ? "quoted" : status,
+          quote_amount_gbp,
+          quote_message: quoteMessage,
+          send_quote_email: true,
+        }),
+      });
+      const data = (await patchRes.json()) as {
+        request?: CustomRequest;
+        quoteEmailed?: boolean;
+        error?: string;
+      };
+      if (!patchRes.ok) throw new Error(data.error ?? "Could not email quote.");
+      setRequest(data.request ?? null);
+      if (data.request) {
+        setStatus(data.request.status);
+        setQuoteAmount(
+          data.request.quote_amount_gbp != null
+            ? String(data.request.quote_amount_gbp)
+            : ""
+        );
+        setQuoteMessage(data.request.quote_message ?? "");
+      }
+      if (data.quoteEmailed) {
+        setNotice(`Quote emailed to ${data.request?.email ?? "the customer"}.`);
+      } else {
+        throw new Error(
+          "Could not send quote email. Check RESEND_API_KEY."
+        );
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not email quote.");
+    } finally {
+      setEmailingQuote(false);
+    }
+  };
+
   const convertToPay = async () => {
     setConverting(true);
     setError(null);
+    setNotice(null);
     try {
       const res = await fetch(`/api/admin/custom-requests/${requestId}`, {
         method: "POST",
@@ -139,6 +215,7 @@ export default function CustomRequestDetailClient({
         request?: CustomRequest;
         checkoutUrl?: string;
         orderId?: string;
+        emailed?: boolean;
         error?: string;
       };
       if (!res.ok) throw new Error(data.error ?? "Convert failed.");
@@ -146,8 +223,16 @@ export default function CustomRequestDetailClient({
       if (data.request) {
         setStatus(data.request.status);
       }
-      if (data.checkoutUrl) {
-        window.open(data.checkoutUrl, "_blank", "noopener,noreferrer");
+      if (data.emailed) {
+        setNotice(
+          `Pay link emailed to the customer${
+            data.request?.email ? ` (${data.request.email})` : ""
+          }.`
+        );
+      } else if (data.checkoutUrl) {
+        setNotice(
+          "Checkout created, but the pay-link email did not send. Copy the link below and share it manually (check RESEND_API_KEY)."
+        );
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Convert failed.");
@@ -156,8 +241,43 @@ export default function CustomRequestDetailClient({
     }
   };
 
+  const resendPayLink = async () => {
+    setEmailingLink(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const res = await fetch(`/api/admin/custom-requests/${requestId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "email_pay_link" }),
+      });
+      const data = (await res.json()) as {
+        emailed?: boolean;
+        error?: string;
+      };
+      if (!res.ok) throw new Error(data.error ?? "Could not email pay link.");
+      setNotice(
+        `Pay link re-sent to ${request?.email ?? "the customer"}.`
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not email pay link.");
+    } finally {
+      setEmailingLink(false);
+    }
+  };
+
+  const copyCheckoutLink = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setError("Could not copy — select the link manually.");
+    }
+  };
+
   if (loading) {
-    return <p className="text-sm text-vb-muted">Loading request…</p>;
+    return <AdminDetailSkeleton />;
   }
   if (!request) {
     return (
@@ -379,6 +499,11 @@ export default function CustomRequestDetailClient({
             />
 
             {error && <p className="mt-2 text-sm text-vb-danger">{error}</p>}
+            {notice && (
+              <p className="mt-2 border border-vb-accent/30 bg-vb-accent-soft px-3 py-2 text-sm text-vb-ink">
+                {notice}
+              </p>
+            )}
 
             <button
               type="button"
@@ -391,8 +516,26 @@ export default function CustomRequestDetailClient({
               {status === "quoted" ? " & send quote" : ""}
             </button>
 
+            <button
+              type="button"
+              disabled={
+                emailingQuote ||
+                !quoteAmount.trim() ||
+                Number(quoteAmount) <= 0
+              }
+              onClick={() => void emailQuote()}
+              className="mt-2 inline-flex h-10 w-full items-center justify-center gap-2 border border-vb-accent bg-vb-accent/10 px-4 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-vb-accent hover:bg-vb-accent hover:text-white disabled:opacity-50"
+            >
+              {emailingQuote ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : null}
+              Email quote to customer
+            </button>
+
             <p className="mt-2 text-xs text-vb-muted">
-              Saving with status &quot;quoted&quot; emails the customer and admin.
+              Quote email is the amount + your note (no Stripe button yet). Then
+              use Create &amp; email pay link so they get a checkout URL —
+              Stripe does not open in your browser.
             </p>
 
             <button
@@ -402,8 +545,22 @@ export default function CustomRequestDetailClient({
               className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 border border-vb-ink bg-vb-paper px-4 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] hover:bg-vb-ink hover:text-vb-paper disabled:opacity-50"
             >
               {converting ? <Loader2 size={14} className="animate-spin" /> : null}
-              Convert to pay
+              Create &amp; email pay link
             </button>
+
+            {meta.checkoutUrl && (
+              <button
+                type="button"
+                disabled={emailingLink}
+                onClick={resendPayLink}
+                className="mt-2 inline-flex h-10 w-full items-center justify-center gap-2 border border-vb-line px-4 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-vb-ink hover:border-vb-ink disabled:opacity-50"
+              >
+                {emailingLink ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : null}
+                Resend pay link email
+              </button>
+            )}
 
             {request.quote_amount_gbp != null && (
               <p className="mt-3 text-xs text-vb-muted">
@@ -425,14 +582,37 @@ export default function CustomRequestDetailClient({
             )}
 
             {meta.checkoutUrl && (
-              <a
-                href={meta.checkoutUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 block font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-vb-muted hover:text-vb-accent"
-              >
-                Open checkout link
-              </a>
+              <div className="mt-4 space-y-2 border-t border-vb-line pt-4">
+                <p className="font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
+                  Customer pay link
+                </p>
+                <p className="break-all text-xs text-vb-ink">{meta.checkoutUrl}</p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => copyCheckoutLink(meta.checkoutUrl!)}
+                    className="inline-flex h-9 items-center bg-vb-mist px-3 font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-ink hover:bg-vb-line"
+                  >
+                    {copied ? "Copied" : "Copy link"}
+                  </button>
+                  {waHref && (
+                    <a
+                      href={`https://wa.me/${waDigits}?text=${encodeURIComponent(
+                        `Hi ${request.full_name}, here’s your secure Vivaboss pay link${
+                          request.quote_amount_gbp != null
+                            ? ` (${formatGbp(Number(request.quote_amount_gbp))})`
+                            : ""
+                        }: ${meta.checkoutUrl}`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-9 items-center border border-vb-line px-3 font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-ink hover:border-vb-ink"
+                    >
+                      WhatsApp link
+                    </a>
+                  )}
+                </div>
+              </div>
             )}
           </section>
         </div>

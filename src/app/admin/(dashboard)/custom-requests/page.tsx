@@ -6,6 +6,7 @@ import AdminPageHeader, {
   AdminEmptyState,
 } from "@/components/admin/AdminPageHeader";
 import { formatGbp } from "@/lib/products/money";
+import { AdminTableSkeleton } from "@/components/admin/AdminSkeleton";
 
 type RequestRow = {
   id: string;
@@ -45,7 +46,7 @@ export default function AdminCustomRequestsPage() {
         title="Custom Requests"
         description="Quote and convert approval-required personalisation requests."
       />
-      {loading && <p className="text-sm text-vb-muted">Loading…</p>}
+      {loading && <AdminTableSkeleton rows={6} cols={5} />}
       {error && <AdminEmptyState title="Cannot load requests" body={error} />}
       {!loading && !error && requests.length === 0 && (
         <AdminEmptyState

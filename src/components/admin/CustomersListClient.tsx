@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { AdminTableSkeleton } from "@/components/admin/AdminSkeleton";
 import AdminPageHeader, {
   AdminEmptyState,
 } from "@/components/admin/AdminPageHeader";
@@ -34,7 +35,7 @@ export default function CustomersListClient() {
         title="Customers"
         description="Unique emails aggregated from orders, custom requests, service jobs, and courier jobs."
       />
-      {loading && <p className="text-sm text-vb-muted">Loading…</p>}
+      {loading && <AdminTableSkeleton rows={6} cols={4} />}
       {error && <AdminEmptyState title="Cannot load customers" body={error} />}
       {!loading && !error && customers.length === 0 && (
         <AdminEmptyState

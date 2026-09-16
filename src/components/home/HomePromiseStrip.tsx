@@ -9,7 +9,7 @@ const promises = [
   },
   {
     label: "Book online",
-    body: "Request a visit or delivery, then confirm by email — WhatsApp when live.",
+    body: "Request for inspection or a delivery, then confirm by email or WhatsApp.",
   },
   {
     label: "Clear checkout",

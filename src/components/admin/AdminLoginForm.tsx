@@ -60,7 +60,7 @@ export default function AdminLoginForm({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={!configured || loading}
-          placeholder="admin@vivabossfusion.co.uk"
+          placeholder="Email"
           className="mt-2 h-11 w-full border border-vb-line bg-vb-paper px-3 text-sm text-vb-ink outline-none ring-vb-accent focus:ring-1 disabled:opacity-60"
         />
       </div>

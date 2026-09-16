@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { AdminTableSkeleton } from "@/components/admin/AdminSkeleton";
 import AdminPageHeader, {
   AdminEmptyState,
 } from "@/components/admin/AdminPageHeader";
@@ -96,7 +97,7 @@ export default function CourierJobsBoard() {
         })}
       </div>
 
-      {loading && <p className="text-sm text-vb-muted">Loading…</p>}
+      {loading && <AdminTableSkeleton rows={6} cols={5} />}
       {error && <AdminEmptyState title="Cannot load jobs" body={error} />}
       {!loading && !error && filtered.length === 0 && (
         <AdminEmptyState

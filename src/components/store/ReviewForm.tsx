@@ -57,7 +57,8 @@ export default function ReviewForm({
           Thank you
         </p>
         <p className="mt-3 text-sm text-vb-muted">
-          Your review is live. We appreciate you taking the time.
+          Thanks — your review is pending approval and will appear once we
+          publish it.
         </p>
         <button
           type="button"

@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/apiAuth";
 import { createAdminClient, hasAdminClient } from "@/lib/supabase/admin";
-import { adjustInventory } from "@/lib/orders/inventory";
+import {
+  adjustInventory,
+  setInventoryQuantity,
+  updateInventorySettings,
+} from "@/lib/orders/inventory";
 
 export async function GET() {
   const auth = await requireAdminApi();
@@ -17,9 +21,8 @@ export async function GET() {
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id, name, slug, track_stock, stock_quantity, low_stock_threshold, status, images, categories ( name )"
+      "id, name, slug, track_stock, stock_quantity, low_stock_threshold, allow_preorder, status, images, price_gbp, categories ( id, name, slug )"
     )
-    .eq("track_stock", true)
     .neq("status", "archived")
     .order("name");
 
@@ -39,17 +42,65 @@ export async function POST(request: Request) {
 
   try {
     const body = (await request.json()) as {
-      productId: string;
-      delta: number;
+      productId?: string;
+      action?: "adjust" | "set" | "settings";
+      delta?: number;
+      quantity?: number;
+      track_stock?: boolean;
+      low_stock_threshold?: number;
       note?: string;
     };
-    if (!body.productId || !Number.isFinite(body.delta) || body.delta === 0) {
-      return NextResponse.json({ error: "Invalid adjustment." }, { status: 400 });
+
+    if (!body.productId) {
+      return NextResponse.json({ error: "Missing product." }, { status: 400 });
     }
-    const result = await adjustInventory(body);
-    return NextResponse.json(result);
+
+    const action = body.action ?? "adjust";
+
+    if (action === "adjust") {
+      if (!Number.isFinite(body.delta) || body.delta === 0) {
+        return NextResponse.json(
+          { error: "Invalid adjustment." },
+          { status: 400 }
+        );
+      }
+      const result = await adjustInventory({
+        productId: body.productId,
+        delta: body.delta!,
+        note: body.note,
+      });
+      return NextResponse.json(result);
+    }
+
+    if (action === "set") {
+      if (!Number.isFinite(body.quantity) || body.quantity! < 0) {
+        return NextResponse.json(
+          { error: "Invalid quantity." },
+          { status: 400 }
+        );
+      }
+      const result = await setInventoryQuantity({
+        productId: body.productId,
+        quantity: body.quantity!,
+        note: body.note,
+      });
+      return NextResponse.json(result);
+    }
+
+    if (action === "settings") {
+      const result = await updateInventorySettings({
+        productId: body.productId,
+        track_stock: body.track_stock,
+        low_stock_threshold: body.low_stock_threshold,
+        stock_quantity:
+          body.quantity !== undefined ? body.quantity : undefined,
+      });
+      return NextResponse.json(result);
+    }
+
+    return NextResponse.json({ error: "Unknown action." }, { status: 400 });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Adjust failed.";
+    const message = err instanceof Error ? err.message : "Update failed.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

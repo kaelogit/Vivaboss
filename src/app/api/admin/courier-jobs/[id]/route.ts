@@ -37,7 +37,18 @@ export async function PATCH(request: Request, { params }: Params) {
   const body = (await request.json()) as {
     status?: CourierJobStatus;
     internal_notes?: string;
+    notify_customer?: boolean;
   };
+
+  const supabase = createAdminClient();
+  const { data: existing } = await supabase
+    .from("courier_jobs")
+    .select("status")
+    .eq("id", id)
+    .maybeSingle();
+  if (!existing) {
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  }
 
   const updates: {
     status?: CourierJobStatus;
@@ -58,7 +69,6 @@ export async function PATCH(request: Request, { params }: Params) {
     return NextResponse.json({ error: "Nothing to update." }, { status: 400 });
   }
 
-  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("courier_jobs")
     .update(updates)
@@ -67,5 +77,27 @@ export async function PATCH(request: Request, { params }: Params) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ job: data });
+
+  const statusChanged =
+    Boolean(updates.status) && updates.status !== existing.status;
+  const shouldNotify =
+    statusChanged &&
+    updates.status !== "new" &&
+    body.notify_customer !== false;
+
+  if (shouldNotify) {
+    try {
+      const { sendCourierJobStatusEmail } = await import(
+        "@/lib/email/bookings"
+      );
+      await sendCourierJobStatusEmail(id);
+    } catch (err) {
+      console.error("courier status email", err);
+    }
+  }
+
+  return NextResponse.json({
+    job: data,
+    customer_notified: shouldNotify,
+  });
 }

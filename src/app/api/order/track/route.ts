@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     const { data: order, error } = await supabase
       .from("orders")
       .select(
-        "id, order_number, status, full_name, created_at, paid_at, total_gbp, shipping_gbp, postcode, city"
+        "id, order_number, status, full_name, created_at, paid_at, total_gbp, shipping_gbp, postcode, city, tracking_number, tracking_carrier, tracking_url, shipped_at"
       )
       .eq("order_number", orderNumber)
       .eq("email", email)
@@ -60,6 +60,10 @@ export async function POST(request: Request) {
         totalGbp: order.total_gbp,
         shippingGbp: order.shipping_gbp,
         shipTo: `${order.city} ${order.postcode}`,
+        trackingNumber: order.tracking_number,
+        trackingCarrier: order.tracking_carrier,
+        trackingUrl: order.tracking_url,
+        shippedAt: order.shipped_at,
         items: (items ?? []).map((i) => ({
           name: i.product_name,
           quantity: i.quantity,

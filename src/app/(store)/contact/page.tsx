@@ -4,7 +4,7 @@ import ContactForm from "@/components/store/ContactForm";
 import { marketingImages } from "@/lib/content/marketingImages";
 import { getPublicPages } from "@/lib/content/siteSettings";
 import { whatsappHref } from "@/lib/navigation";
-import { isContactLive, isWhatsAppLive, siteConfig } from "@/lib/site";
+import { siteConfig } from "@/lib/site";
 
 export const metadata = {
   title: "Contact",
@@ -14,9 +14,7 @@ export const metadata = {
 
 export default async function ContactPage() {
   const pages = await getPublicPages();
-  const { phone, email, address } = siteConfig.contact;
-  const waLive = isWhatsAppLive();
-  const phoneLive = isContactLive() && !phone.includes("0000");
+  const { phone, email, address, whatsapp } = siteConfig.contact;
 
   return (
     <main>
@@ -51,35 +49,24 @@ export default async function ContactPage() {
               </li>
               <li>
                 <p className="vb-eyebrow">Phone</p>
-                {phoneLive ? (
-                  <a
-                    href={`tel:${phone.replace(/\s/g, "")}`}
-                    className="mt-2 block text-lg text-vb-ink hover:text-vb-accent"
-                  >
-                    {phone}
-                  </a>
-                ) : (
-                  <p className="mt-2 text-lg text-vb-muted">
-                    Confirmed at launch — email or the form for now.
-                  </p>
-                )}
+                <a
+                  href={`tel:${phone.replace(/\s/g, "")}`}
+                  className="mt-2 block text-lg text-vb-ink hover:text-vb-accent"
+                >
+                  {phone}
+                </a>
               </li>
               <li>
                 <p className="vb-eyebrow">WhatsApp</p>
-                {waLive ? (
-                  <a
-                    href={whatsappHref("Hi Vivaboss — ")}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-flex h-11 items-center bg-vb-accent px-5 font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-white hover:bg-vb-accent-hover"
-                  >
-                    Open WhatsApp
-                  </a>
-                ) : (
-                  <p className="mt-2 text-lg text-vb-muted">
-                    Goes live when the client number is set.
-                  </p>
-                )}
+                <a
+                  href={whatsappHref("Hi Vivaboss — ")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex h-11 items-center bg-vb-accent px-5 font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-white hover:bg-vb-accent-hover"
+                >
+                  Open WhatsApp
+                </a>
+                <p className="mt-2 text-sm text-vb-muted">{whatsapp}</p>
               </li>
               <li>
                 <p className="vb-eyebrow">Based in</p>

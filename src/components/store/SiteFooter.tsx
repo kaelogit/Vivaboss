@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { siteConfig, isWhatsAppLive } from "@/lib/site";
+import { siteConfig } from "@/lib/site";
 import { footerColumns, whatsappHref } from "@/lib/navigation";
 
 export default function SiteFooter() {
   const year = new Date().getFullYear();
-  const waLive = isWhatsAppLive();
 
   return (
     <footer className="mt-auto border-t border-vb-line bg-vb-ink text-vb-paper">
@@ -44,35 +43,22 @@ export default function SiteFooter() {
               >
                 {siteConfig.contact.email}
               </a>
-              {siteConfig.contact.phone.includes("0000") ? (
-                <p>Phone — confirmed at launch</p>
-              ) : (
-                <a
-                  href={`tel:${siteConfig.contact.phone.replace(/\s/g, "")}`}
-                  className="block transition-colors hover:text-white"
-                >
-                  {siteConfig.contact.phone}
-                </a>
-              )}
+              <a
+                href={`tel:${siteConfig.contact.phone.replace(/\s/g, "")}`}
+                className="block transition-colors hover:text-white"
+              >
+                {siteConfig.contact.phone}
+              </a>
               <p>{siteConfig.contact.address}</p>
             </div>
-            {waLive ? (
-              <a
-                href={whatsappHref()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-8 inline-flex h-11 items-center bg-vb-accent px-5 font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-vb-accent-hover"
-              >
-                WhatsApp us
-              </a>
-            ) : (
-              <a
-                href={`mailto:${siteConfig.contact.email}`}
-                className="mt-8 inline-flex h-11 items-center bg-vb-accent px-5 font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-vb-accent-hover"
-              >
-                Email us
-              </a>
-            )}
+            <a
+              href={whatsappHref()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-8 inline-flex h-11 items-center bg-vb-accent px-5 font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-vb-accent-hover"
+            >
+              WhatsApp us
+            </a>
           </div>
 
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-4">

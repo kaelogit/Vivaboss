@@ -247,7 +247,11 @@ type OrdersTable = {
     stripe_payment_intent_id: string | null;
     notes: string | null;
     internal_notes: string | null;
+    tracking_number: string | null;
+    tracking_carrier: string | null;
+    tracking_url: string | null;
     paid_at: string | null;
+    shipped_at: string | null;
     inventory_applied: boolean;
     created_at: string;
     updated_at: string;
@@ -272,7 +276,11 @@ type OrdersTable = {
     stripe_payment_intent_id?: string | null;
     notes?: string | null;
     internal_notes?: string | null;
+    tracking_number?: string | null;
+    tracking_carrier?: string | null;
+    tracking_url?: string | null;
     paid_at?: string | null;
+    shipped_at?: string | null;
     inventory_applied?: boolean;
     created_at?: string;
     updated_at?: string;

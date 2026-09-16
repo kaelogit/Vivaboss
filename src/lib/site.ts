@@ -1,9 +1,9 @@
 /** Site-wide config. Env overrides win when set. */
 
 const phone =
-  process.env.NEXT_PUBLIC_PHONE?.trim() || "+44 0000 000000";
+  process.env.NEXT_PUBLIC_PHONE?.trim() || "+44 7979481352";
 const whatsapp =
-  process.env.NEXT_PUBLIC_WHATSAPP_E164?.trim() || "+440000000000";
+  process.env.NEXT_PUBLIC_WHATSAPP_E164?.trim() || "+44 7979481352";
 const email =
   process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() ||
   "hello@vivabossfusion.co.uk";
@@ -31,7 +31,7 @@ export const siteConfig = {
   locale: "en-GB" as const,
 };
 
-/** True when WhatsApp/phone look like real client values (not zero placeholders). */
+/** True when WhatsApp/phone look like real client values. */
 export function isContactLive() {
   const wa = siteConfig.contact.whatsapp.replace(/\D/g, "");
   const ph = siteConfig.contact.phone.replace(/\D/g, "");

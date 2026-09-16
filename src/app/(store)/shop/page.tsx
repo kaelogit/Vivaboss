@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import SectionIntro, { ComingOnlineNote } from "@/components/store/SectionIntro";
+import SectionIntro from "@/components/store/SectionIntro";
 import ProductCard from "@/components/shop/ProductCard";
 import {
   marketingImages,
@@ -27,7 +27,7 @@ export default async function ShopPage() {
         eyebrow="Shop"
         title="Buy from Vivaboss"
         description="Four collections — handmade fashion, personalised gifts, smart-home products, and home essentials — available online across the UK."
-        image={marketingImages.hero.alternate}
+        image={marketingImages.shop.fashionCampaign}
         imageAlt="Handmade fashion and craft from Vivaboss"
       />
 
@@ -91,8 +91,8 @@ export default async function ShopPage() {
             </div>
             <p className="text-sm text-vb-muted">
               {products.length
-                ? `${products.length} live`
-                : "Connect Supabase to load catalogue"}
+                ? `${products.length} products`
+                : "New pieces landing soon"}
             </p>
           </div>
 
@@ -105,9 +105,13 @@ export default async function ShopPage() {
               ))}
             </ul>
           ) : (
-            <div className="mt-10">
-              <ComingOnlineNote note="Run the products migration to seed demo items, or add products in admin. Until Supabase is connected, category pages stay ready with placeholders." />
-            </div>
+            <p className="mt-10 max-w-xl text-sm leading-relaxed text-vb-muted">
+              The catalogue is being stocked. Browse categories above, or{" "}
+              <Link href="/contact" className="text-vb-accent hover:underline">
+                contact us
+              </Link>{" "}
+              if you’re looking for something specific.
+            </p>
           )}
         </div>
       </section>

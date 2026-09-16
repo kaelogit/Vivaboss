@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { formatGbp } from "@/lib/products/money";
+import { AdminTableSkeleton } from "@/components/admin/AdminSkeleton";
 
 type AdminProduct = {
   id: string;
@@ -52,7 +53,7 @@ export default function ProductsList() {
   }, [products, q, status]);
 
   if (loading) {
-    return <p className="text-sm text-vb-muted">Loading products…</p>;
+    return <AdminTableSkeleton rows={8} cols={5} />;
   }
 
   if (error) {

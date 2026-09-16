@@ -3,19 +3,25 @@
 export const marketingImages = {
   hero: {
     primary: "/marketing/hero-a-craft-home-delivery.jpg",
-    alternate: "/marketing/hero-b-craft-fashion-home.jpg",
+    alternate: "/marketing/fashion-hero-campaign.jpg",
   },
   craft: {
     workshop: "/marketing/craft-a1-workshop.jpg",
     materials: "/marketing/craft-a2-materials.jpg",
-    fashionBag: "/marketing/craft-a3-fashion-bag.jpg",
+    fashionBag: "/marketing/fashion-bags-set.jpg",
     engraving: "/marketing/craft-a4-engraving.jpg",
     workshopAlt: "/marketing/craft-workshop.jpg",
+    africaClock: "/marketing/craft-africa-clock.jpg",
+    campaignTrio: "/marketing/fashion-campaign-trio.jpg",
+    campaignAttitude: "/marketing/fashion-campaign-attitude.jpg",
   },
+  founder: "/marketing/founder-habeeb.jpg",
   shop: {
-    fashion: "/marketing/shop-p1-leather-bag.jpg",
+    fashion: "/marketing/fashion-bags-set.jpg",
+    fashionHero: "/marketing/fashion-hero-bags.jpg",
+    fashionCampaign: "/marketing/fashion-hero-campaign.jpg",
     shoes: "/marketing/shop-p2-leather-shoes.jpg",
-    personalised: "/marketing/shop-p3-personalised-gift.jpg",
+    personalised: "/marketing/gift-africa-clock.jpg",
     engraving: "/marketing/shop-p4-photo-engraving.jpg",
     smartHome: "/marketing/smart-sh1-product-collection.jpg",
   },
@@ -36,8 +42,8 @@ export const marketingImages = {
 } as const;
 
 export const shopCategoryImages: Record<string, string> = {
-  fashion: marketingImages.shop.shoes,
-  personalised: marketingImages.shop.engraving,
+  fashion: marketingImages.shop.fashionHero,
+  personalised: marketingImages.shop.personalised,
   "smart-home": marketingImages.shop.smartHome,
   "home-diy": marketingImages.services.painting,
 };

@@ -20,11 +20,11 @@ export default function HomeBrandStory({ headline }: Props) {
           data-vb-reveal="fade"
         >
           <Image
-            src={marketingImages.craft.workshop}
-            alt="Vivaboss craft workshop"
+            src={marketingImages.founder}
+            alt="Habeeb Adewale Adesokan — Founder & Creative Director, Vivaboss Fusion Services"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-cover"
+            className="object-cover object-[center_20%]"
           />
         </div>
         <div className="flex items-center px-6 py-16 sm:px-10 sm:py-20 lg:px-16 xl:px-24">

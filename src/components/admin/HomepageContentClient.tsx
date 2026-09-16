@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { AdminFormSkeleton } from "@/components/admin/AdminSkeleton";
 import AdminPageHeader, {
   AdminEmptyState,
 } from "@/components/admin/AdminPageHeader";
@@ -85,7 +86,7 @@ export default function HomepageContentClient() {
         title="Homepage"
         description="Hero and intro copy stored in site_settings (key: homepage)."
       />
-      {loading && <p className="text-sm text-vb-muted">Loading…</p>}
+      {loading && <AdminFormSkeleton />}
       {!loading && !content && error && (
         <AdminEmptyState title="Cannot load homepage" body={error} />
       )}

@@ -13,6 +13,10 @@ type Tracked = {
   totalGbp: number;
   shippingGbp: number;
   shipTo: string;
+  trackingNumber: string | null;
+  trackingCarrier: string | null;
+  trackingUrl: string | null;
+  shippedAt: string | null;
   items: {
     name: string;
     quantity: number;
@@ -115,6 +119,38 @@ export default function OrderTrackForm() {
               : ""}
           </p>
           <p className="mt-1 text-sm text-vb-muted">Ship to {order.shipTo}</p>
+          {(order.trackingNumber ||
+            order.trackingCarrier ||
+            order.trackingUrl) && (
+            <div className="mt-4 border border-vb-line bg-vb-paper px-4 py-3 text-sm">
+              <p className="font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
+                Tracking
+              </p>
+              {order.trackingCarrier && (
+                <p className="mt-1 text-vb-ink">{order.trackingCarrier}</p>
+              )}
+              {order.trackingNumber && (
+                <p className="mt-0.5 font-mono text-vb-ink">
+                  {order.trackingNumber}
+                </p>
+              )}
+              {order.shippedAt && (
+                <p className="mt-1 text-xs text-vb-muted">
+                  Shipped {new Date(order.shippedAt).toLocaleString("en-GB")}
+                </p>
+              )}
+              {order.trackingUrl && (
+                <a
+                  href={order.trackingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-vb-accent"
+                >
+                  Track parcel →
+                </a>
+              )}
+            </div>
+          )}
           <ul className="mt-6 divide-y divide-vb-line border-y border-vb-line text-sm">
             {order.items.map((item, i) => (
               <li key={i} className="flex justify-between gap-4 py-3">

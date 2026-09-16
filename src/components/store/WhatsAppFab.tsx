@@ -1,10 +1,7 @@
-import { isWhatsAppLive } from "@/lib/site";
 import { whatsappHref } from "@/lib/navigation";
 
-/** Mobile-only WhatsApp shortcut — hidden until a real number is configured. */
+/** Mobile-only WhatsApp shortcut */
 export default function WhatsAppFab() {
-  if (!isWhatsAppLive()) return null;
-
   return (
     <a
       href={whatsappHref("Hi Vivaboss — I'd like some help.")}

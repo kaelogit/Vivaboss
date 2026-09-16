@@ -6,7 +6,8 @@ import {
   aboutArms,
   aboutPageStory,
   brandLines,
-  founderStoryLong,
+  founderProfile,
+  founderStatement,
 } from "@/lib/content/marketing";
 import { marketingImages } from "@/lib/content/marketingImages";
 import { siteConfig } from "@/lib/site";
@@ -37,20 +38,20 @@ export default async function AboutPage() {
         <div className="grid gap-px bg-vb-line sm:grid-cols-2 lg:grid-cols-5">
           {[
             {
-              src: marketingImages.craft.workshopAlt,
-              alt: "Workshop craft atmosphere",
-            },
-            {
-              src: marketingImages.craft.workshop,
-              alt: "Leather workshop craft",
-            },
-            {
-              src: marketingImages.craft.materials,
-              alt: "Craft materials still life",
+              src: marketingImages.craft.campaignTrio,
+              alt: "Vivaboss handmade fashion campaign",
             },
             {
               src: marketingImages.craft.fashionBag,
-              alt: "Handmade fashion bag",
+              alt: "Ankara bags and statement jewellery",
+            },
+            {
+              src: marketingImages.craft.campaignAttitude,
+              alt: "Handmade bags and street style",
+            },
+            {
+              src: marketingImages.craft.africaClock,
+              alt: "Africa-shaped handmade wall clock",
             },
             {
               src: marketingImages.craft.engraving,
@@ -95,29 +96,44 @@ export default async function AboutPage() {
         <div className="vb-container grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-20">
           <div className="relative aspect-[4/5] overflow-hidden bg-vb-mist lg:sticky lg:top-24">
             <Image
-              src={marketingImages.craft.workshopAlt}
-              alt="Habeeb — Vivaboss craftsmanship"
+              src={marketingImages.founder}
+              alt={`${founderProfile.name} — ${founderProfile.role}`}
               fill
               sizes="(max-width: 1024px) 100vw, 40vw"
-              className="object-cover"
+              className="object-cover object-[center_20%]"
+              priority
             />
           </div>
           <div>
-            <p className="vb-eyebrow">{founderStoryLong.eyebrow}</p>
+            <p className="vb-eyebrow">{founderProfile.eyebrow}</p>
             <h2 className="mt-3 font-heading text-3xl font-bold uppercase tracking-tight sm:text-4xl">
-              {founderStoryLong.title}
+              {founderProfile.name}
             </h2>
             <p className="mt-4 font-heading text-sm font-semibold uppercase tracking-[0.14em] text-vb-accent">
-              {founderStoryLong.lead}
+              {founderProfile.role}
             </p>
             <div className="mt-8 space-y-5 text-base leading-relaxed text-vb-muted sm:text-[17px]">
-              {founderStoryLong.paragraphs.map((p) => (
+              {founderProfile.bio.map((p) => (
                 <p key={p.slice(0, 48)}>{p}</p>
               ))}
-              <p className="font-heading text-lg font-semibold uppercase tracking-tight text-vb-ink">
-                {founderStoryLong.closing}
-              </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-vb-line bg-vb-white py-16 sm:py-20">
+        <div className="vb-container max-w-3xl">
+          <p className="vb-eyebrow">{founderStatement.eyebrow}</p>
+          <h2 className="mt-3 font-heading text-3xl font-bold uppercase tracking-tight sm:text-4xl">
+            {founderStatement.title}
+          </h2>
+          <div className="mt-8 space-y-5 text-base leading-relaxed text-vb-muted sm:text-[17px]">
+            {founderStatement.paragraphs.map((p) => (
+              <p key={p.slice(0, 48)}>{p}</p>
+            ))}
+            <p className="pt-2 font-heading text-sm font-semibold uppercase tracking-[0.16em] text-vb-ink">
+              {founderStatement.signature}
+            </p>
           </div>
         </div>
       </section>
@@ -180,8 +196,7 @@ export default async function AboutPage() {
                 Book a repair, install, or courier online — we confirm by email.
               </li>
               <li>
-                Prefer a conversation? Use Contact or WhatsApp when our number
-                is live.
+                Prefer a conversation? Use Contact or WhatsApp.
               </li>
             </ul>
           </div>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import AdminPageHeader, {
   AdminEmptyState,
 } from "@/components/admin/AdminPageHeader";
+import { AdminTableSkeleton } from "@/components/admin/AdminSkeleton";
 
 type Category = {
   id: string;
@@ -42,7 +43,7 @@ export default function AdminCategoriesPage() {
         description="Fashion, Personalised, Smart Home, Home & DIY — seeded from migration."
       />
 
-      {loading && <p className="text-sm text-vb-muted">Loading…</p>}
+      {loading && <AdminTableSkeleton rows={4} cols={4} />}
       {error && (
         <AdminEmptyState title="Cannot load categories" body={error} />
       )}

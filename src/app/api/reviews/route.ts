@@ -59,7 +59,7 @@ export async function POST(request: Request) {
         body: body.slice(0, 2000),
         email,
         product_id: productId,
-        is_published: true,
+        is_published: false,
       })
       .select("id")
       .single();

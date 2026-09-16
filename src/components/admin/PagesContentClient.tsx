@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { AdminFormSkeleton } from "@/components/admin/AdminSkeleton";
 import AdminPageHeader, {
   AdminEmptyState,
 } from "@/components/admin/AdminPageHeader";
@@ -68,7 +69,7 @@ export default function PagesContentClient() {
         title="Pages"
         description="About / contact intros and optional announcement bar (site_settings key: pages)."
       />
-      {loading && <p className="text-sm text-vb-muted">Loading…</p>}
+      {loading && <AdminFormSkeleton />}
       {!loading && !content && error && (
         <AdminEmptyState title="Cannot load pages" body={error} />
       )}

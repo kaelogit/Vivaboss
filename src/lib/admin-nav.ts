@@ -2,7 +2,6 @@ import type { LucideIcon } from "lucide-react";
 import {
   LayoutDashboard,
   Package,
-  Folders,
   Warehouse,
   ShoppingBag,
   Sparkles,
@@ -39,7 +38,6 @@ export const adminNav: AdminNavGroup[] = [
     title: "Shop",
     items: [
       { href: "/admin/products", label: "Products", icon: Package },
-      { href: "/admin/categories", label: "Categories", icon: Folders },
       { href: "/admin/inventory", label: "Inventory", icon: Warehouse },
       { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
       {

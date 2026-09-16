@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { AdminDetailSkeleton } from "@/components/admin/AdminSkeleton";
 import StorageLink from "@/components/admin/StorageLink";
 import { formatGbp } from "@/lib/products/money";
 import type { OrderStatus } from "@/types/database";
@@ -25,8 +26,12 @@ type Order = {
   total_gbp: number;
   notes: string | null;
   internal_notes: string | null;
+  tracking_number: string | null;
+  tracking_carrier: string | null;
+  tracking_url: string | null;
   stripe_checkout_session_id: string | null;
   paid_at: string | null;
+  shipped_at: string | null;
   created_at: string;
   inventory_applied?: boolean;
 };
@@ -79,7 +84,12 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
   const [serviceJobs, setServiceJobs] = useState<ServiceJobLink[]>([]);
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState<OrderStatus>("paid");
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [trackingCarrier, setTrackingCarrier] = useState("");
+  const [trackingUrl, setTrackingUrl] = useState("");
+  const [notifyShipped, setNotifyShipped] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -100,6 +110,9 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
         if (data.order) {
           setStatus(data.order.status);
           setNotes(data.order.internal_notes ?? "");
+          setTrackingNumber(data.order.tracking_number ?? "");
+          setTrackingCarrier(data.order.tracking_carrier ?? "");
+          setTrackingUrl(data.order.tracking_url ?? "");
         }
       })
       .catch((err: unknown) =>
@@ -113,15 +126,46 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
   const save = async () => {
     setSaving(true);
     setError(null);
+    setNotice(null);
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, internal_notes: notes }),
+        body: JSON.stringify({
+          status,
+          internal_notes: notes,
+          tracking_number: trackingNumber,
+          tracking_carrier: trackingCarrier,
+          tracking_url: trackingUrl,
+          notify_shipped: status === "shipped" ? notifyShipped : false,
+        }),
       });
-      const data = (await res.json()) as { order?: Order; error?: string };
+      const data = (await res.json()) as {
+        order?: Order;
+        shippedEmailSent?: boolean;
+        inventoryRestored?: boolean;
+        error?: string;
+      };
       if (!res.ok) throw new Error(data.error ?? "Save failed.");
       setOrder(data.order ?? null);
+      if (data.order) {
+        setStatus(data.order.status);
+        setNotes(data.order.internal_notes ?? "");
+        setTrackingNumber(data.order.tracking_number ?? "");
+        setTrackingCarrier(data.order.tracking_carrier ?? "");
+        setTrackingUrl(data.order.tracking_url ?? "");
+      }
+      if (data.inventoryRestored) {
+        setNotice(
+          "Stock restored for tracked items on this order."
+        );
+      } else if (data.shippedEmailSent) {
+        setNotice("Shipped — tracking email sent to the customer.");
+      } else if (status === "shipped" && notifyShipped) {
+        setNotice(
+          "Saved as shipped, but the email did not send. Check RESEND_API_KEY."
+        );
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed.");
     } finally {
@@ -130,7 +174,7 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
   };
 
   if (loading) {
-    return <p className="text-sm text-vb-muted">Loading order…</p>;
+    return <AdminDetailSkeleton />;
   }
   if (!order) {
     return (
@@ -347,6 +391,38 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
             </label>
             <label className="mt-4 block">
               <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-muted">
+                Carrier
+              </span>
+              <input
+                value={trackingCarrier}
+                onChange={(e) => setTrackingCarrier(e.target.value)}
+                placeholder="Royal Mail, DPD, Evri…"
+                className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="mt-4 block">
+              <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-muted">
+                Tracking number
+              </span>
+              <input
+                value={trackingNumber}
+                onChange={(e) => setTrackingNumber(e.target.value)}
+                className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="mt-4 block">
+              <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-muted">
+                Tracking URL
+              </span>
+              <input
+                value={trackingUrl}
+                onChange={(e) => setTrackingUrl(e.target.value)}
+                placeholder="https://…"
+                className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="mt-4 block">
+              <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-muted">
                 Internal notes
               </span>
               <textarea
@@ -356,7 +432,22 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
                 className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
               />
             </label>
+            {status === "shipped" && (
+              <label className="mt-4 flex items-center gap-2 text-sm text-vb-ink">
+                <input
+                  type="checkbox"
+                  checked={notifyShipped}
+                  onChange={(e) => setNotifyShipped(e.target.checked)}
+                />
+                Email customer shipping / tracking update
+              </label>
+            )}
             {error && <p className="mt-3 text-sm text-vb-danger">{error}</p>}
+            {notice && (
+              <p className="mt-3 border border-vb-accent/30 bg-vb-accent-soft px-3 py-2 text-sm text-vb-ink">
+                {notice}
+              </p>
+            )}
             <button
               type="button"
               onClick={() => void save()}
@@ -368,6 +459,8 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving…
                 </>
+              ) : status === "shipped" && notifyShipped ? (
+                "Save & email shipped"
               ) : (
                 "Save"
               )}

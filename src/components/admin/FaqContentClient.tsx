@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { AdminFormSkeleton } from "@/components/admin/AdminSkeleton";
 import AdminPageHeader, {
   AdminEmptyState,
 } from "@/components/admin/AdminPageHeader";
@@ -84,7 +85,7 @@ export default function FaqContentClient() {
         title="FAQ"
         description="Q&A items stored in site_settings (key: faq). Public FAQ prefers this over marketing defaults."
       />
-      {loading && <p className="text-sm text-vb-muted">Loading…</p>}
+      {loading && <AdminFormSkeleton />}
       {!loading && !items && error && (
         <AdminEmptyState title="Cannot load FAQ" body={error} />
       )}
