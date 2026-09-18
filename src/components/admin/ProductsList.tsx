@@ -157,16 +157,15 @@ export default function ProductsList() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
-                      {p.is_customisable && (
-                        <span className="bg-vb-accent-soft px-1.5 py-0.5 font-heading text-[9px] font-semibold uppercase tracking-wider text-vb-accent">
-                          Custom
-                        </span>
-                      )}
-                      {p.requires_approval && (
+                      {p.requires_approval ? (
                         <span className="bg-vb-mist px-1.5 py-0.5 font-heading text-[9px] font-semibold uppercase tracking-wider text-vb-muted">
-                          Approval
+                          Quote
                         </span>
-                      )}
+                      ) : p.is_customisable ? (
+                        <span className="bg-vb-accent-soft px-1.5 py-0.5 font-heading text-[9px] font-semibold uppercase tracking-wider text-vb-accent">
+                          Options
+                        </span>
+                      ) : null}
                       {p.offers_installation && (
                         <span className="bg-vb-mist px-1.5 py-0.5 font-heading text-[9px] font-semibold uppercase tracking-wider text-vb-muted">
                           Install

@@ -3,32 +3,46 @@
 export const marketingImages = {
   hero: {
     primary: "/marketing/hero-a-craft-home-delivery.jpg",
-    alternate: "/marketing/fashion-hero-campaign.jpg",
+    /** Homepage fashion band — shoes (distinct from bag campaign shots) */
+    alternate: "/marketing/fashion-hero-shoes.jpg",
   },
   craft: {
     workshop: "/marketing/craft-a1-workshop.jpg",
     materials: "/marketing/craft-a2-materials.jpg",
-    fashionBag: "/marketing/fashion-bags-set.jpg",
+    fashionBag: "/marketing/craft-a3-fashion-bag.jpg",
     engraving: "/marketing/craft-a4-engraving.jpg",
     workshopAlt: "/marketing/craft-workshop.jpg",
     africaClock: "/marketing/craft-africa-clock.jpg",
     campaignTrio: "/marketing/fashion-campaign-trio.jpg",
-    campaignAttitude: "/marketing/fashion-campaign-attitude.jpg",
+    shoes: "/marketing/fashion-shoes.jpg",
   },
   founder: "/marketing/founder-habeeb.jpg",
   shop: {
+    /** Homepage / shop tiles — Ankara bags lifestyle */
     fashion: "/marketing/fashion-bags-set.jpg",
-    fashionHero: "/marketing/fashion-hero-bags.jpg",
+    /** Fashion category header */
+    fashionHero: "/marketing/fashion-hero-shoes.jpg",
+    /** Shop index intro */
     fashionCampaign: "/marketing/fashion-hero-campaign.jpg",
     shoes: "/marketing/shop-p2-leather-shoes.jpg",
-    personalised: "/marketing/gift-africa-clock.jpg",
+    /** Personalised tile + category */
+    personalised: "/marketing/shop-p3-personalised-gift.jpg",
     engraving: "/marketing/shop-p4-photo-engraving.jpg",
+    giftClock: "/marketing/gift-africa-clock.jpg",
     smartHome: "/marketing/smart-sh1-product-collection.jpg",
+    leatherBag: "/marketing/shop-p1-leather-bag.jpg",
   },
   services: {
-    tv: "/marketing/service-s1-tv-install.jpg",
-    painting: "/marketing/service-s2-painting.jpg",
-    plumbing: "/marketing/service-s3-plumbing.jpg",
+    /** Real Vivaboss job photos */
+    tv: "/marketing/service-real-tv.jpg",
+    tvHero: "/marketing/service-hero-tv.jpg",
+    painting: "/marketing/service-real-plaster.jpg",
+    paintingHero: "/marketing/service-hero-plaster.jpg",
+    plumbing: "/marketing/service-real-plumbing.jpg",
+    plumbingHero: "/marketing/service-hero-plumbing.jpg",
+    furniture: "/marketing/service-real-furniture.jpg",
+    furnitureHero: "/marketing/service-hero-furniture.jpg",
+    sofa: "/marketing/service-real-sofa.jpg",
     smartLock: "/marketing/service-s4-smart-lock.jpg",
     lighting: "/marketing/service-s5-lighting.jpg",
     smokeAlarm: "/marketing/service-s6-smoke-alarm.jpg",
@@ -43,39 +57,39 @@ export const marketingImages = {
 
 export const shopCategoryImages: Record<string, string> = {
   fashion: marketingImages.shop.fashionHero,
-  personalised: marketingImages.shop.personalised,
+  personalised: marketingImages.shop.giftClock,
   "smart-home": marketingImages.shop.smartHome,
-  "home-diy": marketingImages.services.painting,
+  "home-diy": marketingImages.services.furnitureHero,
 };
 
-/** Homepage shop tiles — prefer product-forward shots */
+/** Homepage + shop collection tiles — one unique shot per collection */
 export const shopTileImages: Record<string, string> = {
   fashion: marketingImages.shop.fashion,
   personalised: marketingImages.shop.personalised,
   "smart-home": marketingImages.shop.smartHome,
-  "home-diy": marketingImages.services.painting,
+  "home-diy": marketingImages.services.furniture,
 };
 
 export const homeServiceGallery = [
   {
     src: marketingImages.services.tv,
-    alt: "TV and furniture installation in a UK home",
+    alt: "TV wall mount install in a UK home",
   },
   {
-    src: marketingImages.services.painting,
-    alt: "Painting and decorating finish",
+    src: marketingImages.services.sofa,
+    alt: "Sofa assembly in a living room",
   },
   {
     src: marketingImages.services.plumbing,
-    alt: "Bathroom and plumbing repair",
+    alt: "Under-sink plumbing repair",
   },
   {
-    src: marketingImages.services.lighting,
-    alt: "Lighting and fittings install",
+    src: marketingImages.services.painting,
+    alt: "Wall repair and plastering",
   },
   {
-    src: marketingImages.services.smokeAlarm,
-    alt: "Smoke alarm installation",
+    src: marketingImages.services.furniture,
+    alt: "Furniture assembly with drill and level",
   },
 ] as const;
 

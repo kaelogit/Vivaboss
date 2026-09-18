@@ -199,11 +199,10 @@ export default function ProductBuyBox({ product }: { product: ProductDetail }) {
       return (
         <div className="mt-8 border border-vb-line bg-vb-mist/40 p-6">
           <p className="font-heading text-sm font-semibold uppercase tracking-[0.16em] text-vb-ink">
-            Request received
+            We’ve got your request
           </p>
           <p className="mt-3 text-sm text-vb-muted">
-            We’ll review your details and get back with a quote and design
-            confirmation before production.
+            We’ll email your price. No payment yet.
           </p>
           <Link
             href="/shop"
@@ -223,6 +222,7 @@ export default function ProductBuyBox({ product }: { product: ProductDetail }) {
           setValue={setValue}
           uploadFile={uploadFile}
           busy={busy}
+          files={files}
         />
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -278,7 +278,7 @@ export default function ProductBuyBox({ product }: { product: ProductDetail }) {
             className="inline-flex h-12 items-center gap-2 bg-vb-accent px-6 font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-white hover:bg-vb-accent-hover disabled:opacity-50"
           >
             {busy ? <Loader2 size={16} className="animate-spin" /> : null}
-            Submit custom request
+            Request a quote
           </button>
           {isWhatsAppLive() && (
             <a
@@ -326,6 +326,7 @@ export default function ProductBuyBox({ product }: { product: ProductDetail }) {
         setValue={setValue}
         uploadFile={uploadFile}
         busy={busy}
+        files={files}
       />
 
       {product.offers_installation && (
@@ -407,25 +408,63 @@ export default function ProductBuyBox({ product }: { product: ProductDetail }) {
   );
 }
 
+function colourSwatch(
+  label: string,
+  value: string,
+  colourHex?: string
+): string | null {
+  if (colourHex && /^#[0-9a-fA-F]{6}$/.test(colourHex)) return colourHex;
+  const key = `${label} ${value}`.toLowerCase();
+  const map: Record<string, string> = {
+    black: "#121110",
+    brown: "#5c3d2e",
+    tan: "#c4a574",
+    cognac: "#9a5b2f",
+    navy: "#1e2a4a",
+    blue: "#2a4a7a",
+    red: "#8b2e2e",
+    green: "#2d5a3d",
+    cream: "#f0e6d4",
+    white: "#f5f2eb",
+    gold: "#c9a227",
+    silver: "#a8a8a8",
+    pink: "#c45a7a",
+    orange: "#c45a2a",
+    purple: "#5a3a6a",
+    grey: "#6b6b6b",
+    gray: "#6b6b6b",
+  };
+  for (const [name, hex] of Object.entries(map)) {
+    if (key.includes(name)) return hex;
+  }
+  return null;
+}
+
 function FieldInputs({
   product,
   values,
   setValue,
   uploadFile,
   busy,
+  files,
 }: {
   product: ProductDetail;
   values: FieldState;
   setValue: (key: string, value: string) => void;
   uploadFile: (key: string, file: File) => Promise<void>;
   busy: boolean;
+  files: Record<string, { url: string; path: string }>;
 }) {
   if (!product.custom_fields.length) return null;
+
+  const heading = product.requires_approval
+    ? "Tell us what you need"
+    : "Choose your options";
 
   return (
     <div className="space-y-4 border-t border-vb-line pt-6">
       <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-muted">
-        Make it yours
+        {heading}
       </p>
       {product.custom_fields.map((field) => (
         <div key={field.id}>
@@ -433,7 +472,44 @@ function FieldInputs({
             {field.label}
             {field.required ? " *" : ""}
           </label>
-          {field.field_type === "select" || field.field_type === "colour" ? (
+          {field.field_type === "colour" ? (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {field.options.map((opt) => {
+                const selected = values[field.key] === opt.value;
+                const hex = colourSwatch(
+                  opt.label,
+                  opt.value,
+                  opt.colour_hex
+                );
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setValue(field.key, opt.value)}
+                    className={`inline-flex items-center gap-2 border px-3 py-2 text-sm transition-colors ${
+                      selected
+                        ? "border-vb-ink bg-vb-ink text-vb-paper"
+                        : "border-vb-line bg-vb-paper text-vb-ink hover:border-vb-ink"
+                    }`}
+                  >
+                    <span
+                      className="h-4 w-4 shrink-0 border border-black/15"
+                      style={{
+                        backgroundColor: hex ?? (selected ? "#fff" : "#e8e6e1"),
+                      }}
+                      aria-hidden
+                    />
+                    <span>
+                      {opt.label}
+                      {opt.price_delta_gbp
+                        ? ` (+${formatGbp(opt.price_delta_gbp)})`
+                        : ""}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : field.field_type === "select" ? (
             <select
               className="mt-1.5 h-11 w-full border border-vb-line bg-vb-paper px-3 text-sm"
               value={values[field.key] ?? ""}
@@ -457,16 +533,26 @@ function FieldInputs({
               onChange={(e) => setValue(field.key, e.target.value)}
             />
           ) : field.field_type === "file" ? (
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif"
-              disabled={busy}
-              className="mt-1.5 block w-full text-sm"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) void uploadFile(field.key, file);
-              }}
-            />
+            <div className="mt-1.5 space-y-2">
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                disabled={busy}
+                className="block w-full text-sm"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) void uploadFile(field.key, file);
+                }}
+              />
+              {files[field.key]?.url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={files[field.key].url}
+                  alt={field.label}
+                  className="h-20 w-20 object-cover"
+                />
+              )}
+            </div>
           ) : (
             <input
               type={field.field_type === "number" ? "number" : "text"}

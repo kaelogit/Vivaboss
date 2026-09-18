@@ -59,6 +59,8 @@ export type CustomFieldOption = {
   label: string;
   value: string;
   price_delta_gbp?: number;
+  /** Optional hex for colour swatches, e.g. #b4532a */
+  colour_hex?: string;
 };
 
 type ProfilesTable = {

@@ -19,8 +19,8 @@ export default async function FaqPage() {
         eyebrow="Help"
         title="FAQ"
         description="Straight answers for shoppers, bookings, and deliveries. Still stuck? Contact us — we’ll point you to the right path."
-        image={marketingImages.shop.fashionHero}
-        imageAlt="Handmade Vivaboss fashion"
+        image={marketingImages.craft.materials}
+        imageAlt="Vivaboss craft materials"
       >
         <Link
           href="/contact"

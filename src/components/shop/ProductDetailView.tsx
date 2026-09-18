@@ -105,19 +105,19 @@ export default function ProductDetailView({
               )}
 
               <div className="mt-6 flex flex-wrap gap-2">
-                {product.is_customisable && (
+                {product.is_customisable && !product.requires_approval && (
                   <span className="border border-vb-accent/30 bg-vb-accent-soft px-2.5 py-1 font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-accent">
-                    Customisable
+                    Choose options
                   </span>
                 )}
                 {product.requires_approval && (
                   <span className="border border-vb-line bg-vb-white px-2.5 py-1 font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
-                    Design approval
+                    Request a quote
                   </span>
                 )}
                 {product.offers_installation && (
                   <span className="border border-vb-line bg-vb-white px-2.5 py-1 font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
-                    Installation available
+                    Install available
                   </span>
                 )}
               </div>
@@ -164,9 +164,9 @@ export default function ProductDetailView({
             className="inline-flex h-11 shrink-0 items-center bg-vb-ink px-4 font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-paper"
           >
             {product.requires_approval
-              ? "Request"
+              ? "Request quote"
               : product.is_customisable
-                ? "Customise"
+                ? "Choose options"
                 : "Add to bag"}
           </a>
         </div>

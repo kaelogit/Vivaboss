@@ -159,9 +159,11 @@ export const footerColumns = [
       { label: "Contact", href: "/contact" },
       { label: "Reviews", href: "/reviews" },
       { label: "FAQ", href: "/faq" },
+      { label: "Artwork guidelines", href: "/artwork-guidelines" },
       { label: "Track order", href: "/order/track" },
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
+      { label: "Returns", href: "/returns" },
     ],
   },
 ] as const;

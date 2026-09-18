@@ -4,8 +4,8 @@ import { marketingImages } from "@/lib/content/marketingImages";
 import { pathChooser } from "@/lib/navigation";
 
 const pathImages: Record<string, string> = {
-  shop: marketingImages.shop.fashion,
-  services: marketingImages.services.tv,
+  shop: marketingImages.shop.leatherBag,
+  services: marketingImages.services.tvHero,
   courier: marketingImages.courier.flowers,
 };
 

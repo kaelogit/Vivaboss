@@ -301,6 +301,38 @@ export default function CustomRequestDetailClient({
     request.quote_amount_gbp != null &&
     Number(request.quote_amount_gbp) > 0;
 
+  const progressSteps = [
+    {
+      id: "waiting",
+      label: "Waiting",
+      done: true,
+    },
+    {
+      id: "review",
+      label: "Looking at it",
+      done: ["reviewing", "quoted", "accepted", "converted_to_order"].includes(
+        request.status
+      ),
+    },
+    {
+      id: "quoted",
+      label: "Quote sent",
+      done:
+        ["quoted", "accepted", "converted_to_order"].includes(request.status) ||
+        request.quote_amount_gbp != null,
+    },
+    {
+      id: "pay",
+      label: "Pay link sent",
+      done: Boolean(meta.checkoutUrl) || request.status === "converted_to_order",
+    },
+    {
+      id: "done",
+      label: "Order ready",
+      done: request.status === "converted_to_order",
+    },
+  ] as const;
+
   const fieldEntries =
     request.field_snapshot &&
     typeof request.field_snapshot === "object" &&
@@ -331,6 +363,39 @@ export default function CustomRequestDetailClient({
           ← All custom requests
         </Link>
       </div>
+
+      {request.status === "declined" ? (
+        <p className="mb-6 border border-vb-danger/30 bg-vb-danger/5 px-4 py-3 text-sm text-vb-danger">
+          Declined — this request is closed.
+        </p>
+      ) : (
+        <ol className="mb-8 grid grid-cols-2 gap-2 border border-vb-line bg-vb-white p-4 sm:grid-cols-5">
+          {progressSteps.map((step, i) => {
+            const prevDone =
+              i === 0 ? true : progressSteps.slice(0, i).every((s) => s.done);
+            const isNext = !step.done && prevDone;
+            return (
+              <li
+                key={step.id}
+                className={`flex flex-col gap-1 border-l-2 pl-3 ${
+                  step.done
+                    ? "border-vb-accent text-vb-ink"
+                    : isNext
+                      ? "border-vb-ink text-vb-ink"
+                      : "border-vb-line text-vb-muted"
+                }`}
+              >
+                <span className="font-heading text-[9px] font-semibold uppercase tracking-[0.16em]">
+                  {i + 1}. {step.label}
+                </span>
+                <span className="text-[10px]">
+                  {step.done ? "Done" : isNext ? "Do this" : "Later"}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="space-y-6">

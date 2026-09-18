@@ -31,8 +31,8 @@ export default function HomeServicesPage() {
         eyebrow="Home services"
         title="Repairs & improvement"
         description="From small repairs to bigger improvements — we help keep your home looking great and working properly. Book with your postcode and preferred window."
-        image={marketingImages.services.lighting}
-        imageAlt="Home lighting and fittings installation"
+        image={marketingImages.services.furnitureHero}
+        imageAlt="Furniture assembly in a UK home"
       >
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
@@ -115,8 +115,8 @@ export default function HomeServicesPage() {
         <div className="grid lg:grid-cols-2 lg:min-h-[520px]">
           <div className="relative min-h-[280px] overflow-hidden bg-vb-mist lg:min-h-full">
             <Image
-              src={marketingImages.services.tv}
-              alt="TV and furniture installation"
+              src={marketingImages.services.tvHero}
+              alt="TV wall mount installation"
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"

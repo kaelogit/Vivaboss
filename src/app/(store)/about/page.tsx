@@ -38,16 +38,16 @@ export default async function AboutPage() {
         <div className="grid gap-px bg-vb-line sm:grid-cols-2 lg:grid-cols-5">
           {[
             {
+              src: marketingImages.craft.shoes,
+              alt: "Handmade Vivaboss leather shoes",
+            },
+            {
               src: marketingImages.craft.campaignTrio,
               alt: "Vivaboss handmade fashion campaign",
             },
             {
               src: marketingImages.craft.fashionBag,
-              alt: "Ankara bags and statement jewellery",
-            },
-            {
-              src: marketingImages.craft.campaignAttitude,
-              alt: "Handmade bags and street style",
+              alt: "Handmade fashion bag",
             },
             {
               src: marketingImages.craft.africaClock,

@@ -11,7 +11,7 @@ import { serviceArms, whatsappHref } from "@/lib/navigation";
 import { isWhatsAppLive } from "@/lib/site";
 
 const armImages: Record<string, string> = {
-  home: marketingImages.services.painting,
+  home: marketingImages.services.sofa,
   "smart-home": marketingImages.services.smartLock,
 };
 
@@ -30,8 +30,8 @@ export default function ServicesPage() {
         eyebrow="Services"
         title="Home & smart services"
         description="Need something fixed, installed, or made smarter? Book a visit — we cover the whole UK, confirm by email, and cross-sell shop hardware when you need gear too."
-        image={marketingImages.services.plumbing}
-        imageAlt="Home repairs and installations"
+        image={marketingImages.services.plumbingHero}
+        imageAlt="Under-sink plumbing repair in a UK kitchen"
       >
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
@@ -116,9 +116,9 @@ export default function ServicesPage() {
         <div className="grid gap-px bg-vb-line/20 sm:grid-cols-2 lg:grid-cols-4">
           {[
             marketingImages.services.tv,
-            marketingImages.services.painting,
-            marketingImages.services.smartLock,
-            marketingImages.services.lighting,
+            marketingImages.services.sofa,
+            marketingImages.services.plumbing,
+            marketingImages.services.furniture,
           ].map((src) => (
             <div
               key={src}

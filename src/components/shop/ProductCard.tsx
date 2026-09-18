@@ -96,12 +96,12 @@ export default function ProductCard({
         <div className="pointer-events-none absolute left-2 top-2 z-10 flex flex-col items-start gap-1 sm:left-3 sm:top-3 sm:gap-1.5">
           {product.requires_approval && (
             <span className="bg-vb-ink px-1.5 py-0.5 font-heading text-[8px] font-bold uppercase tracking-[0.14em] text-vb-paper sm:px-2.5 sm:py-1 sm:text-[9px] sm:tracking-[0.16em]">
-              Request
+              Quote
             </span>
           )}
           {product.is_customisable && !product.requires_approval && (
             <span className="bg-vb-accent px-1.5 py-0.5 font-heading text-[8px] font-bold uppercase tracking-[0.14em] text-white sm:px-2.5 sm:py-1 sm:text-[9px] sm:tracking-[0.16em]">
-              Custom
+              Options
             </span>
           )}
           {product.offers_installation && (
@@ -141,10 +141,10 @@ export default function ProductCard({
             className="absolute bottom-2 right-2 z-20 flex h-8 items-center bg-vb-white px-2 font-heading text-[8px] font-bold uppercase tracking-[0.14em] text-vb-ink shadow-md transition-colors hover:bg-vb-ink hover:text-vb-paper sm:bottom-3 sm:right-3 sm:h-11 sm:px-3 sm:text-[9px] sm:tracking-[0.16em]"
           >
             {product.requires_approval
-              ? "Request"
+              ? "Request quote"
               : preorder
                 ? "Pre-order"
-                : "Customise"}
+                : "Choose options"}
           </Link>
         )}
       </div>

@@ -73,7 +73,14 @@ export default function TermsPage() {
             Nothing in these terms affects your statutory rights under UK
             consumer law. For most non-personalised goods you may have a cooling-off
             period for distance sales; personalised goods are typically exempt
-            once customisation begins. Contact us promptly about faults.
+            once customisation begins. For the full returns process, see our{" "}
+            <Link
+              href="/returns"
+              className="text-vb-accent underline-offset-2 hover:underline"
+            >
+              Returns &amp; Refunds
+            </Link>{" "}
+            policy. Contact us promptly about faults.
           </p>
         </section>
         <section>

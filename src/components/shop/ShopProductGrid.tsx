@@ -49,7 +49,7 @@ export default function ShopProductGrid({
               checked={customOnly}
               onChange={(e) => setCustomOnly(e.target.checked)}
             />
-            Customisable
+            Has options / quote
           </label>
           <label className="flex items-center gap-2 text-sm text-vb-muted">
             <input

@@ -6,9 +6,9 @@ import { serviceArms } from "@/lib/navigation";
 
 const shots = [
   marketingImages.services.tv,
-  marketingImages.services.painting,
+  marketingImages.services.sofa,
   marketingImages.services.plumbing,
-  marketingImages.services.lighting,
+  marketingImages.services.painting,
 ] as const;
 
 export default function HomeServicesBand() {

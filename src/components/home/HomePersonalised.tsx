@@ -19,8 +19,8 @@ export default function HomePersonalised() {
           data-vb-reveal="fade"
         >
           <Image
-            src={marketingImages.shop.personalised}
-            alt="Handmade Africa-shaped wall clock"
+            src={marketingImages.shop.engraving}
+            alt="Personalised engraving craft"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
             className="object-cover"
@@ -58,7 +58,7 @@ export default function HomePersonalised() {
                 href="/contact"
                 className="inline-flex h-11 items-center border border-vb-ink px-5 font-heading text-[11px] font-semibold uppercase tracking-[0.18em] hover:bg-vb-ink hover:text-vb-paper"
               >
-                Custom request
+                Ask for a quote
               </Link>
             </div>
           </div>

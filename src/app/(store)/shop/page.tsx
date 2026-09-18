@@ -28,7 +28,7 @@ export default async function ShopPage() {
         title="Buy from Vivaboss"
         description="Four collections — handmade fashion, personalised gifts, smart-home products, and home essentials — available online across the UK."
         image={marketingImages.shop.fashionCampaign}
-        imageAlt="Handmade fashion and craft from Vivaboss"
+        imageAlt="Handmade Vivaboss fashion campaign"
       />
 
       <section className="border-b border-vb-line bg-vb-white py-16 sm:py-20">

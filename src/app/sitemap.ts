@@ -18,11 +18,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/about",
     "/contact",
     "/faq",
+    "/artwork-guidelines",
     "/reviews",
     "/cart",
     "/order/track",
     "/privacy",
     "/terms",
+    "/returns",
   ].map((path) => ({
     url: `${base}${path || "/"}`,
     lastModified: now,

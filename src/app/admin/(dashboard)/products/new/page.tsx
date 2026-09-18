@@ -6,7 +6,7 @@ export default function NewProductPage() {
     <div>
       <AdminPageHeader
         title="New product"
-        description="Create a standard, customisable, or approval-required product."
+        description="First pick how customers buy it — then fill in the simple bits."
       />
       <ProductForm />
     </div>
