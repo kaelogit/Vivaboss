@@ -26,10 +26,60 @@ export function getResend() {
   return new Resend(key);
 }
 
-export function emailFrom() {
+export type EmailFromKind =
+  | "order"
+  | "booking"
+  | "courier"
+  | "custom"
+  | "contact"
+  | "default";
+
+const FROM_DEFAULTS: Record<EmailFromKind, string> = {
+  order: "Vivaboss Orders <order@vivabossfusion.co.uk>",
+  booking: "Vivaboss Bookings <booking@vivabossfusion.co.uk>",
+  courier: "Vivaboss Courier <courier@vivabossfusion.co.uk>",
+  custom: "Vivaboss Custom <custom@vivabossfusion.co.uk>",
+  contact: "Vivaboss <hello@vivabossfusion.co.uk>",
+  default: "Vivaboss Fusion <hello@vivabossfusion.co.uk>",
+};
+
+/**
+ * From address per mail stream. Override any with RESEND_FROM_ORDER etc.
+ * Typed kinds use the defaults below (not RESEND_FROM_EMAIL), so a leftover
+ * single From env won’t collapse everything onto one mailbox.
+ */
+export function emailFrom(kind: EmailFromKind = "default") {
+  const envKey =
+    kind === "order"
+      ? "RESEND_FROM_ORDER"
+      : kind === "booking"
+        ? "RESEND_FROM_BOOKING"
+        : kind === "courier"
+          ? "RESEND_FROM_COURIER"
+          : kind === "custom"
+            ? "RESEND_FROM_CUSTOM"
+            : kind === "contact"
+              ? "RESEND_FROM_CONTACT"
+              : null;
+
+  const specific = envKey ? process.env[envKey]?.trim() : undefined;
+  if (specific) return specific;
+
+  if (kind === "default") {
+    return (
+      process.env.RESEND_FROM_EMAIL?.trim() || FROM_DEFAULTS.default
+    );
+  }
+
+  return FROM_DEFAULTS[kind];
+}
+
+/** Customer “Reply” goes here on outbound mail. */
+export function emailReplyTo() {
   return (
-    process.env.RESEND_FROM_EMAIL?.trim() ||
-    "Vivaboss Fusion <onboarding@resend.dev>"
+    process.env.RESEND_REPLY_TO?.trim() ||
+    process.env.ADMIN_NOTIFICATION_EMAIL?.trim() ||
+    DEFAULT_ADMIN_EMAIL
   );
 }
 

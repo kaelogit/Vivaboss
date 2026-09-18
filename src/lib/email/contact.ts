@@ -1,6 +1,7 @@
 import {
   adminEmailsFor,
   emailFrom,
+  emailReplyTo,
   getResend,
   hasResend,
   resolveAdminNotifyEmails,
@@ -24,13 +25,15 @@ export async function sendContactEmails(input: {
   }
 
   const resend = getResend();
-  const from = emailFrom();
+  const from = emailFrom("contact");
+  const replyTo = emailReplyTo();
   const site = getSiteUrl();
   const admins = await adminEmailsFor("contact");
 
   await resend.emails.send({
     from,
     to: input.email,
+    replyTo,
     subject: "We received your message — Vivaboss",
     html: `
       <div style="font-family:Georgia,serif;max-width:560px;color:#121110;">

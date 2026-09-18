@@ -1,6 +1,7 @@
 import {
   adminEmailsFor,
   emailFrom,
+  emailReplyTo,
   getResend,
   hasResend,
   resolveAdminNotifyEmails,
@@ -33,7 +34,8 @@ export async function sendServiceJobEmails(jobId: string): Promise<void> {
   if (!job) return;
 
   const resend = getResend();
-  const from = emailFrom();
+  const from = emailFrom("booking");
+  const replyTo = emailReplyTo();
   const site = getSiteUrl();
   const admins = await adminEmailsFor("service");
   const typeLabel = labelServiceType(job.job_type);
@@ -44,6 +46,7 @@ export async function sendServiceJobEmails(jobId: string): Promise<void> {
     await resend.emails.send({
       from,
       to: job.email,
+      replyTo,
       subject: "We received your service booking — Vivaboss",
       html: `
       <div style="font-family:Georgia,serif;max-width:560px;color:#121110;">
@@ -60,6 +63,7 @@ export async function sendServiceJobEmails(jobId: string): Promise<void> {
     await resend.emails.send({
       from,
       to: admins,
+      replyTo: job.email,
       subject: fromCheckout
         ? `Install job (checkout) — ${typeLabel} · ${job.postcode}`
         : `Service job — ${typeLabel} · ${job.postcode}`,
@@ -95,7 +99,8 @@ export async function sendCourierJobEmails(jobId: string): Promise<void> {
   if (!job) return;
 
   const resend = getResend();
-  const from = emailFrom();
+  const from = emailFrom("courier");
+  const replyTo = emailReplyTo();
   const site = getSiteUrl();
   const admins = await adminEmailsFor("courier");
   const vertical = labelCourierVertical(job.vertical);
@@ -104,6 +109,7 @@ export async function sendCourierJobEmails(jobId: string): Promise<void> {
   await resend.emails.send({
     from,
     to: job.email,
+    replyTo,
     subject: "We received your courier request — Vivaboss",
     html: `
       <div style="font-family:Georgia,serif;max-width:560px;color:#121110;">
@@ -119,6 +125,7 @@ export async function sendCourierJobEmails(jobId: string): Promise<void> {
     await resend.emails.send({
       from,
       to: admins,
+      replyTo: job.email,
       subject: `Courier job — ${vertical} · ${urgency}`,
       html: `
         <div style="font-family:sans-serif;">
@@ -242,7 +249,8 @@ export async function sendServiceJobStatusEmail(jobId: string): Promise<void> {
       : null;
 
   await getResend().emails.send({
-    from: emailFrom(),
+    from: emailFrom("booking"),
+    replyTo: emailReplyTo(),
     to: job.email,
     subject: `${copy.subject} — Vivaboss`,
     html: `
@@ -287,7 +295,8 @@ export async function sendCourierJobStatusEmail(jobId: string): Promise<void> {
   const site = getSiteUrl();
 
   await getResend().emails.send({
-    from: emailFrom(),
+    from: emailFrom("courier"),
+    replyTo: emailReplyTo(),
     to: job.email,
     subject: `${copy.subject} — Vivaboss`,
     html: `

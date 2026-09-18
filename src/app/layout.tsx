@@ -39,11 +39,20 @@ export const metadata: Metadata = {
     siteName: "Vivaboss Fusion Services",
     locale: "en_GB",
     type: "website",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Vivaboss Fusion — Craft. Home. Delivery.",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Vivaboss Fusion Services",
     description: siteConfig.fashionPunchline,
+    images: ["/og.png"],
   },
 };
 

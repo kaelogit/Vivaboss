@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import {
   adminEmailsFor,
   emailFrom,
+  emailReplyTo,
   getResend,
   hasResend,
   resolveAdminNotifyEmails,
@@ -89,11 +90,13 @@ export async function sendOrderEmails(orderId: string): Promise<void> {
   `;
 
   const resend = getResend();
-  const from = emailFrom();
+  const from = emailFrom("order");
+  const replyTo = emailReplyTo();
 
   await resend.emails.send({
     from,
     to: order.email,
+    replyTo,
     subject: `Order ${order.order_number} confirmed — Vivaboss`,
     html: htmlCustomer,
   });
@@ -101,11 +104,12 @@ export async function sendOrderEmails(orderId: string): Promise<void> {
   const admins = await adminEmailsFor("order");
   if (admins.length) {
     await resend.emails.send({
-    from,
-    to: admins,
-    subject: `New order ${order.order_number}`,
-    html: htmlAdmin,
-  });
+      from,
+      to: admins,
+      replyTo: order.email,
+      subject: `New order ${order.order_number}`,
+      html: htmlAdmin,
+    });
   }
 }
 
@@ -161,10 +165,12 @@ export async function sendOrderShippedEmail(orderId: string): Promise<void> {
   `;
 
   const resend = getResend();
-  const from = emailFrom();
+  const from = emailFrom("order");
+  const replyTo = emailReplyTo();
   await resend.emails.send({
     from,
     to: order.email,
+    replyTo,
     subject: `Order ${order.order_number} shipped — Vivaboss`,
     html: htmlCustomer,
   });
@@ -172,10 +178,11 @@ export async function sendOrderShippedEmail(orderId: string): Promise<void> {
   const admins = await adminEmailsFor("order");
   if (admins.length) {
     await resend.emails.send({
-    from,
-    to: admins,
-    subject: `Shipped — ${order.order_number}`,
-    html: `
+      from,
+      to: admins,
+      replyTo: order.email,
+      subject: `Shipped — ${order.order_number}`,
+      html: `
       <div style="font-family:sans-serif;">
         <h2>Ship email sent</h2>
         <p>${escapeHtml(order.full_name)} · ${escapeHtml(order.email)}</p>
@@ -208,13 +215,15 @@ export async function sendCustomRequestEmails(requestId: string): Promise<void> 
   if (!req) return;
 
   const resend = getResend();
-  const from = emailFrom();
+  const from = emailFrom("custom");
+  const replyTo = emailReplyTo();
   const site = getSiteUrl();
   const admins = await adminEmailsFor("custom");
 
   await resend.emails.send({
     from,
     to: req.email,
+    replyTo,
     subject: `We received your custom request — Vivaboss`,
     html: `
       <div style="font-family:Georgia,serif;max-width:560px;color:#121110;">
@@ -229,6 +238,7 @@ export async function sendCustomRequestEmails(requestId: string): Promise<void> 
     await resend.emails.send({
       from,
       to: admins,
+      replyTo: req.email,
       subject: `Custom request — ${req.product_name ?? "Vivaboss"}`,
       html: `
         <div style="font-family:sans-serif;">
@@ -262,7 +272,8 @@ export async function sendCustomQuoteEmail(requestId: string): Promise<void> {
 
   const amount = formatGbp(Number(req.quote_amount_gbp));
   const resend = getResend();
-  const from = emailFrom();
+  const from = emailFrom("custom");
+  const replyTo = emailReplyTo();
   const site = getSiteUrl();
   const admins = await adminEmailsFor("custom");
   const quoteNote = req.quote_message
@@ -297,6 +308,7 @@ export async function sendCustomQuoteEmail(requestId: string): Promise<void> {
   await resend.emails.send({
     from,
     to: req.email,
+    replyTo,
     subject: `Your Vivaboss quote — ${amount}`,
     html: `
       <div style="font-family:Georgia,serif;max-width:560px;color:#121110;">
@@ -315,6 +327,7 @@ export async function sendCustomQuoteEmail(requestId: string): Promise<void> {
     await resend.emails.send({
       from,
       to: admins,
+      replyTo: req.email,
       subject: `Quote sent — ${req.product_name ?? "Custom"} · ${amount}`,
       html: `
       <div style="font-family:sans-serif;">
@@ -356,7 +369,8 @@ export async function sendCustomPayLinkEmail(
       ? formatGbp(Number(req.quote_amount_gbp))
       : null;
   const resend = getResend();
-  const from = emailFrom();
+  const from = emailFrom("custom");
+  const replyTo = emailReplyTo();
   const site = getSiteUrl();
   const admins = await adminEmailsFor("custom");
   const quoteNote = req.quote_message
@@ -366,6 +380,7 @@ export async function sendCustomPayLinkEmail(
   await resend.emails.send({
     from,
     to: req.email,
+    replyTo,
     subject: amount
       ? `Pay your Vivaboss quote — ${amount}`
       : `Pay your Vivaboss custom order`,
@@ -392,6 +407,7 @@ export async function sendCustomPayLinkEmail(
     await resend.emails.send({
       from,
       to: admins,
+      replyTo: req.email,
       subject: `Pay link sent — ${req.product_name ?? "Custom"}${amount ? ` · ${amount}` : ""}`,
       html: `
       <div style="font-family:sans-serif;">
