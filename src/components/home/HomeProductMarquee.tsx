@@ -96,24 +96,14 @@ export default function HomeProductMarquee({ products }: Props) {
           <h2 className="mt-2 font-heading text-2xl font-bold uppercase tracking-tight text-vb-paper sm:text-3xl">
             Pieces on the move
           </h2>
-          <p className="mt-2 text-xs text-white/40 sm:hidden">
-            Hold to pause · tap a piece to open
-          </p>
         </div>
-        <div
-          className="flex items-center justify-between gap-4 sm:flex-col sm:items-end"
+        <Link
+          href="/shop"
+          className="shrink-0 font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-accent transition-colors hover:text-vb-paper"
           data-vb-reveal="fade"
         >
-          <p className="hidden max-w-xs text-right text-xs leading-relaxed text-white/45 sm:block">
-            Hold to pause. Tap any piece to open it.
-          </p>
-          <Link
-            href="/shop"
-            className="font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-accent transition-colors hover:text-vb-paper"
-          >
-            Shop all →
-          </Link>
-        </div>
+          Shop all →
+        </Link>
       </div>
 
       <div
