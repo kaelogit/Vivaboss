@@ -2,6 +2,7 @@ import HomeHero from "@/components/store/HomeHero";
 import HomePromiseStrip from "@/components/home/HomePromiseStrip";
 import HomePathChooser from "@/components/home/HomePathChooser";
 import HomeShopMosaic from "@/components/home/HomeShopMosaic";
+import HomeProductMarquee from "@/components/home/HomeProductMarquee";
 import HomeFeaturedRail from "@/components/home/HomeFeaturedRail";
 import HomeFashionBand from "@/components/home/HomeFashionBand";
 import HomePersonalised from "@/components/home/HomePersonalised";
@@ -19,7 +20,7 @@ import { listPublishedReviews } from "@/lib/reviews/queries";
 
 export default async function HomePage() {
   const [featured, homepage, reviews] = await Promise.all([
-    listActiveProducts({ limit: 8 }),
+    listActiveProducts({ limit: 12 }),
     getPublicHomepage(),
     listPublishedReviews({ limit: 3 }),
   ]);
@@ -35,7 +36,8 @@ export default async function HomePage() {
         title={homepage.pathChooserTitle}
       />
       <HomeShopMosaic />
-      <HomeFeaturedRail products={featured} />
+      <HomeProductMarquee products={featured} />
+      <HomeFeaturedRail products={featured.slice(0, 8)} />
       <HomeFashionBand />
       <HomePersonalised />
       <HomeServicesBand />

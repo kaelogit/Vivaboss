@@ -115,6 +115,25 @@ html.vb-motion [data-vb-reveal].is-in {
     transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Product marquee — seamless left scroll; pause via .vb-marquee-paused */
+@keyframes vb-marquee-x {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-33.333%, 0, 0);
+  }
+}
+
+.vb-marquee {
+  animation: vb-marquee-x 55s linear infinite;
+  will-change: transform;
+}
+
+.vb-marquee-paused {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -127,6 +146,17 @@ html.vb-motion [data-vb-reveal].is-in {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+
+  .vb-marquee {
+    animation: none !important;
+    transform: none !important;
+    flex-wrap: wrap;
+    width: 100% !important;
+    max-width: 1400px;
+    margin-inline: auto;
+    justify-content: center;
+    padding-inline: 1.25rem;
   }
 
   html.vb-motion [data-vb-reveal],
