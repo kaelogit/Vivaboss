@@ -20,10 +20,18 @@ import { listPublishedReviews } from "@/lib/reviews/queries";
 
 export default async function HomePage() {
   const [featured, homepage, reviews] = await Promise.all([
-    listActiveProducts({ limit: 12 }),
+    listActiveProducts({ limit: 16 }),
     getPublicHomepage(),
     listPublishedReviews({ limit: 3 }),
   ]);
+
+  const splitCatalogue = featured.length >= 4;
+  const marqueeProducts = splitCatalogue
+    ? featured.slice(0, Math.min(6, featured.length - 1))
+    : [];
+  const railProducts = (
+    splitCatalogue ? featured.slice(marqueeProducts.length) : featured
+  ).slice(0, 8);
 
   return (
     <main>
@@ -36,8 +44,8 @@ export default async function HomePage() {
         title={homepage.pathChooserTitle}
       />
       <HomeShopMosaic />
-      <HomeProductMarquee products={featured} />
-      <HomeFeaturedRail products={featured.slice(0, 8)} />
+      <HomeProductMarquee products={marqueeProducts} />
+      <HomeFeaturedRail products={railProducts} />
       <HomeFashionBand />
       <HomePersonalised />
       <HomeServicesBand />

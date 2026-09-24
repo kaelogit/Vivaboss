@@ -8,6 +8,7 @@ import { formatGbp } from "@/lib/products/money";
 import { lineTotal } from "@/lib/cart/types";
 import { PREORDER_LEAD } from "@/lib/products/stock";
 import { useCartStore } from "@/store/cart";
+import { useShippingQuote } from "@/components/shop/useShippingQuote";
 
 export default function CartPageClient() {
   const lines = useCartStore((s) => s.lines);
@@ -15,6 +16,7 @@ export default function CartPageClient() {
   const count = lines.reduce((n, l) => n + l.quantity, 0);
   const subtotal = lines.reduce((sum, l) => sum + lineTotal(l), 0);
   const hasPreorder = lines.some((l) => l.isPreorder);
+  const quote = useShippingQuote(subtotal);
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
 
@@ -91,25 +93,41 @@ export default function CartPageClient() {
             <h2 className="font-heading text-sm font-bold uppercase tracking-[0.16em] text-vb-ink">
               Order summary
             </h2>
-            <div className="mt-6 flex items-baseline justify-between gap-4 border-b border-vb-line pb-4">
-              <span className="text-sm text-vb-muted">
-                Subtotal ({count} item{count === 1 ? "" : "s"})
-              </span>
-              <span className="font-heading text-lg font-bold">
-                {formatGbp(subtotal)}
-              </span>
+            <div className="mt-6 space-y-2 border-b border-vb-line pb-4">
+              <div className="flex items-baseline justify-between gap-4">
+                <span className="text-sm text-vb-muted">
+                  Subtotal ({count} item{count === 1 ? "" : "s"})
+                </span>
+                <span className="font-heading text-base font-semibold">
+                  {formatGbp(subtotal)}
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-4">
+                <span className="text-sm text-vb-muted">
+                  {quote?.shippingGbp === 0
+                    ? "Shipping"
+                    : "Shipping · UK standard"}
+                </span>
+                <span className="font-heading text-base font-semibold">
+                  {quote == null
+                    ? "…"
+                    : quote.shippingGbp === 0
+                      ? "Free"
+                      : formatGbp(quote.shippingGbp)}
+                </span>
+              </div>
             </div>
             <div className="mt-4 flex items-baseline justify-between gap-4">
               <span className="font-heading text-[11px] font-semibold uppercase tracking-[0.16em]">
                 Total
               </span>
               <span className="font-heading text-2xl font-bold">
-                {formatGbp(subtotal)}
+                {quote == null ? "…" : formatGbp(quote.totalGbp)}
               </span>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-vb-muted">
-              UK shipping (incl. Highlands / NI bands where applicable) is
-              calculated at checkout from your postcode.
+              Standard UK delivery. Highlands, Islands, and Northern Ireland
+              are confirmed from your postcode at checkout.
             </p>
             <Link
               href="/checkout"

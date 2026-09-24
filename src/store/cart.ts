@@ -27,6 +27,7 @@ type AddPayload = {
 type CartState = {
   lines: CartLine[];
   isOpen: boolean;
+  notice: string | null;
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
@@ -34,6 +35,7 @@ type CartState = {
   removeItem: (lineId: string) => void;
   setQuantity: (lineId: string, quantity: number) => void;
   clear: () => void;
+  clearNotice: () => void;
   count: () => number;
   subtotal: () => number;
 };
@@ -52,12 +54,16 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       lines: [],
       isOpen: false,
+      notice: null,
       openCart: () => set({ isOpen: true }),
       closeCart: () => set({ isOpen: false }),
       toggleCart: () => set({ isOpen: !get().isOpen }),
       addItem: (payload) => {
         const qty = Math.max(1, payload.quantity ?? 1);
         const shouldOpen = payload.openDrawer !== false;
+        const notice = payload.isPreorder
+          ? `${payload.name} added as a pre-order.`
+          : `${payload.name} added to your bag.`;
         const print = fingerprint(payload);
         const existing = get().lines.find(
           (line) =>
@@ -89,6 +95,7 @@ export const useCartStore = create<CartState>()(
                 : line
             ),
             ...(shouldOpen ? { isOpen: true } : {}),
+            notice,
           });
           return;
         }
@@ -114,6 +121,7 @@ export const useCartStore = create<CartState>()(
         set({
           lines: [...get().lines, line],
           ...(shouldOpen ? { isOpen: true } : {}),
+          notice,
         });
       },
       removeItem: (lineId) =>
@@ -130,6 +138,7 @@ export const useCartStore = create<CartState>()(
         });
       },
       clear: () => set({ lines: [] }),
+      clearNotice: () => set({ notice: null }),
       count: () => get().lines.reduce((n, l) => n + l.quantity, 0),
       subtotal: () => cartSubtotal(get().lines),
     }),

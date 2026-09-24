@@ -379,3 +379,14 @@ export async function getPublicPages(): Promise<PagesContent> {
   const raw = await getPublicSetting("pages");
   return parsePages(raw);
 }
+
+export async function getPublicContact(): Promise<ContactSettings> {
+  const raw = await getPublicSetting("contact");
+  return parseContact(raw);
+}
+
+/** A country name alone is a service area, not a postal address. */
+export function isPlaceholderAddress(address: string) {
+  const value = address.trim().toLowerCase();
+  return value === "" || value === "united kingdom" || value === "uk";
+}

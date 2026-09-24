@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { ShoppingBag, X } from "lucide-react";
 import CartLineItem from "@/components/shop/CartLineItem";
@@ -8,6 +8,7 @@ import { formatGbp } from "@/lib/products/money";
 import { lineTotal } from "@/lib/cart/types";
 import { PREORDER_LEAD } from "@/lib/products/stock";
 import { useCartStore } from "@/store/cart";
+import { useShippingQuote } from "@/components/shop/useShippingQuote";
 
 export default function CartDrawer() {
   const isOpen = useCartStore((s) => s.isOpen);
@@ -16,6 +17,8 @@ export default function CartDrawer() {
   const count = lines.reduce((n, l) => n + l.quantity, 0);
   const subtotal = lines.reduce((sum, l) => sum + lineTotal(l), 0);
   const hasPreorder = lines.some((l) => l.isPreorder);
+  const quote = useShippingQuote(subtotal);
+  const panelRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -28,11 +31,41 @@ export default function CartDrawer() {
 
   useEffect(() => {
     if (!isOpen) return;
+    const panel = panelRef.current;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
+    const focusable = () =>
+      Array.from(
+        panel?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        ) ?? []
+      );
+
+    focusable()[0]?.focus();
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeCart();
+      if (e.key === "Escape") {
+        closeCart();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const items = focusable();
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      previouslyFocused?.focus();
+    };
   }, [isOpen, closeCart]);
 
   return (
@@ -46,10 +79,13 @@ export default function CartDrawer() {
       />
 
       <aside
+        ref={panelRef}
+        inert={!isOpen}
         className={`fixed inset-y-0 right-0 z-[90] flex w-[min(100%,26rem)] flex-col border-l border-vb-line bg-vb-white shadow-[-24px_0_60px_-28px_rgba(18,17,16,0.45)] transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         aria-hidden={!isOpen}
+        aria-modal={isOpen}
         aria-label="Your bag"
       >
         <div className="flex shrink-0 items-center justify-between border-b border-vb-line px-5 py-5 sm:px-6">
@@ -117,16 +153,33 @@ export default function CartDrawer() {
 
         {lines.length > 0 && (
           <div className="shrink-0 space-y-3 border-t border-vb-line bg-vb-paper px-5 py-5 sm:px-6">
-            <div className="flex items-baseline justify-between gap-4">
-              <span className="font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-ink">
-                Subtotal
-              </span>
-              <span className="font-heading text-xl font-bold text-vb-ink">
+            <div className="flex items-baseline justify-between gap-4 text-sm text-vb-muted">
+              <span>Subtotal</span>
+              <span className="font-heading font-semibold text-vb-ink">
                 {formatGbp(subtotal)}
               </span>
             </div>
+            <div className="flex items-baseline justify-between gap-4 text-sm text-vb-muted">
+              <span>Shipping · UK standard</span>
+              <span className="font-heading font-semibold text-vb-ink">
+                {quote == null
+                  ? "…"
+                  : quote.shippingGbp === 0
+                    ? "Free"
+                    : formatGbp(quote.shippingGbp)}
+              </span>
+            </div>
+            <div className="flex items-baseline justify-between gap-4 border-t border-vb-line pt-3">
+              <span className="font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-ink">
+                Total
+              </span>
+              <span className="font-heading text-xl font-bold text-vb-ink">
+                {quote == null ? "…" : formatGbp(quote.totalGbp)}
+              </span>
+            </div>
             <p className="text-[11px] text-vb-muted">
-              UK shipping calculated at checkout from your postcode.
+              Exact rate (Highlands / NI) is confirmed from your postcode at
+              checkout.
             </p>
             <Link
               href="/checkout"

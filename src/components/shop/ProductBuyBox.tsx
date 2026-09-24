@@ -457,9 +457,14 @@ function FieldInputs({
 }) {
   if (!product.custom_fields.length) return null;
 
+  const labels = product.custom_fields
+    .map((field) => field.label.trim())
+    .filter(Boolean);
   const heading = product.requires_approval
     ? "Tell us what you need"
-    : "Choose your options";
+    : labels.length > 0
+      ? labels.join(" · ")
+      : "Choose your options";
 
   return (
     <div className="space-y-4 border-t border-vb-line pt-6">

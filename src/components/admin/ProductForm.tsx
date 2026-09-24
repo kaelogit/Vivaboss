@@ -96,16 +96,22 @@ export default function ProductForm({ productId, initial }: Props) {
     }
   };
 
-  const archive = async () => {
+  const removeProduct = async () => {
     if (!productId) return;
-    if (!confirm("Remove this from the shop?")) return;
+    if (
+      !confirm(
+        "Delete this product permanently? It leaves the shop and this list. Past orders keep the item name."
+      )
+    ) {
+      return;
+    }
     setLoading(true);
     const res = await fetch(`/api/admin/products/${productId}`, {
       method: "DELETE",
     });
     if (!res.ok) {
       const data = (await res.json()) as { error?: string };
-      setError(data.error ?? "Could not archive.");
+      setError(data.error ?? "Could not delete.");
       setLoading(false);
       return;
     }
@@ -515,10 +521,10 @@ export default function ProductForm({ productId, initial }: Props) {
           <button
             type="button"
             disabled={loading}
-            onClick={archive}
+            onClick={removeProduct}
             className="h-11 border border-vb-line px-5 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-vb-muted hover:text-vb-danger"
           >
-            Remove from shop
+            Delete product
           </button>
         )}
       </div>

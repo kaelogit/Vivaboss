@@ -6,7 +6,13 @@ export const metadata = {
   description: "Look up your Vivaboss Fusion order status with order number and email.",
 };
 
-export default function OrderTrackPage() {
+export default async function OrderTrackPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ order?: string; email?: string }>;
+}) {
+  const { order, email } = await searchParams;
+
   return (
     <main>
       <SectionIntro
@@ -15,7 +21,10 @@ export default function OrderTrackPage() {
         description="Enter the order number from your confirmation email and the email you used at checkout."
       />
       <div className="vb-container py-12 sm:py-16">
-        <OrderTrackForm />
+        <OrderTrackForm
+          initialOrderNumber={order ?? ""}
+          initialEmail={email ?? ""}
+        />
       </div>
     </main>
   );

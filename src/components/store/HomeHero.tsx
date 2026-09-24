@@ -31,7 +31,7 @@ export default function HomeHero({ content }: HeroProps) {
       <div className="relative min-h-[min(88vh,860px)] sm:min-h-[min(92vh,920px)]">
         <Image
           src={marketingImages.hero.primary}
-          alt=""
+          alt="Leather craft tools on a workbench, a smart lock on the front door, and a wrapped parcel ready for delivery"
           fill
           priority
           sizes="100vw"

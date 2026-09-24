@@ -25,9 +25,15 @@ type Tracked = {
   }[];
 };
 
-export default function OrderTrackForm() {
-  const [orderNumber, setOrderNumber] = useState("");
-  const [email, setEmail] = useState("");
+export default function OrderTrackForm({
+  initialOrderNumber = "",
+  initialEmail = "",
+}: {
+  initialOrderNumber?: string;
+  initialEmail?: string;
+}) {
+  const [orderNumber, setOrderNumber] = useState(initialOrderNumber);
+  const [email, setEmail] = useState(initialEmail);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [order, setOrder] = useState<Tracked | null>(null);

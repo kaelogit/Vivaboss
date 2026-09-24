@@ -158,11 +158,7 @@ export async function DELETE(_request: Request, { params }: Params) {
   const { id } = await params;
   const supabase = createAdminClient();
 
-  // Soft archive by default
-  const { error } = await supabase
-    .from("products")
-    .update({ status: "archived" })
-    .eq("id", id);
+  const { error } = await supabase.from("products").delete().eq("id", id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

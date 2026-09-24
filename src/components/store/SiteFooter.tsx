@@ -1,9 +1,15 @@
 import Link from "next/link";
 import { siteConfig } from "@/lib/site";
 import { footerColumns, whatsappHref } from "@/lib/navigation";
+import {
+  getPublicContact,
+  isPlaceholderAddress,
+} from "@/lib/content/siteSettings";
 
-export default function SiteFooter() {
+export default async function SiteFooter() {
   const year = new Date().getFullYear();
+  const contact = await getPublicContact();
+  const address = contact.address.trim();
 
   return (
     <footer className="mt-auto border-t border-vb-line bg-vb-ink text-vb-paper">
@@ -49,7 +55,11 @@ export default function SiteFooter() {
               >
                 {siteConfig.contact.phone}
               </a>
-              <p>{siteConfig.contact.address}</p>
+              <p>
+                {isPlaceholderAddress(address)
+                  ? "Serving the United Kingdom"
+                  : address}
+              </p>
             </div>
             <a
               href={whatsappHref()}

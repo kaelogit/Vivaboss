@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
+import BookingSteps from "@/components/bookings/BookingSteps";
 import {
   COURIER_URGENCIES,
   COURIER_VERTICALS,
@@ -41,6 +42,7 @@ export default function CourierBookingForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [doneId, setDoneId] = useState<string | null>(null);
+  const [step, setStep] = useState(0);
 
   const waLive = isWhatsAppLive();
   const waMessage = useMemo(
@@ -146,11 +148,36 @@ export default function CourierBookingForm({
     );
   }
 
+  const steps = ["The item", "Addresses", "Contact"] as const;
+
+  const continueStep = () => {
+    if (step === 0 && !itemDescription.trim()) {
+      setError("Describe what we’re moving.");
+      return;
+    }
+    if (
+      step === 1 &&
+      (!pickupLine1.trim() ||
+        !pickupPostcode.trim() ||
+        !dropoffLine1.trim() ||
+        !dropoffPostcode.trim())
+    ) {
+      setError("Add a street and postcode for both pickup and drop-off.");
+      return;
+    }
+    setError(null);
+    setStep((n) => Math.min(n + 1, steps.length - 1));
+  };
+
   return (
     <form
       onSubmit={submit}
       className="space-y-8 border border-vb-line bg-vb-white p-6 sm:p-10"
     >
+      <BookingSteps steps={steps} current={step} />
+
+      {step === 0 && (
+      <>
       <div>
         <p className="vb-eyebrow">Delivery</p>
         <h2 className="mt-2 font-heading text-xl font-bold uppercase tracking-tight">
@@ -227,7 +254,11 @@ export default function CourierBookingForm({
           </p>
         )}
       </div>
+      </>
+      )}
 
+      {step === 1 && (
+      <>
       <div className="grid gap-8 lg:grid-cols-2">
         <div>
           <p className="vb-eyebrow">Pickup</p>
@@ -309,7 +340,7 @@ export default function CourierBookingForm({
         </div>
       </div>
 
-      <label className="block">
+      <label className="block sm:col-span-2">
         <span className={labelClass}>Preferred window</span>
         <input
           value={preferredWindow}
@@ -318,7 +349,10 @@ export default function CourierBookingForm({
           className={fieldClass}
         />
       </label>
+      </>
+      )}
 
+      {step === 2 && (
       <div>
         <p className="vb-eyebrow">Contact</p>
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
@@ -352,6 +386,7 @@ export default function CourierBookingForm({
           </label>
         </div>
       </div>
+      )}
 
       {error && (
         <p className="border border-vb-danger/30 bg-vb-danger/5 px-4 py-3 text-sm text-vb-danger">
@@ -360,6 +395,28 @@ export default function CourierBookingForm({
       )}
 
       <div className="flex flex-wrap items-center gap-3">
+        {step > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              setError(null);
+              setStep((n) => n - 1);
+            }}
+            className="inline-flex h-11 items-center border border-vb-line px-5 font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-ink"
+          >
+            Back
+          </button>
+        )}
+        {step < 2 ? (
+          <button
+            type="button"
+            onClick={continueStep}
+            disabled={uploading}
+            className="inline-flex h-11 items-center bg-vb-ink px-6 font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-paper disabled:opacity-60"
+          >
+            Continue
+          </button>
+        ) : (
         <button
           type="submit"
           disabled={submitting || uploading}
@@ -374,6 +431,7 @@ export default function CourierBookingForm({
             "Request delivery"
           )}
         </button>
+        )}
         {waLive && (
           <a
             href={whatsappHref(

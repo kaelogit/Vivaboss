@@ -10,6 +10,7 @@ import {
   isUnavailable,
 } from "@/lib/products/stock";
 import { useCartStore } from "@/store/cart";
+import ProductPhotoFallback from "@/components/shop/ProductPhotoFallback";
 import type { ProductWithCategory } from "@/lib/products/queries";
 
 export default function ProductCard({
@@ -85,11 +86,7 @@ export default function ProductCard({
               )}
             </>
           ) : (
-            <div className="flex h-full items-end p-2.5 sm:p-4">
-              <span className="font-heading text-[9px] font-semibold uppercase tracking-[0.18em] text-vb-muted sm:text-[10px]">
-                Photo soon
-              </span>
-            </div>
+            <ProductPhotoFallback name={product.name} compact />
           )}
         </Link>
 

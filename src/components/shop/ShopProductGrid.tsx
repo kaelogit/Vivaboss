@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ProductCard from "@/components/shop/ProductCard";
 import type { ProductWithCategory } from "@/lib/products/queries";
 
@@ -8,15 +8,37 @@ type SortKey = "newest" | "price_asc" | "price_desc" | "name";
 
 export default function ShopProductGrid({
   products,
+  initialQuery = "",
 }: {
   products: ProductWithCategory[];
+  initialQuery?: string;
 }) {
   const [sort, setSort] = useState<SortKey>("newest");
   const [customOnly, setCustomOnly] = useState(false);
   const [installOnly, setInstallOnly] = useState(false);
+  const [query, setQuery] = useState(initialQuery);
+
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
 
   const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase();
     let list = [...products];
+    if (needle) {
+      list = list.filter((p) => {
+        const haystack = [
+          p.name,
+          p.short_description,
+          p.description,
+          p.categories?.name,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(needle);
+      });
+    }
     if (customOnly) list = list.filter((p) => p.is_customisable);
     if (installOnly) list = list.filter((p) => p.offers_installation);
     list.sort((a, b) => {
@@ -34,7 +56,7 @@ export default function ShopProductGrid({
       }
     });
     return list;
-  }, [products, sort, customOnly, installOnly]);
+  }, [products, sort, customOnly, installOnly, query]);
 
   return (
     <div>
@@ -42,7 +64,18 @@ export default function ShopProductGrid({
         <p className="text-sm text-vb-muted">
           {filtered.length} product{filtered.length === 1 ? "" : "s"}
         </p>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="sr-only" htmlFor="shop-search">
+            Search products
+          </label>
+          <input
+            id="shop-search"
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search products"
+            className="w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm text-vb-ink placeholder:text-vb-muted sm:w-56"
+          />
           <label className="flex items-center gap-2 text-sm text-vb-muted">
             <input
               type="checkbox"
@@ -74,7 +107,9 @@ export default function ShopProductGrid({
 
       {filtered.length === 0 ? (
         <p className="border border-dashed border-vb-line bg-vb-white px-6 py-12 text-center text-sm text-vb-muted">
-          No products match these filters.
+          {query.trim()
+            ? `No products match “${query.trim()}”.`
+            : "No products match these filters."}
         </p>
       ) : (
         <ul className="grid grid-cols-2 gap-x-2 gap-y-5 sm:gap-x-4 sm:gap-y-10 lg:grid-cols-3">

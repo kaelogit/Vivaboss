@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import { createAdminClient, hasAdminClient } from "@/lib/supabase/admin";
 import {
   generateOrderNumber,
-  getShippingGbp,
   getSiteUrl,
   getStripe,
   hasStripe,
   toPence,
 } from "@/lib/stripe";
+import { quoteUkShipping } from "@/lib/shipping/quote";
 import type { CartLine } from "@/lib/cart/types";
 import { assertUkPostcode } from "@/lib/uk/postcode";
 
@@ -164,23 +164,9 @@ export async function POST(request: Request) {
 
     const subtotal = pricedLines.reduce((s, l) => s + l.total, 0);
 
-    let shippingConfig = undefined as
-      | import("@/lib/shipping").ShippingConfig
-      | undefined;
-    try {
-      const { getAdminSetting, shippingToConfig, parseShipping } = await import(
-        "@/lib/content/siteSettings"
-      );
-      const row = await getAdminSetting("shipping");
-      if (row?.value) {
-        shippingConfig = shippingToConfig(parseShipping(row.value));
-      }
-    } catch {
-      /* use defaults */
-    }
-
-    const shipping = getShippingGbp(subtotal, postcode, shippingConfig);
-    const total = subtotal + shipping;
+    const shippingQuote = await quoteUkShipping(subtotal, postcode);
+    const shipping = shippingQuote.shippingGbp;
+    const total = shippingQuote.totalGbp;
     const orderNumber = generateOrderNumber();
 
     const { data: order, error: orderError } = await supabase
@@ -242,6 +228,7 @@ export async function POST(request: Request) {
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
+      allow_promotion_codes: true,
       customer_email: body.email.trim().toLowerCase(),
       line_items: [
         ...pricedLines.map((p) => ({

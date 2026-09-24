@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import SectionIntro from "@/components/store/SectionIntro";
-import ProductCard from "@/components/shop/ProductCard";
+import ShopProductGrid from "@/components/shop/ShopProductGrid";
 import {
   marketingImages,
   shopTileImages,
@@ -15,10 +15,16 @@ export const metadata = {
     "Fashion, personalised gifts, smart home products and home equipment from Vivaboss Fusion.",
 };
 
-export default async function ShopPage() {
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+  const initialQuery = q?.trim() ?? "";
   const [categories, products] = await Promise.all([
     getVisibleCategories(),
-    listActiveProducts({ limit: 24 }),
+    listActiveProducts(),
   ]);
 
   return (
@@ -80,30 +86,19 @@ export default async function ShopPage() {
         </div>
       </section>
 
-      <section className="bg-vb-paper py-16 sm:py-20">
+      <section id="shop-results" className="bg-vb-paper py-16 sm:py-20">
         <div className="vb-container">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="vb-eyebrow">Catalogue</p>
-              <h2 className="mt-3 font-heading text-3xl font-bold uppercase tracking-tight sm:text-4xl">
-                All products
-              </h2>
-            </div>
-            <p className="text-sm text-vb-muted">
-              {products.length
-                ? `${products.length} products`
-                : "New pieces landing soon"}
-            </p>
+          <div>
+            <p className="vb-eyebrow">Catalogue</p>
+            <h2 className="mt-3 font-heading text-3xl font-bold uppercase tracking-tight sm:text-4xl">
+              All products
+            </h2>
           </div>
 
           {products.length > 0 ? (
-            <ul className="mt-12 grid grid-cols-2 gap-x-2 gap-y-5 sm:gap-x-4 sm:gap-y-10 lg:grid-cols-3 xl:grid-cols-4">
-              {products.map((product, i) => (
-                <li key={product.id}>
-                  <ProductCard product={product} priority={i < 4} />
-                </li>
-              ))}
-            </ul>
+            <div className="mt-10">
+              <ShopProductGrid products={products} initialQuery={initialQuery} />
+            </div>
           ) : (
             <p className="mt-10 max-w-xl text-sm leading-relaxed text-vb-muted">
               The catalogue is being stocked. Browse categories above, or{" "}

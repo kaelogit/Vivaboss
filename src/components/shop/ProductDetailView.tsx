@@ -8,6 +8,23 @@ import type {
   ProductWithCategory,
 } from "@/lib/products/queries";
 
+function optionLabels(product: ProductDetail) {
+  return product.custom_fields.map((field) => field.label.trim()).filter(Boolean);
+}
+
+function optionBadge(labels: string[]) {
+  if (labels.length === 0) return "Options on this page";
+  if (labels.length <= 3) return labels.join(" · ");
+  return `${labels.slice(0, 2).join(" · ")} · +${labels.length - 2}`;
+}
+
+function optionCta(labels: string[]) {
+  if (labels.length === 0) return "See options";
+  if (labels.length === 1) return `Choose ${labels[0]}`;
+  if (labels.length === 2) return `Choose ${labels[0]} & ${labels[1]}`;
+  return `Choose ${labels[0]} +${labels.length - 1}`;
+}
+
 const promises = [
   {
     title: "UK delivery",
@@ -34,6 +51,7 @@ export default function ProductDetailView({
   const compare = saleCompareAt(price, product.compare_at_gbp);
   const discountPct = saleDiscountPercent(price, product.compare_at_gbp);
   const saveGbp = saleSaveGbp(price, product.compare_at_gbp);
+  const options = optionLabels(product);
 
   return (
     <main>
@@ -107,7 +125,7 @@ export default function ProductDetailView({
               <div className="mt-6 flex flex-wrap gap-2">
                 {product.is_customisable && !product.requires_approval && (
                   <span className="border border-vb-accent/30 bg-vb-accent-soft px-2.5 py-1 font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-accent">
-                    Choose options
+                    {optionBadge(options)}
                   </span>
                 )}
                 {product.requires_approval && (
@@ -166,7 +184,7 @@ export default function ProductDetailView({
             {product.requires_approval
               ? "Request quote"
               : product.is_customisable
-                ? "Choose options"
+                ? optionCta(options)
                 : "Add to bag"}
           </a>
         </div>
@@ -175,23 +193,17 @@ export default function ProductDetailView({
 
       <section className="border-b border-vb-line bg-vb-white py-16 sm:py-20">
         <div className="vb-container grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
-          <div>
-            <p className="vb-eyebrow">Details</p>
-            <h2 className="mt-3 font-heading text-2xl font-bold uppercase tracking-tight sm:text-3xl">
-              What’s included in the story
-            </h2>
-            {product.description ? (
+          {product.description ? (
+            <div>
+              <p className="vb-eyebrow">Details</p>
+              <h2 className="mt-3 font-heading text-2xl font-bold uppercase tracking-tight sm:text-3xl">
+                The details
+              </h2>
               <p className="mt-6 whitespace-pre-line text-base leading-relaxed text-vb-muted">
                 {product.description}
               </p>
-            ) : (
-              <p className="mt-6 text-base leading-relaxed text-vb-muted">
-                Full product notes will sit here as catalogue copy is enriched
-                in admin. Until then, use the buy box for options,
-                customisation, and installation where offered.
-              </p>
-            )}
-          </div>
+            </div>
+          ) : null}
 
             <div>
               <p className="vb-eyebrow">You might also need</p>
