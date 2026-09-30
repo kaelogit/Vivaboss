@@ -13,6 +13,18 @@ export type CustomFieldInput = {
   required: boolean;
   options: CustomFieldOption[];
   sort_order: number;
+  show_on_preview: boolean;
+  preview_x: number | null;
+  preview_y: number | null;
+  preview_w: number | null;
+  preview_h: number | null;
+  preview_caption: string;
+  max_length: number | null;
+  preview_ink: "light" | "dark";
+  preview_fit: "cover" | "contain";
+  preview_image_index: number;
+  preview_font: "sans" | "serif" | "script";
+  preview_size: "sm" | "md" | "lg";
 };
 
 /** How the customer buys this product on the shop. */
@@ -40,6 +52,7 @@ export type ProductFormInput = {
   low_stock_threshold: number;
   meta_title: string;
   meta_description: string;
+  preview_image_index: number;
   custom_fields: CustomFieldInput[];
 };
 
@@ -65,6 +78,7 @@ export const emptyProductForm: ProductFormInput = {
   low_stock_threshold: 5,
   meta_title: "",
   meta_description: "",
+  preview_image_index: 0,
   custom_fields: [],
 };
 
@@ -203,7 +217,13 @@ export function productFormToRow(input: ProductFormInput) {
     low_stock_threshold: input.low_stock_threshold || 5,
     meta_title: input.meta_title.trim() || null,
     meta_description: input.meta_description.trim() || null,
+    preview_image_index: Math.max(0, Math.floor(input.preview_image_index || 0)),
   };
+}
+
+function previewNumber(value: number | null | undefined) {
+  if (value == null || Number.isNaN(Number(value))) return null;
+  return Math.min(100, Math.max(0, Number(value)));
 }
 
 export function normalizeCustomFields(fields: CustomFieldInput[]) {
@@ -214,6 +234,29 @@ export function normalizeCustomFields(fields: CustomFieldInput[]) {
     required: field.required,
     options: field.options,
     sort_order: index + 1,
+    show_on_preview: Boolean(field.show_on_preview),
+    preview_x: field.show_on_preview ? previewNumber(field.preview_x) : null,
+    preview_y: field.show_on_preview ? previewNumber(field.preview_y) : null,
+    preview_w: field.show_on_preview ? previewNumber(field.preview_w) : null,
+    preview_h: field.show_on_preview ? previewNumber(field.preview_h) : null,
+    preview_caption: field.show_on_preview
+      ? field.preview_caption.trim().slice(0, 40) || null
+      : null,
+    max_length:
+      field.max_length != null && field.max_length > 0
+        ? Math.floor(field.max_length)
+        : null,
+    preview_ink: field.preview_ink === "dark" ? "dark" : "light",
+    preview_fit: field.preview_fit === "contain" ? "contain" : "cover",
+    preview_image_index: Math.max(0, Math.floor(field.preview_image_index || 0)),
+    preview_font:
+      field.preview_font === "serif" || field.preview_font === "script"
+        ? field.preview_font
+        : "sans",
+    preview_size:
+      field.preview_size === "sm" || field.preview_size === "lg"
+        ? field.preview_size
+        : "md",
   }));
 }
 
@@ -230,6 +273,18 @@ export function makeQuickField(
     required,
     options,
     sort_order: 1,
+    show_on_preview: false,
+    preview_x: null,
+    preview_y: null,
+    preview_w: null,
+    preview_h: null,
+    preview_caption: "",
+    max_length: null,
+    preview_ink: "light",
+    preview_fit: "cover",
+    preview_image_index: 0,
+    preview_font: "sans",
+    preview_size: "md",
   };
 }
 

@@ -318,6 +318,11 @@ export default function ProductForm({ productId, initial }: Props) {
             <CustomFieldsEditor
               fields={form.custom_fields}
               onChange={(custom_fields) => patch({ custom_fields })}
+              images={form.images}
+              previewImageIndex={form.preview_image_index}
+              onPreviewImageIndex={(preview_image_index) =>
+                patch({ preview_image_index })
+              }
               disabled={loading}
               mode={activeKind === "quote" ? "quote" : "customise"}
             />

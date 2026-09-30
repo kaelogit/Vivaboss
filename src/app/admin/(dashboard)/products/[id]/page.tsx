@@ -64,6 +64,7 @@ export default async function EditProductPage({ params }: Props) {
     low_stock_threshold: product.low_stock_threshold,
     meta_title: product.meta_title ?? "",
     meta_description: product.meta_description ?? "",
+    preview_image_index: product.preview_image_index ?? 0,
     custom_fields: (fields ?? []).map((f) => ({
       id: f.id,
       label: f.label,
@@ -74,6 +75,22 @@ export default async function EditProductPage({ params }: Props) {
         ? (f.options as CustomFieldOption[])
         : [],
       sort_order: f.sort_order,
+      show_on_preview: f.show_on_preview ?? false,
+      preview_x: f.preview_x == null ? null : Number(f.preview_x),
+      preview_y: f.preview_y == null ? null : Number(f.preview_y),
+      preview_w: f.preview_w == null ? null : Number(f.preview_w),
+      preview_h: f.preview_h == null ? null : Number(f.preview_h),
+      preview_caption: f.preview_caption ?? "",
+      max_length: f.max_length ?? null,
+      preview_ink: f.preview_ink === "dark" ? "dark" : "light",
+      preview_fit: f.preview_fit === "contain" ? "contain" : "cover",
+      preview_image_index: f.preview_image_index ?? 0,
+      preview_font:
+        f.preview_font === "serif" || f.preview_font === "script"
+          ? f.preview_font
+          : "sans",
+      preview_size:
+        f.preview_size === "sm" || f.preview_size === "lg" ? f.preview_size : "md",
     })),
   };
 

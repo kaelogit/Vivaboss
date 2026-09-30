@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { formatGbp, saleCompareAt, saleDiscountPercent, saleSaveGbp } from "@/lib/products/money";
 import {
   canPreorder,
@@ -13,6 +13,7 @@ import {
 import { useCartStore } from "@/store/cart";
 import type { CartCustomValue } from "@/lib/cart/types";
 import type { ProductDetail } from "@/lib/products/queries";
+import PersonalisationPreview from "@/components/shop/PersonalisationPreview";
 import type { CustomFieldOption } from "@/types/database";
 import { isWhatsAppLive } from "@/lib/site";
 import { whatsappHref } from "@/lib/navigation";
@@ -38,6 +39,19 @@ export default function ProductBuyBox({ product }: { product: ProductDetail }) {
   const [reqPhone, setReqPhone] = useState("");
   const [reqNotes, setReqNotes] = useState("");
   const [reqDone, setReqDone] = useState(false);
+  const [personaliseOpen, setPersonaliseOpen] = useState(false);
+  const hasPreview = product.custom_fields.some(
+    (field) => field.show_on_preview && Number(field.preview_w) > 0
+  );
+
+  useEffect(() => {
+    if (!personaliseOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPersonaliseOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [personaliseOpen]);
 
   const base = Number(product.price_gbp);
   const compare = saleCompareAt(base, product.compare_at_gbp);
@@ -105,6 +119,14 @@ export default function ProductBuyBox({ product }: { product: ProductDetail }) {
       const raw = values[field.key]?.trim() ?? "";
       if (field.required && !raw) {
         return `Please complete “${field.label}”.`;
+      }
+      if (
+        field.max_length &&
+        field.max_length > 0 &&
+        raw.length > field.max_length &&
+        field.field_type !== "file"
+      ) {
+        return `“${field.label}” must be ${field.max_length} characters or fewer.`;
       }
       if (!raw) continue;
       const opt = (field.options as CustomFieldOption[]).find(
@@ -194,6 +216,95 @@ export default function ProductBuyBox({ product }: { product: ProductDetail }) {
     }
   };
 
+  const personaliseDialog = personaliseOpen ? (
+    <div
+      className="fixed inset-0 z-[140] flex items-end justify-center bg-vb-ink/70 p-0 sm:items-center sm:p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Personalise"
+      onClick={() => setPersonaliseOpen(false)}
+    >
+      <div
+        className="grid max-h-[94vh] w-full max-w-5xl overflow-hidden bg-vb-white sm:max-h-[90vh] lg:grid-cols-2"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="max-h-[40vh] overflow-y-auto border-b border-vb-line p-5 lg:max-h-[90vh] lg:border-b-0 lg:border-r">
+          <PersonalisationPreview product={product} values={values} files={files} />
+        </div>
+        <div className="flex max-h-[54vh] flex-col lg:max-h-[90vh]">
+          <div className="flex items-center justify-between border-b border-vb-line px-5 py-4">
+            <p className="font-heading text-sm font-bold uppercase tracking-tight">
+              Personalise
+            </p>
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={() => setPersonaliseOpen(false)}
+              className="inline-flex h-10 w-10 items-center justify-center text-vb-ink"
+            >
+              <X size={18} strokeWidth={1.75} />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-5 py-5">
+            <FieldInputs
+              product={product}
+              values={values}
+              setValue={setValue}
+              uploadFile={uploadFile}
+              busy={busy}
+              files={files}
+              hidePreview
+            />
+          </div>
+          <div className="flex gap-3 border-t border-vb-line px-5 py-4">
+            <button
+              type="button"
+              onClick={() => setPersonaliseOpen(false)}
+              className="inline-flex h-12 flex-1 items-center justify-center border border-vb-ink font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-ink"
+            >
+              Done
+            </button>
+            {!product.requires_approval && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  if (addToCart()) setPersonaliseOpen(false);
+                }}
+                className="inline-flex h-12 flex-1 items-center justify-center bg-vb-accent font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-white hover:bg-vb-accent-hover disabled:opacity-50"
+              >
+                Add to bag
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  const personaliseButton = hasPreview ? (
+    <div className="space-y-4">
+      <PersonalisationPreview product={product} values={values} files={files} />
+      <button
+        type="button"
+        onClick={() => setPersonaliseOpen(true)}
+        className="inline-flex h-12 w-full items-center justify-center border border-vb-ink font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-ink hover:bg-vb-ink hover:text-vb-paper"
+      >
+        Personalise
+      </button>
+      {personaliseDialog}
+    </div>
+  ) : (
+    <FieldInputs
+      product={product}
+      values={values}
+      setValue={setValue}
+      uploadFile={uploadFile}
+      busy={busy}
+      files={files}
+    />
+  );
+
   if (product.requires_approval) {
     if (reqDone) {
       return (
@@ -216,14 +327,7 @@ export default function ProductBuyBox({ product }: { product: ProductDetail }) {
 
     return (
       <form onSubmit={submitRequest} className="mt-8 space-y-5">
-        <FieldInputs
-          product={product}
-          values={values}
-          setValue={setValue}
-          uploadFile={uploadFile}
-          busy={busy}
-          files={files}
-        />
+        {personaliseButton}
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
@@ -320,14 +424,7 @@ export default function ProductBuyBox({ product }: { product: ProductDetail }) {
         )}
       </div>
 
-      <FieldInputs
-        product={product}
-        values={values}
-        setValue={setValue}
-        uploadFile={uploadFile}
-        busy={busy}
-        files={files}
-      />
+      {personaliseButton}
 
       {product.offers_installation && (
         <label className="flex items-start gap-3 border border-vb-line bg-vb-paper px-4 py-3 text-sm">
@@ -447,6 +544,7 @@ function FieldInputs({
   uploadFile,
   busy,
   files,
+  hidePreview = false,
 }: {
   product: ProductDetail;
   values: FieldState;
@@ -454,6 +552,7 @@ function FieldInputs({
   uploadFile: (key: string, file: File) => Promise<void>;
   busy: boolean;
   files: Record<string, { url: string; path: string }>;
+  hidePreview?: boolean;
 }) {
   if (!product.custom_fields.length) return null;
 
@@ -466,14 +565,26 @@ function FieldInputs({
       ? labels.join(" · ")
       : "Choose your options";
 
+  const previewNumbers = new Map(
+    product.custom_fields
+      .filter((field) => field.show_on_preview)
+      .map((field, index) => [field.id, index + 1])
+  );
+
   return (
     <div className="space-y-4 border-t border-vb-line pt-6">
+      {!hidePreview && (
+        <PersonalisationPreview product={product} values={values} files={files} />
+      )}
       <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-muted">
         {heading}
       </p>
       {product.custom_fields.map((field) => (
         <div key={field.id}>
           <label className="font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
+            {previewNumbers.get(field.id)
+              ? `${previewNumbers.get(field.id)}. `
+              : ""}
             {field.label}
             {field.required ? " *" : ""}
           </label>
@@ -534,9 +645,15 @@ function FieldInputs({
             <textarea
               className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
               rows={3}
+              maxLength={field.max_length ?? undefined}
               value={values[field.key] ?? ""}
               onChange={(e) => setValue(field.key, e.target.value)}
             />
+            {field.max_length ? (
+              <p className="mt-1 text-right text-[11px] text-vb-muted">
+                {(values[field.key] ?? "").length}/{field.max_length}
+              </p>
+            ) : null}
           ) : field.field_type === "file" ? (
             <div className="mt-1.5 space-y-2">
               <input
@@ -562,9 +679,17 @@ function FieldInputs({
             <input
               type={field.field_type === "number" ? "number" : "text"}
               className="mt-1.5 h-11 w-full border border-vb-line bg-vb-paper px-3 text-sm"
+              maxLength={
+                field.field_type === "text" ? field.max_length ?? undefined : undefined
+              }
               value={values[field.key] ?? ""}
               onChange={(e) => setValue(field.key, e.target.value)}
             />
+            {field.field_type === "text" && field.max_length ? (
+              <p className="mt-1 text-right text-[11px] text-vb-muted">
+                {(values[field.key] ?? "").length}/{field.max_length}
+              </p>
+            ) : null}
           )}
         </div>
       ))}

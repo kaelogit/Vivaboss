@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
+import PreviewPlacer from "@/components/admin/PreviewPlacer";
 import type { CustomFieldInput } from "@/lib/admin/productForm";
 import {
   PRODUCT_FIELD_TEMPLATES,
@@ -27,6 +28,9 @@ const inputClass =
 type Props = {
   fields: CustomFieldInput[];
   onChange: (fields: CustomFieldInput[]) => void;
+  images?: string[];
+  previewImageIndex?: number;
+  onPreviewImageIndex?: (index: number) => void;
   disabled?: boolean;
   mode?: "customise" | "quote";
 };
@@ -34,6 +38,9 @@ type Props = {
 export default function CustomFieldsEditor({
   fields,
   onChange,
+  images = [],
+  previewImageIndex = 0,
+  onPreviewImageIndex,
   disabled,
   mode = "customise",
 }: Props) {
@@ -246,6 +253,144 @@ export default function CustomFieldsEditor({
                   Customer must answer
                 </label>
               </div>
+              <div className="sm:col-span-2">
+                <label className="flex items-center gap-2 text-sm text-vb-ink">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(field.show_on_preview)}
+                    disabled={disabled}
+                    onChange={(e) => {
+                      const on = e.target.checked;
+                      update(index, {
+                        show_on_preview: on,
+                        preview_image_index: previewImageIndex,
+                        preview_x: on ? (field.preview_x ?? 12 + (index % 3) * 6) : null,
+                        preview_y: on ? (field.preview_y ?? 18 + (index % 3) * 6) : null,
+                        preview_w: on ? (field.preview_w ?? 30) : null,
+                        preview_h: on ? (field.preview_h ?? 22) : null,
+                      });
+                    }}
+                  />
+                  Show on preview
+                </label>
+              </div>
+              {field.show_on_preview && (
+                <>
+                  <div>
+                    <label className={labelClass}>Zone name</label>
+                    <input
+                      className={inputClass}
+                      value={field.preview_caption ?? ""}
+                      disabled={disabled}
+                      placeholder="e.g. Front"
+                      onChange={(e) =>
+                        update(index, { preview_caption: e.target.value })
+                      }
+                    />
+                  </div>
+                  {(field.field_type === "text" ||
+                    field.field_type === "textarea") && (
+                    <div>
+                      <label className={labelClass}>Character limit</label>
+                      <input
+                        className={inputClass}
+                        type="number"
+                        min={1}
+                        value={field.max_length ?? ""}
+                        disabled={disabled}
+                        placeholder="No limit"
+                        onChange={(e) =>
+                          update(index, {
+                            max_length: e.target.value
+                              ? Number(e.target.value)
+                              : null,
+                          })
+                        }
+                      />
+                    </div>
+                  )}
+                  {field.field_type !== "file" && (
+                    <>
+                    <div>
+                      <label className={labelClass}>Font</label>
+                      <select
+                        className={inputClass}
+                        value={field.preview_font ?? "sans"}
+                        disabled={disabled}
+                        onChange={(e) =>
+                          update(index, {
+                            preview_font:
+                              e.target.value === "serif" || e.target.value === "script"
+                                ? e.target.value
+                                : "sans",
+                          })
+                        }
+                      >
+                        <option value="sans">Block</option>
+                        <option value="serif">Serif</option>
+                        <option value="script">Script</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelClass}>Size</label>
+                      <select
+                        className={inputClass}
+                        value={field.preview_size ?? "md"}
+                        disabled={disabled}
+                        onChange={(e) =>
+                          update(index, {
+                            preview_size:
+                              e.target.value === "sm" || e.target.value === "lg"
+                                ? e.target.value
+                                : "md",
+                          })
+                        }
+                      >
+                        <option value="sm">Small</option>
+                        <option value="md">Medium</option>
+                        <option value="lg">Large</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelClass}>Text on the photo</label>
+                      <select
+                        className={inputClass}
+                        value={field.preview_ink ?? "light"}
+                        disabled={disabled}
+                        onChange={(e) =>
+                          update(index, {
+                            preview_ink:
+                              e.target.value === "dark" ? "dark" : "light",
+                          })
+                        }
+                      >
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                      </select>
+                    </div>
+                    </>
+                  )}
+                  {field.field_type === "file" && (
+                    <div>
+                      <label className={labelClass}>Photo in the box</label>
+                      <select
+                        className={inputClass}
+                        value={field.preview_fit ?? "cover"}
+                        disabled={disabled}
+                        onChange={(e) =>
+                          update(index, {
+                            preview_fit:
+                              e.target.value === "contain" ? "contain" : "cover",
+                          })
+                        }
+                      >
+                        <option value="cover">Fill the box</option>
+                        <option value="contain">Fit inside the box</option>
+                      </select>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
 
             {needsOptions && (
@@ -351,6 +496,24 @@ export default function CustomFieldsEditor({
           </div>
         );
       })}
+
+      {fields.some((field) => field.show_on_preview) && (
+        <div className="border border-vb-line bg-vb-mist p-4 sm:p-5">
+          <h3 className="font-heading text-sm font-bold uppercase tracking-tight">
+            Where it shows
+          </h3>
+          <div className="mt-4">
+            <PreviewPlacer
+              images={images}
+              imageIndex={previewImageIndex}
+              onImageIndex={(index) => onPreviewImageIndex?.(index)}
+              fields={fields}
+              onChange={onChange}
+              disabled={disabled}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

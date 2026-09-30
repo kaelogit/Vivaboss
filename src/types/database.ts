@@ -152,6 +152,7 @@ type ProductsTable = {
     low_stock_threshold: number;
     meta_title: string | null;
     meta_description: string | null;
+    preview_image_index: number;
     created_at: string;
     updated_at: string;
   };
@@ -178,6 +179,7 @@ type ProductsTable = {
     low_stock_threshold?: number;
     meta_title?: string | null;
     meta_description?: string | null;
+    preview_image_index?: number;
     created_at?: string;
     updated_at?: string;
   };
@@ -203,6 +205,18 @@ type ProductCustomFieldsTable = {
     required: boolean;
     options: Json;
     sort_order: number;
+    show_on_preview: boolean;
+    preview_x: number | null;
+    preview_y: number | null;
+    preview_w: number | null;
+    preview_h: number | null;
+    preview_caption: string | null;
+    max_length: number | null;
+    preview_ink: string;
+    preview_fit: string;
+    preview_image_index: number;
+    preview_font: string;
+    preview_size: string;
     created_at: string;
   };
   Insert: {
@@ -214,6 +228,18 @@ type ProductCustomFieldsTable = {
     required?: boolean;
     options?: Json;
     sort_order?: number;
+    show_on_preview?: boolean;
+    preview_x?: number | null;
+    preview_y?: number | null;
+    preview_w?: number | null;
+    preview_h?: number | null;
+    preview_caption?: string | null;
+    max_length?: number | null;
+    preview_ink?: string;
+    preview_fit?: string;
+    preview_image_index?: number;
+    preview_font?: string;
+    preview_size?: string;
     created_at?: string;
   };
   Update: Partial<ProductCustomFieldsTable["Insert"]> & { id?: string };
