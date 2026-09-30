@@ -23,7 +23,7 @@ export default function HomePersonalised() {
             alt="Vivaboss engraving workshop with laser-engraved gifts, glassware, and tags"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-cover"
+            className="object-cover object-left object-top sm:object-[left_center]"
           />
         </div>
         <div className="flex items-center bg-vb-white px-6 py-16 sm:px-10 sm:py-20 lg:px-16 xl:px-20">
