@@ -26,8 +26,8 @@ export const marketingImages = {
     fashionCampaign: "/marketing/fashion-hero-campaign.jpg",
     shoes: "/marketing/shop-p2-leather-shoes.jpg",
     /** Personalised tile + category */
-    personalised: "/marketing/shop-p3-personalised-gift.jpg",
-    engraving: "/marketing/shop-p4-photo-engraving.jpg",
+    personalised: "/marketing/shop-personalised-engraving.png",
+    engraving: "/marketing/shop-personalised-workshop.png",
     giftClock: "/marketing/gift-africa-clock.jpg",
     smartHome: "/marketing/smart-sh1-product-collection.jpg",
     leatherBag: "/marketing/shop-p1-leather-bag.jpg",
@@ -57,7 +57,7 @@ export const marketingImages = {
 
 export const shopCategoryImages: Record<string, string> = {
   fashion: marketingImages.shop.fashionHero,
-  personalised: marketingImages.shop.giftClock,
+  personalised: marketingImages.shop.personalised,
   "smart-home": marketingImages.shop.smartHome,
   "home-diy": marketingImages.services.furnitureHero,
 };

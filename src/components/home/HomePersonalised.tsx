@@ -20,7 +20,7 @@ export default function HomePersonalised() {
         >
           <Image
             src={marketingImages.shop.engraving}
-            alt="Personalised engraving craft"
+            alt="Vivaboss engraving workshop with laser-engraved gifts, glassware, and tags"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
             className="object-cover"
