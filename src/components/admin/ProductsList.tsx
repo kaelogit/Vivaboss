@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { Loader2, Trash2 } from "lucide-react";
 import { formatGbp } from "@/lib/products/money";
 import { AdminTableSkeleton } from "@/components/admin/AdminSkeleton";
 
@@ -24,6 +25,7 @@ export default function ProductsList() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
 
@@ -52,11 +54,35 @@ export default function ProductsList() {
     });
   }, [products, q, status]);
 
+  const removeProduct = async (product: AdminProduct) => {
+    if (
+      !confirm(
+        `Delete “${product.name}” permanently? It leaves the shop. Past orders keep the item name.`
+      )
+    ) {
+      return;
+    }
+    setDeletingId(product.id);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/products/${product.id}`, {
+        method: "DELETE",
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(data.error ?? "Could not delete.");
+      setProducts((prev) => prev.filter((p) => p.id !== product.id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not delete.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   if (loading) {
-    return <AdminTableSkeleton rows={8} cols={5} />;
+    return <AdminTableSkeleton rows={8} cols={6} />;
   }
 
-  if (error) {
+  if (error && products.length === 0) {
     return (
       <div className="border border-vb-line bg-vb-white px-6 py-10">
         <p className="font-heading text-sm font-semibold uppercase tracking-[0.16em] text-vb-ink">
@@ -93,6 +119,12 @@ export default function ProductsList() {
         </select>
       </div>
 
+      {error && (
+        <p className="text-sm text-vb-danger" role="alert">
+          {error}
+        </p>
+      )}
+
       {filtered.length === 0 ? (
         <div className="border border-dashed border-vb-line bg-vb-white px-6 py-16 text-center">
           <p className="font-heading text-sm font-semibold uppercase tracking-[0.16em]">
@@ -120,6 +152,9 @@ export default function ProductsList() {
                 <th className="px-4 py-3 font-semibold">Stock</th>
                 <th className="px-4 py-3 font-semibold">Flags</th>
                 <th className="px-4 py-3 font-semibold">Status</th>
+                <th className="px-4 py-3 font-semibold">
+                  <span className="sr-only">Delete</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -175,6 +210,22 @@ export default function ProductsList() {
                   </td>
                   <td className="px-4 py-3 capitalize text-vb-muted">
                     {p.status}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      type="button"
+                      disabled={deletingId === p.id}
+                      onClick={() => removeProduct(p)}
+                      className="inline-flex h-9 w-9 items-center justify-center text-vb-muted transition-colors hover:bg-vb-mist hover:text-vb-danger disabled:opacity-50"
+                      aria-label={`Delete ${p.name}`}
+                      title="Delete product"
+                    >
+                      {deletingId === p.id ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={16} />
+                      )}
+                    </button>
                   </td>
                 </tr>
               ))}

@@ -321,7 +321,15 @@ export default function InventoryClient() {
 
       {!loading && visible.length > 0 && (
         <div className="overflow-x-auto border border-vb-line bg-vb-white">
-          <table className="min-w-full text-left text-sm">
+          <table className="w-full min-w-[720px] table-fixed text-left text-sm">
+            <colgroup>
+              <col className="w-[36%]" />
+              <col className="w-[10%]" />
+              <col className="w-[22%]" />
+              <col className="w-[12%]" />
+              <col className="w-[12%]" />
+              <col className="w-[8%]" />
+            </colgroup>
             <thead className="border-b border-vb-line bg-vb-mist font-heading text-[10px] uppercase tracking-[0.16em] text-vb-muted">
               <tr>
                 <th className="px-4 py-3 font-semibold">Product</th>
@@ -329,7 +337,9 @@ export default function InventoryClient() {
                 <th className="px-4 py-3 font-semibold">Quantity</th>
                 <th className="px-4 py-3 font-semibold">Low at</th>
                 <th className="px-4 py-3 font-semibold">Status</th>
-                <th className="px-4 py-3 font-semibold" />
+                <th className="px-4 py-3 font-semibold">
+                  <span className="sr-only">Edit</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -346,15 +356,15 @@ export default function InventoryClient() {
                     key={p.id}
                     className="border-b border-vb-line last:border-0"
                   >
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 align-middle">
                       <div className="flex items-center gap-3">
-                        <div className="relative h-12 w-12 shrink-0 overflow-hidden bg-vb-mist">
+                        <div className="relative h-10 w-10 shrink-0 overflow-hidden bg-vb-mist">
                           {img ? (
                             <Image
                               src={img}
                               alt=""
                               fill
-                              sizes="48px"
+                              sizes="40px"
                               className="object-cover"
                             />
                           ) : null}
@@ -370,7 +380,7 @@ export default function InventoryClient() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 align-middle">
                       <label className="inline-flex items-center gap-2 text-xs text-vb-ink">
                         <input
                           type="checkbox"
@@ -381,20 +391,23 @@ export default function InventoryClient() {
                         {p.track_stock ? "On" : "Off"}
                       </label>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 align-middle">
                       {p.track_stock ? (
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className="inline-flex flex-nowrap items-center gap-1.5 whitespace-nowrap">
                           <button
                             type="button"
                             disabled={busy || qty <= 0}
                             onClick={() => adjust(p.id, -1)}
-                            className="inline-flex h-8 w-8 items-center justify-center border border-vb-line hover:border-vb-ink disabled:opacity-40"
+                            className="inline-flex h-8 w-8 shrink-0 items-center justify-center border border-vb-line hover:border-vb-ink disabled:opacity-40"
                             aria-label="Decrease"
                           >
                             <Minus size={14} />
                           </button>
                           <input
-                            className={cn(inputClass, "w-20 text-center")}
+                            className={cn(
+                              inputClass,
+                              "h-8 w-14 shrink-0 px-1 text-center"
+                            )}
                             type="number"
                             min={0}
                             value={draftQty[p.id] ?? String(qty)}
@@ -418,7 +431,7 @@ export default function InventoryClient() {
                             type="button"
                             disabled={busy}
                             onClick={() => adjust(p.id, 1)}
-                            className="inline-flex h-8 w-8 items-center justify-center border border-vb-line hover:border-vb-ink disabled:opacity-40"
+                            className="inline-flex h-8 w-8 shrink-0 items-center justify-center border border-vb-line hover:border-vb-ink disabled:opacity-40"
                             aria-label="Increase"
                           >
                             <Plus size={14} />
@@ -426,7 +439,7 @@ export default function InventoryClient() {
                           {busy && (
                             <Loader2
                               size={14}
-                              className="animate-spin text-vb-muted"
+                              className="shrink-0 animate-spin text-vb-muted"
                             />
                           )}
                         </div>
@@ -436,10 +449,10 @@ export default function InventoryClient() {
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 align-middle">
                       {p.track_stock ? (
                         <input
-                          className={cn(inputClass, "w-20")}
+                          className={cn(inputClass, "h-8 w-16")}
                           type="number"
                           min={0}
                           value={draftThreshold[p.id] ?? String(thr)}
@@ -463,25 +476,25 @@ export default function InventoryClient() {
                         <span className="text-xs text-vb-muted">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-xs capitalize text-vb-muted">
+                    <td className="px-4 py-3 align-middle">
+                      <div className="space-y-0.5">
+                        <span className="block text-xs capitalize text-vb-muted">
                           {p.status.replace(/_/g, " ")}
                         </span>
                         {out && (
-                          <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-danger">
-                            Out of stock
-                            {p.allow_preorder ? " · pre-order on" : ""}
+                          <span className="block font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-danger">
+                            Out
+                            {p.allow_preorder ? " · pre-order" : ""}
                           </span>
                         )}
                         {low && (
-                          <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-accent">
-                            Low stock
+                          <span className="block font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-accent">
+                            Low
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3 align-middle text-right">
                       <Link
                         href={`/admin/products/${p.id}`}
                         className="inline-flex items-center gap-1 font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-accent hover:text-vb-accent-hover"

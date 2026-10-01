@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { siteConfig } from "@/lib/site";
@@ -13,48 +13,7 @@ import {
 } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { CartLink } from "@/components/store/CartBadge";
-
-function NavSearch({
-  id,
-  onDone,
-  className,
-}: {
-  id: string;
-  onDone?: () => void;
-  className?: string;
-}) {
-  const router = useRouter();
-  const [q, setQ] = useState("");
-
-  return (
-    <form
-      role="search"
-      className={className}
-      onSubmit={(e) => {
-        e.preventDefault();
-        const query = q.trim();
-        router.push(
-          query
-            ? `/shop?q=${encodeURIComponent(query)}#shop-results`
-            : "/shop#shop-results"
-        );
-        onDone?.();
-      }}
-    >
-      <label className="sr-only" htmlFor={id}>
-        Search products
-      </label>
-      <input
-        id={id}
-        type="search"
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder="Search"
-        className="h-9 w-full border border-vb-line bg-vb-paper px-3 text-sm text-vb-ink placeholder:text-vb-muted lg:w-36"
-      />
-    </form>
-  );
-}
+import SearchOverlay from "@/components/store/SearchOverlay";
 
 type MenuKey = "shop" | "services" | "courier" | null;
 
@@ -409,7 +368,7 @@ export default function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          <NavSearch id="nav-search" className="hidden lg:block" />
+          <SearchOverlay />
 
           <CartLink />
 
@@ -465,11 +424,6 @@ export default function SiteHeader() {
             className="vb-container flex-1 space-y-1 overflow-y-auto overscroll-contain py-6"
             aria-label="Mobile"
           >
-            <NavSearch
-              id="nav-search-mobile"
-              className="mb-6"
-              onDone={() => setOpen(false)}
-            />
             {primaryNav.map((item) => {
               const children = mobileChildren(item.href);
               return (

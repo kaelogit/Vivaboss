@@ -1,15 +1,31 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { useMemo } from "react";
+import { Check, Plus, Trash2 } from "lucide-react";
 import PreviewPlacer from "@/components/admin/PreviewPlacer";
 import type { CustomFieldInput } from "@/lib/admin/productForm";
 import {
   PRODUCT_FIELD_TEMPLATES,
   fieldsFromTemplate,
   makeQuickField,
+  type ProductFieldTemplate,
 } from "@/lib/admin/productForm";
 import { fieldKeyFromLabel } from "@/lib/products/slug";
+import { cn } from "@/lib/utils";
 import type { CustomFieldType } from "@/types/database";
+
+function packMatchesFields(
+  template: ProductFieldTemplate,
+  fields: CustomFieldInput[]
+) {
+  const pack = fieldsFromTemplate(template);
+  if (fields.length !== pack.length) return false;
+  return pack.every(
+    (expected, i) =>
+      fields[i]?.label === expected.label &&
+      fields[i]?.field_type === expected.field_type
+  );
+}
 
 const FIELD_TYPES: { value: CustomFieldType; label: string }[] = [
   { value: "text", label: "Short answer" },
@@ -44,8 +60,14 @@ export default function CustomFieldsEditor({
   disabled,
   mode = "customise",
 }: Props) {
-  const templates = PRODUCT_FIELD_TEMPLATES.filter((t) =>
-    t.modes.includes(mode)
+  const templates = useMemo(
+    () => PRODUCT_FIELD_TEMPLATES.filter((t) => t.modes.includes(mode)),
+    [mode]
+  );
+
+  const activePackId = useMemo(
+    () => templates.find((t) => packMatchesFields(t, fields))?.id ?? null,
+    [templates, fields]
   );
 
   const update = (index: number, patch: Partial<CustomFieldInput>) => {
@@ -90,23 +112,50 @@ export default function CustomFieldsEditor({
       {templates.length > 0 && (
         <div>
           <p className={labelClass}>Start with a pack</p>
+          <p className="mt-1 text-xs text-vb-muted">
+            Tap one to load questions. Selected pack stays highlighted.
+          </p>
           <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {templates.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                disabled={disabled}
-                onClick={() => applyTemplate(t.id)}
-                className="border border-vb-line bg-vb-paper px-4 py-3 text-left hover:border-vb-ink disabled:opacity-50"
-              >
-                <span className="font-heading text-[11px] font-semibold uppercase tracking-[0.14em] text-vb-ink">
-                  {t.title}
-                </span>
-                <span className="mt-1 block text-xs text-vb-muted">
-                  {t.fields.map((f) => f.label).join(" · ")}
-                </span>
-              </button>
-            ))}
+            {templates.map((t) => {
+              const selected = activePackId === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  disabled={disabled}
+                  aria-pressed={selected}
+                  onClick={() => applyTemplate(t.id)}
+                  className={cn(
+                    "relative border px-4 py-3 text-left transition-colors disabled:opacity-50",
+                    selected
+                      ? "border-vb-ink bg-vb-ink text-vb-paper"
+                      : "border-vb-line bg-vb-paper hover:border-vb-ink"
+                  )}
+                >
+                  {selected && (
+                    <span className="absolute right-2.5 top-2.5 text-vb-paper">
+                      <Check size={14} strokeWidth={2.5} aria-hidden />
+                    </span>
+                  )}
+                  <span
+                    className={cn(
+                      "font-heading text-[11px] font-semibold uppercase tracking-[0.14em]",
+                      selected ? "text-vb-paper" : "text-vb-ink"
+                    )}
+                  >
+                    {t.title}
+                  </span>
+                  <span
+                    className={cn(
+                      "mt-1 block text-xs",
+                      selected ? "text-vb-paper/75" : "text-vb-muted"
+                    )}
+                  >
+                    {t.fields.map((f) => f.label).join(" · ")}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
