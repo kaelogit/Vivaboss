@@ -642,18 +642,20 @@ function FieldInputs({
               ))}
             </select>
           ) : field.field_type === "textarea" ? (
-            <textarea
-              className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
-              rows={3}
-              maxLength={field.max_length ?? undefined}
-              value={values[field.key] ?? ""}
-              onChange={(e) => setValue(field.key, e.target.value)}
-            />
-            {field.max_length ? (
-              <p className="mt-1 text-right text-[11px] text-vb-muted">
-                {(values[field.key] ?? "").length}/{field.max_length}
-              </p>
-            ) : null}
+            <>
+              <textarea
+                className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
+                rows={3}
+                maxLength={field.max_length ?? undefined}
+                value={values[field.key] ?? ""}
+                onChange={(e) => setValue(field.key, e.target.value)}
+              />
+              {field.max_length ? (
+                <p className="mt-1 text-right text-[11px] text-vb-muted">
+                  {(values[field.key] ?? "").length}/{field.max_length}
+                </p>
+              ) : null}
+            </>
           ) : field.field_type === "file" ? (
             <div className="mt-1.5 space-y-2">
               <input
@@ -676,20 +678,24 @@ function FieldInputs({
               )}
             </div>
           ) : (
-            <input
-              type={field.field_type === "number" ? "number" : "text"}
-              className="mt-1.5 h-11 w-full border border-vb-line bg-vb-paper px-3 text-sm"
-              maxLength={
-                field.field_type === "text" ? field.max_length ?? undefined : undefined
-              }
-              value={values[field.key] ?? ""}
-              onChange={(e) => setValue(field.key, e.target.value)}
-            />
-            {field.field_type === "text" && field.max_length ? (
-              <p className="mt-1 text-right text-[11px] text-vb-muted">
-                {(values[field.key] ?? "").length}/{field.max_length}
-              </p>
-            ) : null}
+            <>
+              <input
+                type={field.field_type === "number" ? "number" : "text"}
+                className="mt-1.5 h-11 w-full border border-vb-line bg-vb-paper px-3 text-sm"
+                maxLength={
+                  field.field_type === "text"
+                    ? field.max_length ?? undefined
+                    : undefined
+                }
+                value={values[field.key] ?? ""}
+                onChange={(e) => setValue(field.key, e.target.value)}
+              />
+              {field.field_type === "text" && field.max_length ? (
+                <p className="mt-1 text-right text-[11px] text-vb-muted">
+                  {(values[field.key] ?? "").length}/{field.max_length}
+                </p>
+              ) : null}
+            </>
           )}
         </div>
       ))}
