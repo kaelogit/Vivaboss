@@ -4,13 +4,12 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { siteConfig, isWhatsAppLive } from "@/lib/site";
+import { siteConfig } from "@/lib/site";
 import {
   courierNavLinks,
   primaryNav,
   servicesNavLinks,
   shopCategories,
-  whatsappHref,
 } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { CartLink } from "@/components/store/CartBadge";
@@ -221,7 +220,6 @@ export default function SiteHeader() {
   const mobileRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState<MenuKey>(null);
-  const waLive = isWhatsAppLive();
 
   useEffect(() => {
     setOpen(false);
@@ -412,18 +410,6 @@ export default function SiteHeader() {
 
         <div className="flex items-center gap-1 sm:gap-2">
           <NavSearch id="nav-search" className="hidden lg:block" />
-          {waLive && (
-            <a
-              href={whatsappHref(
-                "Hi Vivaboss — I'd like to enquire about your services."
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden items-center px-3 py-1.5 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-vb-ink/80 transition-colors hover:text-vb-accent md:inline-flex"
-            >
-              WhatsApp
-            </a>
-          )}
 
           <CartLink />
 
@@ -516,27 +502,13 @@ export default function SiteHeader() {
                 </div>
               );
             })}
-            {waLive ? (
-              <a
-                href={whatsappHref(
-                  "Hi Vivaboss — I'd like to enquire about your services."
-                )}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 flex h-12 items-center justify-center bg-vb-accent font-heading text-xs font-semibold uppercase tracking-[0.18em] text-white"
-                onClick={() => setOpen(false)}
-              >
-                Chat on WhatsApp
-              </a>
-            ) : (
-              <Link
-                href="/contact"
-                onClick={() => setOpen(false)}
-                className="mt-4 flex h-12 items-center justify-center bg-vb-ink font-heading text-xs font-semibold uppercase tracking-[0.18em] text-vb-paper"
-              >
-                Contact us
-              </Link>
-            )}
+            <Link
+              href="/contact"
+              onClick={() => setOpen(false)}
+              className="mt-4 flex h-12 items-center justify-center bg-vb-ink font-heading text-xs font-semibold uppercase tracking-[0.18em] text-vb-paper"
+            >
+              Contact us
+            </Link>
           </nav>
         </div>
       )}
