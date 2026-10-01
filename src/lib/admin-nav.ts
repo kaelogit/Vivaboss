@@ -15,11 +15,19 @@ import {
   MessageSquareQuote,
 } from "lucide-react";
 
+export type AdminNavBadgeKey =
+  | "orders"
+  | "customRequests"
+  | "serviceJobs"
+  | "courierJobs"
+  | "reviews";
+
 export type AdminNavItem = {
   href: string;
   label: string;
   icon: LucideIcon;
   exact?: boolean;
+  badgeKey?: AdminNavBadgeKey;
 };
 
 export type AdminNavGroup = {
@@ -39,19 +47,30 @@ export const adminNav: AdminNavGroup[] = [
     items: [
       { href: "/admin/products", label: "Products", icon: Package },
       { href: "/admin/inventory", label: "Inventory", icon: Warehouse },
-      { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
+      { href: "/admin/orders", label: "Orders", icon: ShoppingBag, badgeKey: "orders" },
       {
         href: "/admin/custom-requests",
         label: "Custom Requests",
         icon: Sparkles,
+        badgeKey: "customRequests",
       },
     ],
   },
   {
     title: "Operations",
     items: [
-      { href: "/admin/service-jobs", label: "Service Jobs", icon: Wrench },
-      { href: "/admin/courier-jobs", label: "Courier Jobs", icon: Truck },
+      {
+        href: "/admin/service-jobs",
+        label: "Service Jobs",
+        icon: Wrench,
+        badgeKey: "serviceJobs",
+      },
+      {
+        href: "/admin/courier-jobs",
+        label: "Courier Jobs",
+        icon: Truck,
+        badgeKey: "courierJobs",
+      },
     ],
   },
   {
@@ -64,7 +83,12 @@ export const adminNav: AdminNavGroup[] = [
       { href: "/admin/content/homepage", label: "Homepage", icon: PanelsTopLeft },
       { href: "/admin/content/faq", label: "FAQ", icon: CircleHelp },
       { href: "/admin/content/pages", label: "Pages", icon: FileText },
-      { href: "/admin/reviews", label: "Reviews", icon: MessageSquareQuote },
+      {
+        href: "/admin/reviews",
+        label: "Reviews",
+        icon: MessageSquareQuote,
+        badgeKey: "reviews",
+      },
     ],
   },
   {

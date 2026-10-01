@@ -10,7 +10,7 @@ type Body = {
 export async function POST(request: Request) {
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Tracking is not configured yet." },
+      { error: "Unable to look up orders right now." },
       { status: 503 }
     );
   }

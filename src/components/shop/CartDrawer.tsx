@@ -121,7 +121,7 @@ export default function CartDrawer() {
                 Your bag is empty
               </p>
               <p className="mt-2 max-w-[16rem] text-sm text-vb-muted">
-                Fashion, personalised gifts, and smart-home pieces land here.
+                Add something from the shop to get started.
               </p>
               <button
                 type="button"

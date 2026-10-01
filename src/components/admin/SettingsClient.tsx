@@ -432,14 +432,24 @@ export default function SettingsClient() {
               Payments
             </h2>
             <p className="mt-3 text-sm text-vb-muted">
-              Stripe mode is controlled by{" "}
-              <code className="text-vb-ink">STRIPE_SECRET_KEY</code> in env —
-              not editable here.
+              Stripe keys are set in Vercel / env — not editable here.
             </p>
             <p className="mt-4 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-vb-ink">
               Mode:{" "}
-              <span className="text-vb-accent">{stripeMode}</span>
+              <span
+                className={
+                  stripeMode === "live" ? "text-vb-success" : "text-vb-accent"
+                }
+              >
+                {stripeMode}
+              </span>
             </p>
+            {stripeMode === "test" && (
+              <p className="mt-2 text-xs text-vb-danger">
+                Still on test keys — switch to live <code>sk_live_…</code> in
+                production env when you&apos;re ready to take real payments.
+              </p>
+            )}
           </section>
 
           <div className="flex items-center gap-3">

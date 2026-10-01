@@ -38,9 +38,8 @@ export default function CartPageClient() {
         <h1 className="mt-3 font-heading text-3xl font-extrabold uppercase tracking-tight text-vb-ink sm:text-4xl">
           Bag is empty
         </h1>
-        <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-vb-muted sm:text-base">
-          Discover fashion, personalised gifts, and smart-home pieces — then
-          come back here to review and checkout.
+        <p className="mx-auto mt-4 max-w-md text-sm text-vb-muted sm:text-base">
+          Browse the shop, then checkout here.
         </p>
         <Link
           href="/shop"

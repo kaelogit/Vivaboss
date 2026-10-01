@@ -94,16 +94,16 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
       : "/order/track";
 
   const intro = !paid
-    ? "We’re confirming your payment with Stripe. This page updates once it clears — a receipt follows by email."
+    ? "We’re confirming your payment. This page updates once it clears."
     : hasPreorder
-      ? `Payment received. Pre-order pieces typically take ${PREORDER_LEAD}. We’ll email you when they’re ready to ship.`
+      ? `Payment received. Pre-order pieces typically take ${PREORDER_LEAD}.`
       : "Payment received. A confirmation email is on its way.";
 
   return (
     <main>
       <ClearCartOnSuccess />
       <SectionIntro
-        eyebrow="Thank you"
+        compact
         title={
           !paid
             ? "Payment processing"
@@ -113,8 +113,8 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
         }
         description={intro}
       />
-      <div className="vb-container max-w-xl py-12 sm:py-16">
-        <div className="border border-vb-line bg-vb-white p-6 sm:p-8">
+      <div className="vb-container max-w-xl py-8 sm:py-10">
+        <div className="border border-vb-line bg-vb-white p-5 sm:p-6">
           <p className="vb-eyebrow">Order</p>
           <p className="mt-2 font-heading text-2xl font-bold tracking-tight">
             {orderNumber}
@@ -174,12 +174,6 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
               </p>
             </div>
           )}
-
-          <p className="mt-6 text-sm leading-relaxed text-vb-muted">
-            {hasPreorder
-              ? "Pre-order items are paid now and made when stock is ready. If you asked for installation, we’ll contact you to book the visit."
-              : "We’ll email you again when the order ships, with a tracking link. Installation requests are confirmed separately."}
-          </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link

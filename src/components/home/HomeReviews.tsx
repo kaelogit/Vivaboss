@@ -16,8 +16,7 @@ export default function HomeReviews({ reviews }: { reviews: PublicReview[] }) {
               From people who used Vivaboss
             </h2>
             <p className="mt-4 max-w-lg text-base leading-relaxed text-vb-muted">
-              A short sample of recent feedback — open the full page for every
-              review, or leave your own.
+              Recent feedback from customers across the shop and services.
             </p>
           </div>
           <div className="flex flex-wrap gap-x-5 gap-y-2">

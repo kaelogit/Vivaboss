@@ -51,7 +51,7 @@ export default function PersonalisationPreview({
   return (
     <div className="space-y-4">
       <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-muted">
-        Approximate preview
+        Preview
       </p>
       {sides.map((side) => {
         const photo = images[side];

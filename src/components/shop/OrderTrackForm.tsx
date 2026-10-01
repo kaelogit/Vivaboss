@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { formatGbp } from "@/lib/products/money";
+import { cn } from "@/lib/utils";
 
 type Tracked = {
   orderNumber: string;
@@ -24,6 +25,163 @@ type Tracked = {
     installation: boolean;
   }[];
 };
+
+type TimelineStep = {
+  key: string;
+  label: string;
+  detail?: string | null;
+  state: "done" | "current" | "upcoming";
+};
+
+function buildTimeline(order: Tracked): TimelineStep[] {
+  const status = order.status;
+  const cancelled = status === "cancelled" || status === "refunded";
+
+  if (cancelled) {
+    return [
+      {
+        key: "placed",
+        label: "Order placed",
+        detail: formatWhen(order.createdAt),
+        state: "done",
+      },
+      {
+        key: "end",
+        label: status === "refunded" ? "Refunded" : "Cancelled",
+        detail: null,
+        state: "current",
+      },
+    ];
+  }
+
+  const paid =
+    Boolean(order.paidAt) ||
+    [
+      "paid",
+      "pre_order",
+      "processing",
+      "personalising",
+      "shipped",
+      "delivered",
+    ].includes(status);
+
+  const preparing = [
+    "paid",
+    "pre_order",
+    "processing",
+    "personalising",
+  ].includes(status);
+
+  const shipped = status === "shipped" || status === "delivered";
+  const delivered = status === "delivered";
+
+  const prepareLabel =
+    status === "personalising"
+      ? "Personalising"
+      : status === "pre_order"
+        ? "Pre-order in progress"
+        : "Preparing";
+
+  let prepareState: TimelineStep["state"] = "upcoming";
+  if (shipped || delivered) prepareState = "done";
+  else if (preparing || (paid && status !== "pending_payment"))
+    prepareState = "current";
+
+  let shipState: TimelineStep["state"] = "upcoming";
+  if (delivered) shipState = "done";
+  else if (status === "shipped") shipState = "current";
+
+  return [
+    {
+      key: "placed",
+      label: "Order placed",
+      detail: formatWhen(order.createdAt),
+      state: "done",
+    },
+    {
+      key: "paid",
+      label: "Payment received",
+      detail: order.paidAt ? formatWhen(order.paidAt) : null,
+      state: paid ? (preparing || shipped || delivered ? "done" : "current") : "upcoming",
+    },
+    {
+      key: "prepare",
+      label: prepareLabel,
+      detail: null,
+      state: prepareState,
+    },
+    {
+      key: "shipped",
+      label: "Shipped",
+      detail: order.shippedAt ? formatWhen(order.shippedAt) : null,
+      state: shipState,
+    },
+    {
+      key: "delivered",
+      label: "Delivered",
+      detail: null,
+      state: delivered ? "done" : "upcoming",
+    },
+  ];
+}
+
+function formatWhen(iso: string) {
+  return new Date(iso).toLocaleString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function OrderTimeline({ order }: { order: Tracked }) {
+  const steps = buildTimeline(order);
+
+  return (
+    <ol className="relative mt-6 space-y-0" aria-label="Order progress">
+      {steps.map((step, i) => {
+        const last = i === steps.length - 1;
+        return (
+          <li key={step.key} className="relative flex gap-3 pb-4 last:pb-0">
+            {!last && (
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute left-[7px] top-4 bottom-0 w-px",
+                  step.state === "done" ? "bg-vb-accent" : "bg-vb-line"
+                )}
+              />
+            )}
+            <span
+              aria-hidden
+              className={cn(
+                "relative z-[1] mt-1 h-3.5 w-3.5 shrink-0 rounded-full border-2",
+                step.state === "done" && "border-vb-accent bg-vb-accent",
+                step.state === "current" &&
+                  "border-vb-accent bg-vb-paper ring-2 ring-vb-accent/25",
+                step.state === "upcoming" && "border-vb-line bg-vb-paper"
+              )}
+            />
+            <div className="min-w-0 flex-1 pt-0.5">
+              <p
+                className={cn(
+                  "font-heading text-[11px] font-semibold uppercase tracking-[0.14em]",
+                  step.state === "upcoming" ? "text-vb-muted" : "text-vb-ink"
+                )}
+              >
+                {step.label}
+              </p>
+              {step.detail && (
+                <p className="mt-0.5 text-xs text-vb-muted">{step.detail}</p>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
 
 export default function OrderTrackForm({
   initialOrderNumber = "",
@@ -65,7 +223,7 @@ export default function OrderTrackForm({
     <div className="mx-auto max-w-xl">
       <form
         onSubmit={submit}
-        className="space-y-5 border border-vb-line bg-vb-white p-6 sm:p-8"
+        className="space-y-4 border border-vb-line bg-vb-white p-5 sm:p-6"
       >
         <label className="block">
           <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
@@ -81,7 +239,7 @@ export default function OrderTrackForm({
         </label>
         <label className="block">
           <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
-            Email used at checkout
+            Email
           </span>
           <input
             required
@@ -113,24 +271,28 @@ export default function OrderTrackForm({
       </form>
 
       {order && (
-        <div className="mt-8 border border-vb-line bg-vb-white p-6 sm:p-8">
-          <p className="vb-eyebrow text-vb-accent">{order.orderNumber}</p>
-          <h2 className="mt-2 font-heading text-2xl font-bold uppercase tracking-tight capitalize">
+        <div className="mt-6 border border-vb-line bg-vb-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="font-heading text-[10px] font-semibold uppercase tracking-[0.18em] text-vb-accent">
+              {order.orderNumber}
+            </p>
+            <p className="text-sm text-vb-muted">
+              {formatGbp(Number(order.totalGbp))}
+            </p>
+          </div>
+          <h2 className="mt-2 font-heading text-xl font-bold uppercase tracking-tight text-vb-ink capitalize">
             {order.status.replace(/_/g, " ")}
           </h2>
-          <p className="mt-2 text-sm text-vb-muted">
-            Placed {new Date(order.createdAt).toLocaleString("en-GB")}
-            {order.paidAt
-              ? ` · Paid ${new Date(order.paidAt).toLocaleString("en-GB")}`
-              : ""}
-          </p>
           <p className="mt-1 text-sm text-vb-muted">Ship to {order.shipTo}</p>
+
+          <OrderTimeline order={order} />
+
           {(order.trackingNumber ||
             order.trackingCarrier ||
             order.trackingUrl) && (
-            <div className="mt-4 border border-vb-line bg-vb-paper px-4 py-3 text-sm">
+            <div className="mt-2 border border-vb-line bg-vb-paper px-4 py-3 text-sm">
               <p className="font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
-                Tracking
+                Parcel tracking
               </p>
               {order.trackingCarrier && (
                 <p className="mt-1 text-vb-ink">{order.trackingCarrier}</p>
@@ -138,11 +300,6 @@ export default function OrderTrackForm({
               {order.trackingNumber && (
                 <p className="mt-0.5 font-mono text-vb-ink">
                   {order.trackingNumber}
-                </p>
-              )}
-              {order.shippedAt && (
-                <p className="mt-1 text-xs text-vb-muted">
-                  Shipped {new Date(order.shippedAt).toLocaleString("en-GB")}
                 </p>
               )}
               {order.trackingUrl && (
@@ -157,7 +314,8 @@ export default function OrderTrackForm({
               )}
             </div>
           )}
-          <ul className="mt-6 divide-y divide-vb-line border-y border-vb-line text-sm">
+
+          <ul className="mt-5 divide-y divide-vb-line border-y border-vb-line text-sm">
             {order.items.map((item, i) => (
               <li key={i} className="flex justify-between gap-4 py-3">
                 <span>
@@ -172,7 +330,7 @@ export default function OrderTrackForm({
               </li>
             ))}
           </ul>
-          <div className="mt-4 flex justify-between text-sm">
+          <div className="mt-3 flex justify-between text-sm">
             <span className="text-vb-muted">
               Shipping {formatGbp(Number(order.shippingGbp))}
             </span>
@@ -182,9 +340,9 @@ export default function OrderTrackForm({
           </div>
           <Link
             href="/contact"
-            className="mt-6 inline-flex font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-accent"
+            className="mt-5 inline-flex font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-accent"
           >
-            Need help? Contact us →
+            Need help?
           </Link>
         </div>
       )}

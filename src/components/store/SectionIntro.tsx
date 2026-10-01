@@ -11,6 +11,8 @@ type Props = {
   /** Full-bleed header image from /public */
   image?: string;
   imageAlt?: string;
+  /** Tighter padding for utility pages (checkout, track, etc.) */
+  compact?: boolean;
 };
 
 /** Shared intro for public section pages — calm, editorial, not a card dump */
@@ -22,7 +24,15 @@ export default function SectionIntro({
   className,
   image,
   imageAlt = "",
+  compact = false,
 }: Props) {
+  const pad = compact
+    ? "py-10 sm:py-12"
+    : "py-16 sm:py-20 lg:py-24";
+  const heroPad = compact
+    ? "py-12 sm:py-16"
+    : "py-16 sm:py-24 lg:py-28";
+
   if (image) {
     return (
       <header
@@ -49,7 +59,7 @@ export default function SectionIntro({
             className="absolute inset-0 bg-[radial-gradient(ellipse_at_12%_20%,rgba(180,83,42,0.2)_0%,transparent_50%)]"
           />
         </div>
-        <div className="vb-container relative py-16 sm:py-24 lg:py-28" data-vb-reveal="up">
+        <div className={cn("vb-container relative", heroPad)} data-vb-reveal="up">
           {eyebrow && (
             <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.28em] text-vb-accent">
               {eyebrow}
@@ -71,13 +81,25 @@ export default function SectionIntro({
 
   return (
     <header className={cn("border-b border-vb-line bg-vb-paper", className)}>
-      <div className="vb-container py-16 sm:py-20 lg:py-24" data-vb-reveal="up">
+      <div className={cn("vb-container", pad)} data-vb-reveal="up">
         {eyebrow && <p className="vb-eyebrow">{eyebrow}</p>}
-        <h1 className="mt-3 max-w-3xl font-heading text-4xl font-extrabold uppercase tracking-tight text-vb-ink sm:text-5xl lg:text-6xl">
+        <h1
+          className={cn(
+            "mt-3 max-w-3xl font-heading font-extrabold uppercase tracking-tight text-vb-ink",
+            compact
+              ? "text-3xl sm:text-4xl"
+              : "text-4xl sm:text-5xl lg:text-6xl"
+          )}
+        >
           {title}
         </h1>
         {description && (
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-vb-muted sm:text-lg">
+          <p
+            className={cn(
+              "max-w-2xl leading-relaxed text-vb-muted",
+              compact ? "mt-3 text-sm" : "mt-5 text-base sm:text-lg"
+            )}
+          >
             {description}
           </p>
         )}

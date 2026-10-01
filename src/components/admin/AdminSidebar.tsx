@@ -5,9 +5,14 @@ import { usePathname } from "next/navigation";
 import { ExternalLink, Loader2 } from "lucide-react";
 import AdminSignOutButton from "@/components/admin/AdminSignOutButton";
 import { useAdminNav } from "@/components/admin/AdminNavContext";
-import { adminNav } from "@/lib/admin-nav";
+import { adminNav, type AdminNavBadgeKey } from "@/lib/admin-nav";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
+
+function formatBadge(n: number) {
+  if (n <= 0) return null;
+  return n > 99 ? "99+" : String(n);
+}
 
 export default function AdminSidebar({
   email,
@@ -17,11 +22,16 @@ export default function AdminSidebar({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
-  const { pendingHref, isPending, navigate } = useAdminNav();
+  const { pendingHref, isPending, navigate, counts } = useAdminNav();
 
   const go = (href: string) => {
     onNavigate?.();
     navigate(href);
+  };
+
+  const badgeFor = (key?: AdminNavBadgeKey) => {
+    if (!key) return null;
+    return formatBadge(counts[key]);
   };
 
   return (
@@ -57,11 +67,12 @@ export default function AdminSidebar({
               {group.title}
             </p>
             <ul className="space-y-0.5">
-              {group.items.map(({ href, label, icon: Icon, exact }) => {
+              {group.items.map(({ href, label, icon: Icon, exact, badgeKey }) => {
                 const active = exact
                   ? pathname === href
                   : pathname === href || pathname.startsWith(`${href}/`);
                 const pending = pendingHref === href && isPending;
+                const badge = badgeFor(badgeKey);
                 return (
                   <li key={href}>
                     <button
@@ -80,12 +91,25 @@ export default function AdminSidebar({
                         <Loader2
                           size={15}
                           strokeWidth={1.75}
-                          className="animate-spin"
+                          className="shrink-0 animate-spin"
                         />
                       ) : (
-                        <Icon size={15} strokeWidth={1.75} />
+                        <Icon size={15} strokeWidth={1.75} className="shrink-0" />
                       )}
-                      {label}
+                      <span className="min-w-0 flex-1 truncate">{label}</span>
+                      {badge && (
+                        <span
+                          className={cn(
+                            "ml-auto inline-flex min-w-[1.25rem] shrink-0 items-center justify-center px-1.5 py-0.5 font-heading text-[10px] font-bold tabular-nums",
+                            active
+                              ? "bg-vb-paper text-vb-ink"
+                              : "bg-vb-accent text-white"
+                          )}
+                          title="Needs attention"
+                        >
+                          {badge}
+                        </span>
+                      )}
                     </button>
                   </li>
                 );

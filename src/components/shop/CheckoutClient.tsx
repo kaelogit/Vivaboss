@@ -101,11 +101,10 @@ export default function CheckoutClient() {
   }
 
   return (
-    <div className="vb-container py-12 sm:py-16">
+    <div className="vb-container py-8 sm:py-10">
       {cancelled && (
         <p className="mb-6 border border-vb-line bg-vb-mist px-4 py-3 text-sm text-vb-muted">
-          Checkout was cancelled — your cart is still here when you&apos;re
-          ready.
+          Checkout cancelled — your bag is still here.
         </p>
       )}
 
@@ -162,12 +161,10 @@ export default function CheckoutClient() {
             className="inline-flex h-12 w-full items-center justify-center gap-2 bg-vb-accent font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-white hover:bg-vb-accent-hover disabled:opacity-50"
           >
             {busy ? <Loader2 size={16} className="animate-spin" /> : null}
-            {total == null ? "Pay with Stripe" : `Pay ${formatGbp(total)}`}
+            {total == null ? "Continue to payment" : `Pay ${formatGbp(total)}`}
           </button>
           <p className="text-xs text-vb-muted">
-            You’ll finish payment on Stripe’s secure page, including any
-            promotion code, and Apple Pay, Google Pay, or Link where your
-            device supports them. Your bag stays here if you come back.
+            Secure payment. Your bag is saved if you return.
           </p>
         </div>
 
@@ -176,7 +173,7 @@ export default function CheckoutClient() {
             Order summary
           </h2>
           {hasPreorder && (
-            <p className="mt-3 text-xs leading-relaxed text-vb-muted">
+            <p className="mt-3 text-xs text-vb-muted">
               Includes pre-order items — typically {PREORDER_LEAD} after payment.
             </p>
           )}
@@ -267,17 +264,17 @@ export default function CheckoutClient() {
           </div>
           <p className="mt-2 text-xs text-vb-muted">
             {postcodeReady
-              ? "This is the amount Stripe will charge, including UK delivery."
-              : "UK standard rate shown. Enter your postcode for Highlands, Islands, or Northern Ireland."}
+              ? "Includes UK delivery."
+              : "Enter your postcode for Highlands, Islands, or Northern Ireland."}
           </p>
           <ul className="mt-5 space-y-2.5 border-t border-vb-line pt-4 text-xs text-vb-muted">
             <li className="flex items-center gap-2">
               <Lock size={14} className="shrink-0 text-vb-accent" aria-hidden />
-              Card, Apple Pay, Google Pay, or Link via Stripe
+              Secure card payment
             </li>
             <li className="flex items-center gap-2">
               <Truck size={14} className="shrink-0 text-vb-accent" aria-hidden />
-              UK delivery with tracking after dispatch
+              UK delivery with tracking
             </li>
             <li className="flex items-center gap-2">
               <RotateCcw
@@ -328,11 +325,7 @@ function Field({
 export function CheckoutShell() {
   return (
     <main>
-      <SectionIntro
-        eyebrow="Checkout"
-        title="Secure checkout"
-        description="GBP payments via Stripe. Personalisation details travel with your order."
-      />
+      <SectionIntro compact title="Checkout" />
       <CheckoutClient />
     </main>
   );
