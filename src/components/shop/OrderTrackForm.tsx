@@ -13,6 +13,7 @@ type Tracked = {
   paidAt: string | null;
   totalGbp: number;
   shippingGbp: number;
+  fulfillmentMethod?: "delivery" | "collection";
   shipTo: string;
   trackingNumber: string | null;
   trackingCarrier: string | null;
@@ -91,6 +92,8 @@ function buildTimeline(order: Tracked): TimelineStep[] {
   if (delivered) shipState = "done";
   else if (status === "shipped") shipState = "current";
 
+  const collect = order.fulfillmentMethod === "collection";
+
   return [
     {
       key: "placed",
@@ -112,13 +115,13 @@ function buildTimeline(order: Tracked): TimelineStep[] {
     },
     {
       key: "shipped",
-      label: "Shipped",
+      label: collect ? "Ready to collect" : "Shipped",
       detail: order.shippedAt ? formatWhen(order.shippedAt) : null,
       state: shipState,
     },
     {
       key: "delivered",
-      label: "Delivered",
+      label: collect ? "Collected" : "Delivered",
       detail: null,
       state: delivered ? "done" : "upcoming",
     },
@@ -281,15 +284,26 @@ export default function OrderTrackForm({
             </p>
           </div>
           <h2 className="mt-2 font-heading text-xl font-bold uppercase tracking-tight text-vb-ink capitalize">
-            {order.status.replace(/_/g, " ")}
+            {order.fulfillmentMethod === "collection" &&
+            order.status === "shipped"
+              ? "Ready to collect"
+              : order.fulfillmentMethod === "collection" &&
+                  order.status === "delivered"
+                ? "Collected"
+                : order.status.replace(/_/g, " ")}
           </h2>
-          <p className="mt-1 text-sm text-vb-muted">Ship to {order.shipTo}</p>
+          <p className="mt-1 text-sm text-vb-muted">
+            {order.fulfillmentMethod === "collection"
+              ? `Collect from ${order.shipTo}`
+              : `Ship to ${order.shipTo}`}
+          </p>
 
           <OrderTimeline order={order} />
 
-          {(order.trackingNumber ||
-            order.trackingCarrier ||
-            order.trackingUrl) && (
+          {order.fulfillmentMethod !== "collection" &&
+            (order.trackingNumber ||
+              order.trackingCarrier ||
+              order.trackingUrl) && (
             <div className="mt-2 border border-vb-line bg-vb-paper px-4 py-3 text-sm">
               <p className="font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
                 Parcel tracking
@@ -332,7 +346,9 @@ export default function OrderTrackForm({
           </ul>
           <div className="mt-3 flex justify-between text-sm">
             <span className="text-vb-muted">
-              Shipping {formatGbp(Number(order.shippingGbp))}
+              {order.fulfillmentMethod === "collection"
+                ? "Click & collect · Free"
+                : `Shipping ${formatGbp(Number(order.shippingGbp))}`}
             </span>
             <span className="font-heading font-semibold">
               Total {formatGbp(Number(order.totalGbp))}

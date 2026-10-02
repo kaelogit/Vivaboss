@@ -8,6 +8,11 @@ import {
   toPence,
 } from "@/lib/stripe";
 import { quoteUkShipping } from "@/lib/shipping/quote";
+import {
+  loadShippingSettings,
+  resolveCollectionPoint,
+  type FulfillmentMethod,
+} from "@/lib/shipping/fulfillment";
 import type { CartLine } from "@/lib/cart/types";
 import { assertUkPostcode } from "@/lib/uk/postcode";
 
@@ -15,11 +20,12 @@ type CheckoutBody = {
   email: string;
   phone?: string;
   fullName: string;
-  addressLine1: string;
+  addressLine1?: string;
   addressLine2?: string;
-  city: string;
-  postcode: string;
+  city?: string;
+  postcode?: string;
   notes?: string;
+  fulfillmentMethod?: FulfillmentMethod;
   lines: CartLine[];
 };
 
@@ -45,22 +51,54 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    if (!body.addressLine1?.trim() || !body.city?.trim() || !body.postcode?.trim()) {
-      return NextResponse.json(
-        { error: "A full UK shipping address is required." },
-        { status: 400 }
-      );
+
+    const method: FulfillmentMethod =
+      body.fulfillmentMethod === "collection" ? "collection" : "delivery";
+
+    if (method === "collection") {
+      const shippingSettings = await loadShippingSettings();
+      if (!shippingSettings.collectionEnabled) {
+        return NextResponse.json(
+          { error: "Click & collect is not available right now." },
+          { status: 400 }
+        );
+      }
+      if (!body.phone?.trim()) {
+        return NextResponse.json(
+          { error: "A phone number is required for click & collect." },
+          { status: 400 }
+        );
+      }
     }
 
-    let postcode: string;
-    try {
-      postcode = assertUkPostcode(body.postcode);
-    } catch (err) {
-      return NextResponse.json(
-        { error: err instanceof Error ? err.message : "Invalid postcode." },
-        { status: 400 }
-      );
+    let addressLine1 = body.addressLine1?.trim() ?? "";
+    let addressLine2 = body.addressLine2?.trim() || null;
+    let city = body.city?.trim() ?? "";
+    let postcode = "";
+
+    if (method === "delivery") {
+      if (!addressLine1 || !city || !body.postcode?.trim()) {
+        return NextResponse.json(
+          { error: "A full UK delivery address is required." },
+          { status: 400 }
+        );
+      }
+      try {
+        postcode = assertUkPostcode(body.postcode);
+      } catch (err) {
+        return NextResponse.json(
+          { error: err instanceof Error ? err.message : "Invalid postcode." },
+          { status: 400 }
+        );
+      }
+    } else {
+      const point = await resolveCollectionPoint();
+      addressLine1 = point.addressLine1;
+      addressLine2 = point.addressLine2;
+      city = point.city;
+      postcode = point.postcode;
     }
+
     if (!body.lines?.length) {
       return NextResponse.json({ error: "Cart is empty." }, { status: 400 });
     }
@@ -164,7 +202,7 @@ export async function POST(request: Request) {
 
     const subtotal = pricedLines.reduce((s, l) => s + l.total, 0);
 
-    const shippingQuote = await quoteUkShipping(subtotal, postcode);
+    const shippingQuote = await quoteUkShipping(subtotal, postcode, method);
     const shipping = shippingQuote.shippingGbp;
     const total = shippingQuote.totalGbp;
     const orderNumber = generateOrderNumber();
@@ -177,11 +215,12 @@ export async function POST(request: Request) {
         email: body.email.trim().toLowerCase(),
         phone: body.phone?.trim() || null,
         full_name: body.fullName.trim(),
-        address_line1: body.addressLine1.trim(),
-        address_line2: body.addressLine2?.trim() || null,
-        city: body.city.trim(),
+        address_line1: addressLine1,
+        address_line2: addressLine2,
+        city,
         postcode,
         country: "GB",
+        fulfillment_method: method,
         subtotal_gbp: subtotal,
         shipping_gbp: shipping,
         total_gbp: total,
@@ -260,6 +299,7 @@ export async function POST(request: Request) {
       metadata: {
         order_id: order.id,
         order_number: order.order_number,
+        fulfillment_method: method,
       },
     });
 

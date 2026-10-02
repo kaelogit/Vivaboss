@@ -50,9 +50,13 @@ export async function sendOrderEmails(orderId: string): Promise<void> {
     })
     .join("");
 
+  const isCollection =
+    (order as { fulfillment_method?: string }).fulfillment_method ===
+    "collection";
+
   const hasPreorder = (items ?? []).some((i) => i.is_preorder);
   const preorderNote = hasPreorder
-    ? `<p style="margin-top:16px;padding:12px;background:#f9f8f6;border:1px solid #e8e6e1;font-size:14px;color:#666;">One or more items are on pre-order and typically take <strong>10–14 days</strong> after payment. We’ll be in touch when they’re ready to ship.</p>`
+    ? `<p style="margin-top:16px;padding:12px;background:#f9f8f6;border:1px solid #e8e6e1;font-size:14px;color:#666;">One or more items are on pre-order and typically take <strong>10–14 days</strong> after payment. We’ll be in touch when they’re ready to ${isCollection ? "collect" : "ship"}.</p>`
     : "";
 
   const address = [
@@ -73,17 +77,28 @@ export async function sendOrderEmails(orderId: string): Promise<void> {
       <p>Order <strong>${order.order_number}</strong> · ${formatGbp(Number(order.total_gbp))}</p>
       ${preorderNote}
       <table style="width:100%;border-collapse:collapse;margin:24px 0;">${lines}</table>
-      <p style="color:#666;font-size:14px;">Shipping ${formatGbp(Number(order.shipping_gbp))}</p>
-      <p style="margin-top:24px;"><strong>Ship to</strong><br/>${address}</p>
+      <p style="color:#666;font-size:14px;">${
+        isCollection
+          ? "Click & collect — free"
+          : `Shipping ${formatGbp(Number(order.shipping_gbp))}`
+      }</p>
+      <p style="margin-top:24px;"><strong>${
+        isCollection ? "Collect from" : "Ship to"
+      }</strong><br/>${address}</p>
+      ${
+        isCollection
+          ? `<p style="margin-top:12px;color:#666;font-size:13px;">We’ll email you when your order is ready to collect.</p>`
+          : ""
+      }
       <p style="margin-top:24px;color:#666;font-size:13px;">Questions? Reply to this email or visit <a href="${site}/contact">${site.replace(/^https?:\/\//, "")}/contact</a>.</p>
     </div>
   `;
 
   const htmlAdmin = `
     <div style="font-family:sans-serif;max-width:560px;">
-      <h2>New paid order ${order.order_number}${hasPreorder ? " (includes pre-order)" : ""}</h2>
+      <h2>New paid order ${order.order_number}${hasPreorder ? " (includes pre-order)" : ""}${isCollection ? " · click & collect" : ""}</h2>
       <p>${order.full_name} · ${order.email}${order.phone ? ` · ${order.phone}` : ""}</p>
-      <p>Total ${formatGbp(Number(order.total_gbp))}</p>
+      <p>Total ${formatGbp(Number(order.total_gbp))} · ${isCollection ? "Collection" : "Delivery"}</p>
       <table style="width:100%;border-collapse:collapse;">${lines}</table>
       <p><a href="${site}/admin/orders/${order.id}">Open in admin</a></p>
     </div>
@@ -135,6 +150,14 @@ export async function sendOrderShippedEmail(orderId: string): Promise<void> {
   const carrier = order.tracking_carrier?.trim() || null;
   const number = order.tracking_number?.trim() || null;
   const url = order.tracking_url?.trim() || null;
+  const isCollection = order.fulfillment_method === "collection";
+  const collectAddress = [
+    order.address_line1,
+    order.address_line2,
+    `${order.city} ${order.postcode}`,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   const trackingBlock = [
     carrier ? `<p><strong>Carrier:</strong> ${escapeHtml(carrier)}</p>` : "",
@@ -148,7 +171,23 @@ export async function sendOrderShippedEmail(orderId: string): Promise<void> {
     .filter(Boolean)
     .join("");
 
-  const htmlCustomer = `
+  const htmlCustomer = isCollection
+    ? `
+    <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#121110;">
+      <p style="letter-spacing:0.2em;text-transform:uppercase;font-size:11px;color:#b4532a;">Vivaboss Fusion</p>
+      <h1 style="font-size:24px;">Ready to collect</h1>
+      <p>Hi ${escapeHtml(order.full_name)},</p>
+      <p>Order <strong>${escapeHtml(order.order_number)}</strong> is ready for click &amp; collect.</p>
+      <p style="margin-top:16px;"><strong>Collect from</strong><br/>${escapeHtml(collectAddress)}</p>
+      <p style="margin-top:24px;color:#666;font-size:13px;">
+        Check status anytime at
+        <a href="${trackPage}">${trackPage.replace(/^https?:\/\//, "")}</a>
+        with your order number and email.
+      </p>
+      <p style="margin-top:16px;color:#666;font-size:13px;">Questions? <a href="${site}/contact">Contact Vivaboss</a>.</p>
+    </div>
+  `
+    : `
     <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#121110;">
       <p style="letter-spacing:0.2em;text-transform:uppercase;font-size:11px;color:#b4532a;">Vivaboss Fusion</p>
       <h1 style="font-size:24px;">Your order is on its way</h1>
@@ -171,7 +210,9 @@ export async function sendOrderShippedEmail(orderId: string): Promise<void> {
     from,
     to: order.email,
     replyTo,
-    subject: `Order ${order.order_number} shipped — Vivaboss`,
+    subject: isCollection
+      ? `Order ${order.order_number} ready to collect — Vivaboss`
+      : `Order ${order.order_number} shipped — Vivaboss`,
     html: htmlCustomer,
   });
 
@@ -181,10 +222,12 @@ export async function sendOrderShippedEmail(orderId: string): Promise<void> {
       from,
       to: admins,
       replyTo: order.email,
-      subject: `Shipped — ${order.order_number}`,
+      subject: isCollection
+        ? `Ready to collect — ${order.order_number}`
+        : `Shipped — ${order.order_number}`,
       html: `
       <div style="font-family:sans-serif;">
-        <h2>Ship email sent</h2>
+        <h2>${isCollection ? "Collection ready email sent" : "Ship email sent"}</h2>
         <p>${escapeHtml(order.full_name)} · ${escapeHtml(order.email)}</p>
         <p>Order ${escapeHtml(order.order_number)}</p>
         ${carrier ? `<p>Carrier: ${escapeHtml(carrier)}</p>` : ""}

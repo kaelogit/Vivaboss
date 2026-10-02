@@ -225,7 +225,7 @@ insert into public.site_settings (key, value) values
       "ukWide": true,
       "defaultRateGbp": null,
       "freeOverGbp": null,
-      "collectionEnabled": false
+      "collectionEnabled": true
     }'::jsonb
   ),
   (

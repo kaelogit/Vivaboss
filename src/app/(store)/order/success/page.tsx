@@ -41,6 +41,7 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
   let shipping: number | null = null;
   let email: string | null = null;
   let status = "received";
+  let fulfillmentMethod: "delivery" | "collection" = "delivery";
   let items: Line[] = [];
 
   if (orderId && hasAdminClient()) {
@@ -65,7 +66,9 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
     const supabase = createAdminClient();
     const { data } = await supabase
       .from("orders")
-      .select("order_number, total_gbp, shipping_gbp, email, status")
+      .select(
+        "order_number, total_gbp, shipping_gbp, email, status, fulfillment_method"
+      )
       .eq("id", orderId)
       .maybeSingle();
 
@@ -75,6 +78,8 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
       shipping = Number(data.shipping_gbp);
       email = data.email;
       status = data.status;
+      fulfillmentMethod =
+        data.fulfillment_method === "collection" ? "collection" : "delivery";
     }
 
     const { data: rows } = await supabase
@@ -93,11 +98,14 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
       ? `/order/track?order=${encodeURIComponent(orderNumber)}&email=${encodeURIComponent(email)}`
       : "/order/track";
 
+  const isCollection = fulfillmentMethod === "collection";
   const intro = !paid
     ? "We’re confirming your payment. This page updates once it clears."
     : hasPreorder
       ? `Payment received. Pre-order pieces typically take ${PREORDER_LEAD}.`
-      : "Payment received. A confirmation email is on its way.";
+      : isCollection
+        ? "Payment received. We’ll email you when your order is ready to collect."
+        : "Payment received. A confirmation email is on its way.";
 
   return (
     <main>
@@ -121,6 +129,7 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
           </p>
           <p className="mt-3 text-sm capitalize text-vb-muted">
             {status.replace(/_/g, " ")}
+            {isCollection ? " · Click & collect" : ""}
             {total != null ? ` · ${formatGbp(total)}` : ""}
           </p>
           {email && (
@@ -162,12 +171,17 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
 
           {total != null && (
             <div className="mt-4 space-y-1 text-sm text-vb-muted">
-              {shipping != null && shipping > 0 && (
+              {isCollection ? (
+                <p className="flex justify-between">
+                  <span>Click & collect</span>
+                  <span>Free</span>
+                </p>
+              ) : shipping != null && shipping > 0 ? (
                 <p className="flex justify-between">
                   <span>Shipping</span>
                   <span>{formatGbp(shipping)}</span>
                 </p>
-              )}
+              ) : null}
               <p className="flex justify-between font-heading font-semibold text-vb-ink">
                 <span>{paid ? "Total paid" : "Total"}</span>
                 <span>{formatGbp(total)}</span>

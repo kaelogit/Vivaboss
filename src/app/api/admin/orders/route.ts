@@ -16,7 +16,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("orders")
     .select(
-      "id, order_number, status, email, full_name, total_gbp, created_at, paid_at"
+      "id, order_number, status, email, full_name, total_gbp, created_at, paid_at, fulfillment_method"
     )
     .order("created_at", { ascending: false })
     .limit(100);

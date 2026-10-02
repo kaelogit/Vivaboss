@@ -125,8 +125,8 @@ export default function CartPageClient() {
               </span>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-vb-muted">
-              Standard UK delivery. Highlands, Islands, and Northern Ireland
-              are confirmed from your postcode at checkout.
+              UK delivery or free click & collect at checkout. Highlands,
+              Islands, and Northern Ireland rates use your postcode.
             </p>
             <Link
               href="/checkout"

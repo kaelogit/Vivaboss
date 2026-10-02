@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     const { data: order, error } = await supabase
       .from("orders")
       .select(
-        "id, order_number, status, full_name, created_at, paid_at, total_gbp, shipping_gbp, postcode, city, tracking_number, tracking_carrier, tracking_url, shipped_at"
+        "id, order_number, status, full_name, created_at, paid_at, total_gbp, shipping_gbp, fulfillment_method, postcode, city, address_line1, tracking_number, tracking_carrier, tracking_url, shipped_at"
       )
       .eq("order_number", orderNumber)
       .eq("email", email)
@@ -59,7 +59,14 @@ export async function POST(request: Request) {
         paidAt: order.paid_at,
         totalGbp: order.total_gbp,
         shippingGbp: order.shipping_gbp,
-        shipTo: `${order.city} ${order.postcode}`,
+        fulfillmentMethod:
+          order.fulfillment_method === "collection" ? "collection" : "delivery",
+        shipTo:
+          order.fulfillment_method === "collection"
+            ? [order.address_line1, order.city, order.postcode]
+                .filter(Boolean)
+                .join(", ")
+            : `${order.city} ${order.postcode}`,
         trackingNumber: order.tracking_number,
         trackingCarrier: order.tracking_carrier,
         trackingUrl: order.tracking_url,

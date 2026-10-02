@@ -178,8 +178,8 @@ export default function CartDrawer() {
               </span>
             </div>
             <p className="text-[11px] text-vb-muted">
-              Exact rate (Highlands / NI) is confirmed from your postcode at
-              checkout.
+              Delivery or free click & collect at checkout. Highlands / NI rates
+              use your postcode.
             </p>
             <Link
               href="/checkout"

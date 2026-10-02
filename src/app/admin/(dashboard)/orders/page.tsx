@@ -16,6 +16,7 @@ type OrderRow = {
   full_name: string;
   total_gbp: number;
   created_at: string;
+  fulfillment_method?: "delivery" | "collection" | null;
 };
 
 export default function AdminOrdersPage() {
@@ -75,6 +76,11 @@ export default function AdminOrdersPage() {
                     >
                       {o.order_number}
                     </Link>
+                    {o.fulfillment_method === "collection" && (
+                      <span className="mt-0.5 block text-[10px] font-heading font-semibold uppercase tracking-[0.12em] text-vb-accent">
+                        Click & collect
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span className="block">{o.full_name}</span>
@@ -82,7 +88,10 @@ export default function AdminOrdersPage() {
                   </td>
                   <td className="px-4 py-3">{formatGbp(o.total_gbp)}</td>
                   <td className="px-4 py-3 capitalize text-vb-muted">
-                    {o.status.replace(/_/g, " ")}
+                    {o.fulfillment_method === "collection" &&
+                    o.status === "shipped"
+                      ? "Ready to collect"
+                      : o.status.replace(/_/g, " ")}
                   </td>
                   <td className="px-4 py-3 text-vb-muted">
                     {new Date(o.created_at).toLocaleString("en-GB")}

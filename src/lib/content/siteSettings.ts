@@ -92,7 +92,7 @@ export function defaultShipping(): ShippingSettings {
   const d = getDefaultShippingConfig();
   return {
     ukWide: true,
-    collectionEnabled: false,
+    collectionEnabled: true,
     defaultRateGbp: d.defaultRateGbp,
     freeOverGbp: d.freeOverGbp > 0 ? d.freeOverGbp : null,
     bands: d.bands.map((b) => ({ ...b, prefixes: [...b.prefixes] })),

@@ -4,14 +4,18 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Loader2, Lock, RotateCcw, Truck } from "lucide-react";
+import { Loader2, Lock, MapPin, RotateCcw, Truck } from "lucide-react";
 import SectionIntro from "@/components/store/SectionIntro";
 import { formatGbp } from "@/lib/products/money";
 import { lineTotal } from "@/lib/cart/types";
 import { PREORDER_LEAD } from "@/lib/products/stock";
 import { useCartStore } from "@/store/cart";
 import { isValidUkPostcode } from "@/lib/uk/postcode";
-import { useShippingQuote } from "@/components/shop/useShippingQuote";
+import {
+  useShippingQuote,
+  type FulfillmentMethod,
+} from "@/components/shop/useShippingQuote";
+import { cn } from "@/lib/utils";
 
 export default function CheckoutClient() {
   const searchParams = useSearchParams();
@@ -26,6 +30,8 @@ export default function CheckoutClient() {
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fulfillment, setFulfillment] =
+    useState<FulfillmentMethod>("delivery");
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -36,17 +42,33 @@ export default function CheckoutClient() {
   const [postcode, setPostcode] = useState("");
   const [notes, setNotes] = useState("");
 
-  const quote = useShippingQuote(subtotal, postcode);
+  const quote = useShippingQuote(subtotal, postcode, fulfillment);
+  // Default on until quote loads — matches site settings default (avoids toggle flash).
+  const collectionEnabled = quote?.collectionEnabled ?? true;
+  const method =
+    fulfillment === "collection" && collectionEnabled
+      ? "collection"
+      : "delivery";
   const postcodeReady = isValidUkPostcode(postcode);
   const shipping = quote?.shippingGbp ?? null;
   const total = quote?.totalGbp ?? null;
 
   useEffect(() => setReady(true), []);
 
+  useEffect(() => {
+    if (quote && !quote.collectionEnabled && fulfillment === "collection") {
+      setFulfillment("delivery");
+    }
+  }, [quote, fulfillment]);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValidUkPostcode(postcode)) {
+    if (method === "delivery" && !isValidUkPostcode(postcode)) {
       setError("Enter a valid UK postcode.");
+      return;
+    }
+    if (method === "collection" && !phone.trim()) {
+      setError("A phone number helps us reach you for collection.");
       return;
     }
     setBusy(true);
@@ -59,11 +81,12 @@ export default function CheckoutClient() {
           fullName,
           email,
           phone,
-          addressLine1,
-          addressLine2,
-          city,
-          postcode,
+          addressLine1: method === "delivery" ? addressLine1 : undefined,
+          addressLine2: method === "delivery" ? addressLine2 : undefined,
+          city: method === "delivery" ? city : undefined,
+          postcode: method === "delivery" ? postcode : undefined,
           notes,
+          fulfillmentMethod: method,
           lines,
         }),
       });
@@ -113,35 +136,107 @@ export default function CheckoutClient() {
         className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]"
       >
         <div className="space-y-4 border border-vb-line bg-vb-white p-6 sm:p-8">
+          {collectionEnabled && (
+            <div>
+              <p className="font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
+                How do you want it?
+              </p>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {(
+                  [
+                    { id: "delivery" as const, label: "Delivery", icon: Truck },
+                    {
+                      id: "collection" as const,
+                      label: "Click & collect",
+                      icon: MapPin,
+                    },
+                  ] as const
+                ).map((opt) => {
+                  const Icon = opt.icon;
+                  const active = fulfillment === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setFulfillment(opt.id)}
+                      className={cn(
+                        "flex items-center justify-center gap-2 border px-3 py-3 font-heading text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors",
+                        active
+                          ? "border-vb-ink bg-vb-ink text-vb-paper"
+                          : "border-vb-line bg-vb-paper text-vb-ink hover:border-vb-ink"
+                      )}
+                    >
+                      <Icon size={14} strokeWidth={1.75} />
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <h2 className="font-heading text-sm font-bold uppercase tracking-tight">
-            Delivery details
+            {method === "collection" ? "Your details" : "Delivery details"}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Full name *" value={fullName} onChange={setFullName} required />
-            <Field label="Email *" type="email" value={email} onChange={setEmail} required />
-            <Field label="Phone" value={phone} onChange={setPhone} />
-            <div className="sm:col-span-2">
-              <Field
-                label="Address line 1 *"
-                value={addressLine1}
-                onChange={setAddressLine1}
-                required
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <Field
-                label="Address line 2"
-                value={addressLine2}
-                onChange={setAddressLine2}
-              />
-            </div>
-            <Field label="City *" value={city} onChange={setCity} required />
             <Field
-              label="Postcode *"
-              value={postcode}
-              onChange={setPostcode}
+              label="Full name *"
+              value={fullName}
+              onChange={setFullName}
               required
             />
+            <Field
+              label="Email *"
+              type="email"
+              value={email}
+              onChange={setEmail}
+              required
+            />
+            <Field
+              label={method === "collection" ? "Phone *" : "Phone"}
+              type="tel"
+              value={phone}
+              onChange={setPhone}
+              required={method === "collection"}
+            />
+            {method === "delivery" ? (
+              <>
+                <div className="sm:col-span-2">
+                  <Field
+                    label="Address line 1 *"
+                    value={addressLine1}
+                    onChange={setAddressLine1}
+                    required
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <Field
+                    label="Address line 2"
+                    value={addressLine2}
+                    onChange={setAddressLine2}
+                  />
+                </div>
+                <Field label="City *" value={city} onChange={setCity} required />
+                <Field
+                  label="Postcode *"
+                  value={postcode}
+                  onChange={setPostcode}
+                  required
+                />
+              </>
+            ) : (
+              <div className="sm:col-span-2 border border-vb-line bg-vb-mist/50 px-4 py-3 text-sm text-vb-ink">
+                <p className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-muted">
+                  Collect from
+                </p>
+                <p className="mt-1.5">
+                  {quote?.collectionLabel ?? "Vivaboss Fusion"}
+                </p>
+                <p className="mt-2 text-xs text-vb-muted">
+                  Free pickup. We’ll email you when your order is ready.
+                </p>
+              </div>
+            )}
             <div className="sm:col-span-2">
               <label className="font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
                 Order notes
@@ -243,11 +338,13 @@ export default function CheckoutClient() {
             </div>
             <div className="flex justify-between text-vb-muted">
               <span>
-                {shipping === 0
-                  ? "Shipping"
-                  : quote?.bandLabel
-                    ? `Shipping · ${quote.bandLabel}`
-                    : "Shipping · UK standard"}
+                {method === "collection"
+                  ? "Click & collect"
+                  : shipping === 0
+                    ? "Shipping"
+                    : quote?.bandLabel
+                      ? `Shipping · ${quote.bandLabel}`
+                      : "Shipping · UK standard"}
               </span>
               <span>
                 {shipping == null
@@ -263,9 +360,11 @@ export default function CheckoutClient() {
             </div>
           </div>
           <p className="mt-2 text-xs text-vb-muted">
-            {postcodeReady
-              ? "Includes UK delivery."
-              : "Enter your postcode for Highlands, Islands, or Northern Ireland."}
+            {method === "collection"
+              ? "No shipping charge for pickup."
+              : postcodeReady
+                ? "Includes UK delivery."
+                : "Enter your postcode for Highlands, Islands, or Northern Ireland."}
           </p>
           <ul className="mt-5 space-y-2.5 border-t border-vb-line pt-4 text-xs text-vb-muted">
             <li className="flex items-center gap-2">
@@ -273,8 +372,22 @@ export default function CheckoutClient() {
               Secure card payment
             </li>
             <li className="flex items-center gap-2">
-              <Truck size={14} className="shrink-0 text-vb-accent" aria-hidden />
-              UK delivery with tracking
+              {method === "collection" ? (
+                <MapPin
+                  size={14}
+                  className="shrink-0 text-vb-accent"
+                  aria-hidden
+                />
+              ) : (
+                <Truck
+                  size={14}
+                  className="shrink-0 text-vb-accent"
+                  aria-hidden
+                />
+              )}
+              {method === "collection"
+                ? "Collect when we email you"
+                : "UK delivery with tracking"}
             </li>
             <li className="flex items-center gap-2">
               <RotateCcw
@@ -282,7 +395,10 @@ export default function CheckoutClient() {
                 className="shrink-0 text-vb-accent"
                 aria-hidden
               />
-              <Link href="/returns" className="underline-offset-2 hover:underline">
+              <Link
+                href="/returns"
+                className="underline-offset-2 hover:underline"
+              >
                 Returns & refunds
               </Link>
             </li>

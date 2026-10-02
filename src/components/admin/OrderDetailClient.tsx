@@ -21,6 +21,7 @@ type Order = {
   city: string;
   postcode: string;
   country: string;
+  fulfillment_method?: "delivery" | "collection" | null;
   subtotal_gbp: number;
   shipping_gbp: number;
   total_gbp: number;
@@ -160,10 +161,16 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
           "Stock restored for tracked items on this order."
         );
       } else if (data.shippedEmailSent) {
-        setNotice("Shipped — tracking email sent to the customer.");
+        setNotice(
+          order?.fulfillment_method === "collection"
+            ? "Ready to collect — email sent to the customer."
+            : "Shipped — tracking email sent to the customer."
+        );
       } else if (status === "shipped" && notifyShipped) {
         setNotice(
-          "Saved as shipped, but the email did not send. Check RESEND_API_KEY."
+          order?.fulfillment_method === "collection"
+            ? "Saved as ready to collect, but the email did not send. Check RESEND_API_KEY."
+            : "Saved as shipped, but the email did not send. Check RESEND_API_KEY."
         );
       }
     } catch (err) {
@@ -284,8 +291,17 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
                 <span>{formatGbp(Number(order.subtotal_gbp))}</span>
               </div>
               <div className="flex justify-between text-vb-muted">
-                <span>Shipping</span>
-                <span>{formatGbp(Number(order.shipping_gbp))}</span>
+                <span>
+                  {order.fulfillment_method === "collection"
+                    ? "Click & collect"
+                    : "Shipping"}
+                </span>
+                <span>
+                  {order.fulfillment_method === "collection" ||
+                  Number(order.shipping_gbp) === 0
+                    ? "Free"
+                    : formatGbp(Number(order.shipping_gbp))}
+                </span>
               </div>
               <div className="flex justify-between font-heading font-semibold">
                 <span>Total</span>
@@ -339,6 +355,11 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
               </a>
               {order.phone && <p>{order.phone}</p>}
               <p className="pt-3 text-vb-muted">
+                <span className="mb-1 block font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-ink">
+                  {order.fulfillment_method === "collection"
+                    ? "Click & collect"
+                    : "Delivery"}
+                </span>
                 {order.address_line1}
                 {order.address_line2 ? `, ${order.address_line2}` : ""}
                 <br />
@@ -384,43 +405,52 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
               >
                 {STATUSES.map((s) => (
                   <option key={s} value={s}>
-                    {s.replace(/_/g, " ")}
+                    {order.fulfillment_method === "collection" && s === "shipped"
+                      ? "ready to collect"
+                      : order.fulfillment_method === "collection" &&
+                          s === "delivered"
+                        ? "collected"
+                        : s.replace(/_/g, " ")}
                   </option>
                 ))}
               </select>
             </label>
-            <label className="mt-4 block">
-              <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-muted">
-                Carrier
-              </span>
-              <input
-                value={trackingCarrier}
-                onChange={(e) => setTrackingCarrier(e.target.value)}
-                placeholder="Royal Mail, DPD, Evri…"
-                className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
-              />
-            </label>
-            <label className="mt-4 block">
-              <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-muted">
-                Tracking number
-              </span>
-              <input
-                value={trackingNumber}
-                onChange={(e) => setTrackingNumber(e.target.value)}
-                className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
-              />
-            </label>
-            <label className="mt-4 block">
-              <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-muted">
-                Tracking URL
-              </span>
-              <input
-                value={trackingUrl}
-                onChange={(e) => setTrackingUrl(e.target.value)}
-                placeholder="https://…"
-                className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
-              />
-            </label>
+            {order.fulfillment_method !== "collection" && (
+              <>
+                <label className="mt-4 block">
+                  <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-muted">
+                    Carrier
+                  </span>
+                  <input
+                    value={trackingCarrier}
+                    onChange={(e) => setTrackingCarrier(e.target.value)}
+                    placeholder="Royal Mail, DPD, Evri…"
+                    className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
+                  />
+                </label>
+                <label className="mt-4 block">
+                  <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-muted">
+                    Tracking number
+                  </span>
+                  <input
+                    value={trackingNumber}
+                    onChange={(e) => setTrackingNumber(e.target.value)}
+                    className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
+                  />
+                </label>
+                <label className="mt-4 block">
+                  <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-muted">
+                    Tracking URL
+                  </span>
+                  <input
+                    value={trackingUrl}
+                    onChange={(e) => setTrackingUrl(e.target.value)}
+                    placeholder="https://…"
+                    className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
+                  />
+                </label>
+              </>
+            )}
             <label className="mt-4 block">
               <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-muted">
                 Internal notes
@@ -439,7 +469,9 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
                   checked={notifyShipped}
                   onChange={(e) => setNotifyShipped(e.target.checked)}
                 />
-                Email customer shipping / tracking update
+                {order.fulfillment_method === "collection"
+                  ? "Email customer ready-to-collect update"
+                  : "Email customer shipping / tracking update"}
               </label>
             )}
             {error && <p className="mt-3 text-sm text-vb-danger">{error}</p>}
@@ -460,7 +492,9 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
                   Saving…
                 </>
               ) : status === "shipped" && notifyShipped ? (
-                "Save & email shipped"
+                order.fulfillment_method === "collection"
+                  ? "Save & email ready"
+                  : "Save & email shipped"
               ) : (
                 "Save"
               )}

@@ -465,7 +465,7 @@ insert into public.site_settings (key, value) values
     'shipping',
     '{
       "ukWide": true,
-      "collectionEnabled": false,
+      "collectionEnabled": true,
       "defaultRateGbp": 4.95,
       "freeOverGbp": 75,
       "bands": [

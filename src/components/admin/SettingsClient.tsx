@@ -294,7 +294,7 @@ export default function SettingsClient() {
                     patchShipping({ collectionEnabled: e.target.checked })
                   }
                 />
-                Collection enabled
+                Click &amp; collect at checkout (pickup address from Contact)
               </label>
             </div>
 

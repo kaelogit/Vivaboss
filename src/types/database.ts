@@ -267,6 +267,7 @@ type OrdersTable = {
     city: string;
     postcode: string;
     country: string;
+    fulfillment_method: "delivery" | "collection";
     subtotal_gbp: number;
     shipping_gbp: number;
     total_gbp: number;
@@ -296,6 +297,7 @@ type OrdersTable = {
     city: string;
     postcode: string;
     country?: string;
+    fulfillment_method?: "delivery" | "collection";
     subtotal_gbp?: number;
     shipping_gbp?: number;
     total_gbp?: number;
