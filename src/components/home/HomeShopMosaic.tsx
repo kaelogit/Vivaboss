@@ -42,7 +42,7 @@ export default function HomeShopMosaic() {
             <Link
               key={cat.slug}
               href={cat.href}
-              className="group relative min-h-[15rem] overflow-hidden bg-vb-mist sm:min-h-[18rem]"
+              className="vb-media-frame group relative min-h-[15rem] overflow-hidden sm:min-h-[18rem]"
               data-vb-reveal="scale"
               data-vb-reveal-delay={i * 70}
             >
@@ -82,7 +82,7 @@ export default function HomeShopMosaic() {
             <Link
               key={cat.slug}
               href={cat.href}
-              className="group relative col-span-2 min-h-[13rem] overflow-hidden bg-vb-mist sm:min-h-[16rem]"
+              className="vb-media-frame group relative col-span-2 min-h-[13rem] overflow-hidden sm:min-h-[16rem]"
               data-vb-reveal="scale"
               data-vb-reveal-delay={(i + 2) * 70}
             >
@@ -116,7 +116,7 @@ export default function HomeShopMosaic() {
         <div className="mt-12 hidden gap-3 lg:grid lg:grid-cols-4 lg:grid-rows-2">
           <Link
             href={fashion.href}
-            className="group relative col-span-2 row-span-2 min-h-[36rem] overflow-hidden bg-vb-mist"
+            className="vb-media-frame group relative col-span-2 row-span-2 min-h-[36rem] overflow-hidden"
             data-vb-reveal="scale"
           >
             <Image
@@ -150,7 +150,7 @@ export default function HomeShopMosaic() {
             <Link
               key={cat.slug}
               href={cat.href}
-              className="group relative min-h-[18rem] overflow-hidden bg-vb-mist"
+              className="vb-media-frame group relative min-h-[18rem] overflow-hidden"
               data-vb-reveal="scale"
               data-vb-reveal-delay={(i + 1) * 80}
             >
@@ -178,7 +178,7 @@ export default function HomeShopMosaic() {
 
           <Link
             href={diy.href}
-            className="group relative col-span-2 min-h-[18rem] overflow-hidden bg-vb-mist"
+            className="vb-media-frame group relative col-span-2 min-h-[18rem] overflow-hidden"
             data-vb-reveal="scale"
             data-vb-reveal-delay={240}
           >

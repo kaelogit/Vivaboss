@@ -78,7 +78,7 @@ export default function ServicesPage() {
               >
                 <Link href={arm.href} className="group block">
                   {armImages[arm.slug] && (
-                    <div className="relative mb-6 aspect-[16/10] overflow-hidden bg-vb-mist">
+                    <div className="vb-media-frame relative mb-6 aspect-[16/10] overflow-hidden">
                       <Image
                         src={armImages[arm.slug]}
                         alt=""
@@ -180,7 +180,7 @@ export default function ServicesPage() {
 
       <section className="border-b border-vb-line bg-vb-paper py-16 sm:py-20">
         <div className="vb-container grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
-          <div className="relative aspect-[4/3] overflow-hidden bg-vb-mist">
+          <div className="vb-media-frame relative aspect-[4/3] overflow-hidden">
             <Image
               src={marketingImages.shop.smartHome}
               alt="Smart home products for install"

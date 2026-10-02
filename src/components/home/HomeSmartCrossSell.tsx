@@ -36,7 +36,7 @@ export default function HomeSmartCrossSell() {
           </div>
         </div>
         <div
-          className="relative min-h-[280px] overflow-hidden sm:min-h-[360px] lg:min-h-full"
+          className="vb-media-frame relative min-h-[280px] overflow-hidden sm:min-h-[360px] lg:min-h-full"
           data-vb-reveal="fade"
         >
           <Image

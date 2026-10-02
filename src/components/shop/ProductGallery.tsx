@@ -40,7 +40,7 @@ export default function ProductGallery({
 
   if (!current) {
     return (
-      <div className="aspect-[4/5] overflow-hidden bg-vb-mist">
+      <div className="vb-media-frame aspect-[4/5] overflow-hidden">
         <ProductPhotoFallback name={name} />
       </div>
     );
@@ -49,7 +49,7 @@ export default function ProductGallery({
   return (
     <div className="space-y-3">
       <div
-        className="relative aspect-[4/5] touch-pan-y overflow-hidden bg-vb-mist"
+        className="vb-media-frame relative aspect-[4/5] touch-pan-y overflow-hidden"
         onPointerDown={(e) => {
           if ((e.target as HTMLElement).closest("button")) return;
           if (e.pointerType === "mouse" && e.button !== 0) return;
@@ -108,7 +108,7 @@ export default function ProductGallery({
                 type="button"
                 onClick={() => setActive(i)}
                 aria-label={`View image ${i + 1}`}
-                className={`relative aspect-square w-full overflow-hidden bg-vb-mist ${
+                className={`vb-media-frame relative aspect-square w-full overflow-hidden ${
                   i === active
                     ? "ring-2 ring-vb-accent ring-offset-2 ring-offset-vb-paper"
                     : "opacity-80 hover:opacity-100"

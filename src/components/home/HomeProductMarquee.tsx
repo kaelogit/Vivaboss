@@ -136,7 +136,7 @@ export default function HomeProductMarquee({ products }: Props) {
               draggable={false}
               onDragStart={(e) => e.preventDefault()}
             >
-              <div className="relative aspect-[4/5] w-full overflow-hidden bg-vb-mist">
+              <div className="vb-media-frame relative aspect-[4/5] w-full overflow-hidden">
                 {item.image ? (
                   <Image
                     src={item.image}

@@ -45,7 +45,7 @@ export default function HomeCourierBand() {
               >
                 <Link
                   href={v.href}
-                  className="group relative block min-h-[18rem] overflow-hidden bg-vb-mist sm:min-h-[20rem]"
+                className="vb-media-frame group relative block min-h-[18rem] overflow-hidden sm:min-h-[20rem]"
                 >
                   <Image
                     src={image}

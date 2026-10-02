@@ -40,7 +40,7 @@ export default function HomePathChooser({ eyebrow, title }: Props) {
             >
               <Link
                 href={door.href}
-                className="group relative block min-h-[18rem] overflow-hidden bg-vb-ink sm:min-h-[22rem] md:min-h-[26rem]"
+                className="vb-media-frame group relative block min-h-[18rem] overflow-hidden sm:min-h-[22rem] md:min-h-[26rem]"
               >
                 <Image
                   src={pathImages[door.key] ?? marketingImages.ecosystem}

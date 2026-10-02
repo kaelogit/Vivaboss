@@ -57,7 +57,7 @@ export default function ProductCard({
 
   return (
     <article className="group relative flex flex-col">
-      <div className="relative aspect-square w-full overflow-hidden bg-vb-mist sm:aspect-[4/5]">
+      <div className="vb-media-frame relative aspect-square w-full overflow-hidden sm:aspect-[4/5]">
         <Link href={href} className="absolute inset-0 block" aria-label={product.name}>
           {mainImage ? (
             <>

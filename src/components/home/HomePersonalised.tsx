@@ -15,7 +15,7 @@ export default function HomePersonalised() {
     <section className="border-b border-vb-line bg-vb-white">
       <div className="grid lg:grid-cols-2 lg:min-h-[640px]">
         <div
-          className="relative min-h-[320px] overflow-hidden bg-vb-mist sm:min-h-[420px] lg:min-h-full"
+          className="vb-media-frame relative min-h-[320px] overflow-hidden sm:min-h-[420px] lg:min-h-full"
           data-vb-reveal="fade"
         >
           <Image

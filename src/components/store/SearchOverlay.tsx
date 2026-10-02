@@ -237,7 +237,7 @@ export default function SearchOverlay() {
                         onClick={() => setOpen(false)}
                         className="group block"
                       >
-                        <span className="relative block aspect-[4/5] overflow-hidden bg-vb-mist">
+                        <span className="vb-media-frame relative block aspect-[4/5] overflow-hidden">
                           {product.image ? (
                             <Image
                               src={product.image}
@@ -271,7 +271,7 @@ export default function SearchOverlay() {
                           onClick={() => setOpen(false)}
                           className="group block"
                         >
-                          <span className="relative block aspect-[4/5] overflow-hidden bg-vb-mist">
+                          <span className="vb-media-frame relative block aspect-[4/5] overflow-hidden">
                             {image && (
                               <Image
                                 src={image}
