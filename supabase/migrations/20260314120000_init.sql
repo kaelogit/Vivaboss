@@ -225,7 +225,8 @@ insert into public.site_settings (key, value) values
       "ukWide": true,
       "defaultRateGbp": null,
       "freeOverGbp": null,
-      "collectionEnabled": true
+      "collectionEnabled": true,
+      "collectionAddress": "134 Clifton Road, Darlington DL1 5DY"
     }'::jsonb
   ),
   (

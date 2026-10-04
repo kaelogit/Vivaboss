@@ -130,7 +130,7 @@ export default function SettingsClient() {
     <div>
       <AdminPageHeader
         title="Settings"
-        description="Contact, WhatsApp, shipping rates, notification emails. Stripe keys stay in env."
+        description="Contact, WhatsApp, shipping rates, and notification emails."
       />
 
       {loading && <AdminFormSkeleton />}
@@ -294,8 +294,28 @@ export default function SettingsClient() {
                     patchShipping({ collectionEnabled: e.target.checked })
                   }
                 />
-                Click &amp; collect at checkout (pickup address from Contact)
+                Offer click &amp; pick up at checkout
               </label>
+              {settings.shipping.collectionEnabled && (
+                <label className="mt-3 block">
+                  <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-muted">
+                    Pick-up address (shown at checkout)
+                  </span>
+                  <textarea
+                    rows={3}
+                    value={settings.shipping.collectionAddress}
+                    onChange={(e) =>
+                      patchShipping({ collectionAddress: e.target.value })
+                    }
+                    placeholder="e.g. 134 Clifton Road, Darlington DL1 5DY"
+                    className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm"
+                  />
+                  <span className="mt-1 block text-xs text-vb-muted">
+                    Include the postcode. Customers see this when they choose
+                    click &amp; pick up.
+                  </span>
+                </label>
+              )}
             </div>
 
             <div className="mt-8">

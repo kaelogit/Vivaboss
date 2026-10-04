@@ -51,7 +51,7 @@ export default function AdminCustomRequestsPage() {
       {!loading && !error && requests.length === 0 && (
         <AdminEmptyState
           title="No custom requests"
-          body="Requests from portrait / approval products appear here."
+          body="Personalisation requests appear here."
         />
       )}
       {!loading && !error && requests.length > 0 && (

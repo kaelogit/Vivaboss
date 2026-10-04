@@ -19,7 +19,7 @@ export default function AdminLoginForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!configured) {
-      setError("Supabase is not configured. Add keys to .env.local first.");
+      setError("Admin sign-in is not available right now.");
       return;
     }
 

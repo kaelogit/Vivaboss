@@ -84,7 +84,7 @@ export default function HomepageContentClient() {
     <div>
       <AdminPageHeader
         title="Homepage"
-        description="Hero and intro copy stored in site_settings (key: homepage)."
+        description="Hero and intro copy for the homepage."
       />
       {loading && <AdminFormSkeleton />}
       {!loading && !content && error && (

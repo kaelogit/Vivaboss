@@ -32,13 +32,13 @@ type CheckoutBody = {
 export async function POST(request: Request) {
   if (!hasStripe()) {
     return NextResponse.json(
-      { error: "Stripe is not configured. Add STRIPE_SECRET_KEY." },
+      { error: "Checkout is temporarily unavailable. Please try again later." },
       { status: 503 }
     );
   }
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Supabase service role is not configured." },
+      { error: "Checkout is temporarily unavailable. Please try again later." },
       { status: 503 }
     );
   }
@@ -59,13 +59,13 @@ export async function POST(request: Request) {
       const shippingSettings = await loadShippingSettings();
       if (!shippingSettings.collectionEnabled) {
         return NextResponse.json(
-          { error: "Click & collect is not available right now." },
+          { error: "Click & pick up is not available right now." },
           { status: 400 }
         );
       }
       if (!body.phone?.trim()) {
         return NextResponse.json(
-          { error: "A phone number is required for click & collect." },
+          { error: "A phone number is required for click & pick up." },
           { status: 400 }
         );
       }

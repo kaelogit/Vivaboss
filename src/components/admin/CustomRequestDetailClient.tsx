@@ -132,7 +132,7 @@ export default function CustomRequestDetailClient({
         );
       } else if (status === "quoted" && quote_amount_gbp && quote_amount_gbp > 0) {
         setNotice(
-          "Saved, but the quote email did not send. Check RESEND_API_KEY."
+          "Saved, but the quote email did not send."
         );
       }
     } catch (err) {
@@ -191,7 +191,7 @@ export default function CustomRequestDetailClient({
         setNotice(`Quote emailed to ${data.request?.email ?? "the customer"}.`);
       } else {
         throw new Error(
-          "Could not send quote email. Check RESEND_API_KEY."
+          "Could not send quote email."
         );
       }
     } catch (err) {
@@ -231,7 +231,7 @@ export default function CustomRequestDetailClient({
         );
       } else if (data.checkoutUrl) {
         setNotice(
-          "Checkout created, but the pay-link email did not send. Copy the link below and share it manually (check RESEND_API_KEY)."
+          "Checkout created, but the pay-link email did not send. Copy the link below and share it manually."
         );
       }
     } catch (err) {

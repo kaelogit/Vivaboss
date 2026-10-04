@@ -102,7 +102,7 @@ export default function CourierJobsBoard() {
       {!loading && !error && filtered.length === 0 && (
         <AdminEmptyState
           title="No courier jobs"
-          body="Requests from /courier/book appear here."
+          body="Courier booking requests appear here."
         />
       )}
       {!loading && !error && filtered.length > 0 && (

@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Supabase service role not configured." },
+      { error: "Service temporarily unavailable." },
       { status: 503 }
     );
   }

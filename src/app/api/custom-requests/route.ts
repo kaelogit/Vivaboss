@@ -19,7 +19,7 @@ type Body = {
 export async function POST(request: Request) {
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Requests are not configured yet (Supabase)." },
+      { error: "Requests are temporarily unavailable. Please try again later." },
       { status: 503 }
     );
   }

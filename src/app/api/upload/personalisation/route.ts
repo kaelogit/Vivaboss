@@ -8,7 +8,7 @@ const MAX_BYTES = 8 * 1024 * 1024;
 export async function POST(request: Request) {
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Uploads are not configured yet." },
+      { error: "Uploads are temporarily unavailable. Please try again later." },
       { status: 503 }
     );
   }

@@ -23,7 +23,7 @@ export async function GET(_request: Request, { params }: Params) {
 
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Supabase service role not configured." },
+      { error: "Service temporarily unavailable." },
       { status: 503 }
     );
   }
@@ -115,7 +115,7 @@ export async function PATCH(request: Request, { params }: Params) {
 
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Supabase service role not configured." },
+      { error: "Service temporarily unavailable." },
       { status: 503 }
     );
   }
@@ -167,7 +167,7 @@ export async function DELETE(_request: Request, { params }: Params) {
 
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Supabase service role not configured." },
+      { error: "Service temporarily unavailable." },
       { status: 503 }
     );
   }

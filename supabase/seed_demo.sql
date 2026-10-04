@@ -466,6 +466,7 @@ insert into public.site_settings (key, value) values
     '{
       "ukWide": true,
       "collectionEnabled": true,
+      "collectionAddress": "134 Clifton Road, Darlington DL1 5DY",
       "defaultRateGbp": 4.95,
       "freeOverGbp": 75,
       "bands": [

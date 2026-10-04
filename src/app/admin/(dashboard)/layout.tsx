@@ -33,7 +33,7 @@ export default async function AdminDashboardLayout({
     <>
       {preview && (
         <div className="bg-vb-accent px-4 py-2 text-center font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-white">
-          Admin preview mode — connect Supabase before go-live
+          Admin preview mode — not for production use
         </div>
       )}
       <AdminShell email={user.email ?? "admin"}>{children}</AdminShell>

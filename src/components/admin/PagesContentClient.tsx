@@ -67,7 +67,7 @@ export default function PagesContentClient() {
     <div>
       <AdminPageHeader
         title="Pages"
-        description="About / contact intros and optional announcement bar (site_settings key: pages)."
+        description="About and contact intros, plus the optional announcement bar."
       />
       {loading && <AdminFormSkeleton />}
       {!loading && !content && error && (

@@ -231,22 +231,22 @@ export const faqItems: FaqItem[] = [
   {
     category: "Shop",
     q: "Do you deliver shop orders across the UK?",
-    a: "Yes. We ship UK-wide, and you can also choose free click & collect at checkout when it’s available. Shipping is calculated from your postcode (Highlands & Islands and Northern Ireland may differ). Once paid, you’ll get an email confirmation and we fulfil from there.",
+    a: "Yes. We ship UK-wide, and you can also choose free click & pick up at checkout when it’s available. Delivery is calculated from your postcode at checkout (Highlands & Islands and Northern Ireland may differ). Once paid, you’ll get an email confirmation and we fulfil from there.",
   },
   {
     category: "Orders",
     q: "How does order tracking work?",
-    a: "Shop orders only. Go to Track order, enter your order number (from the confirmation email, usually starting VB-) and the same email you used at checkout. You’ll see the order status, items, and — for delivery — carrier details and tracking once we’ve shipped. Click & collect orders show when they’re ready to pick up. Service bookings and courier jobs aren’t on that page; those updates come by email or WhatsApp.",
+    a: "Shop orders only. Go to Track order, enter your order number (from the confirmation email, usually starting VB-) and the same email you used at checkout. You’ll see the order status, items, and — for delivery — carrier details and tracking once we’ve shipped. Click & pick up orders show when they’re ready. Service bookings and courier jobs aren’t on that page; those updates come by email or WhatsApp.",
   },
   {
     category: "Orders",
     q: "What do the shop order statuses mean?",
-    a: "Typical flow: paid → processing (or personalising for custom pieces) → shipped → delivered. For click & collect, “shipped” means ready to collect. Pre-order appears when an item isn’t in stock yet. Cancelled or refunded means the order won’t fulfil (or payment was returned).",
+    a: "Typical flow: paid → processing (or personalising for custom pieces) → shipped → delivered. For click & pick up, “shipped” means ready for pick up. Pre-order appears when an item isn’t in stock yet. Cancelled or refunded means the order won’t fulfil (or payment was returned).",
   },
   {
     category: "Orders",
     q: "How will I hear from you after ordering or booking?",
-    a: "Email is the default for order receipts, ship or ready-to-collect notices, and booking confirmations. When a delivery order ships we email tracking; for click & collect we email when it’s ready. You can also check status on the Track order page. You can continue on WhatsApp anytime.",
+    a: "Email is the default for order receipts, ship or ready-for-pick-up notices, and booking confirmations. When a delivery order ships we email tracking; for click & pick up we email when it’s ready. You can also check status on the Track order page. You can continue on WhatsApp anytime.",
   },
   {
     category: "Orders",

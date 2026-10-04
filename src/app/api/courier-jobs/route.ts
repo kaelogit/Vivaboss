@@ -35,7 +35,7 @@ type Body = {
 export async function POST(request: Request) {
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Bookings are not configured yet (Supabase)." },
+      { error: "Bookings are temporarily unavailable. Please try again later." },
       { status: 503 }
     );
   }

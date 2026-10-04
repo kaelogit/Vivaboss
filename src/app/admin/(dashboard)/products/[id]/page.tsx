@@ -17,7 +17,7 @@ export default async function EditProductPage({ params }: Props) {
       <div>
         <AdminPageHeader title="Edit product" />
         <p className="text-sm text-vb-muted">
-          Supabase service role is not configured.
+          Product admin is temporarily unavailable.
         </p>
       </div>
     );

@@ -8,7 +8,6 @@ import { formatGbp } from "@/lib/products/money";
 import { lineTotal } from "@/lib/cart/types";
 import { PREORDER_LEAD } from "@/lib/products/stock";
 import { useCartStore } from "@/store/cart";
-import { useShippingQuote } from "@/components/shop/useShippingQuote";
 
 export default function CartDrawer() {
   const isOpen = useCartStore((s) => s.isOpen);
@@ -17,7 +16,6 @@ export default function CartDrawer() {
   const count = lines.reduce((n, l) => n + l.quantity, 0);
   const subtotal = lines.reduce((sum, l) => sum + lineTotal(l), 0);
   const hasPreorder = lines.some((l) => l.isPreorder);
-  const quote = useShippingQuote(subtotal);
   const panelRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -155,31 +153,12 @@ export default function CartDrawer() {
           <div className="shrink-0 space-y-3 border-t border-vb-line bg-vb-paper px-5 py-5 sm:px-6">
             <div className="flex items-baseline justify-between gap-4 text-sm text-vb-muted">
               <span>Subtotal</span>
-              <span className="font-heading font-semibold text-vb-ink">
+              <span className="font-heading text-xl font-bold text-vb-ink">
                 {formatGbp(subtotal)}
               </span>
             </div>
-            <div className="flex items-baseline justify-between gap-4 text-sm text-vb-muted">
-              <span>Shipping · UK standard</span>
-              <span className="font-heading font-semibold text-vb-ink">
-                {quote == null
-                  ? "…"
-                  : quote.shippingGbp === 0
-                    ? "Free"
-                    : formatGbp(quote.shippingGbp)}
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between gap-4 border-t border-vb-line pt-3">
-              <span className="font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-vb-ink">
-                Total
-              </span>
-              <span className="font-heading text-xl font-bold text-vb-ink">
-                {quote == null ? "…" : formatGbp(quote.totalGbp)}
-              </span>
-            </div>
             <p className="text-[11px] text-vb-muted">
-              Delivery or free click & collect at checkout. Highlands / NI rates
-              use your postcode.
+              Delivery or free click & pick up is chosen at checkout.
             </p>
             <Link
               href="/checkout"

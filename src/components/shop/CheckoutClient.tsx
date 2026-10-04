@@ -68,7 +68,7 @@ export default function CheckoutClient() {
       return;
     }
     if (method === "collection" && !phone.trim()) {
-      setError("A phone number helps us reach you for collection.");
+      setError("A phone number helps us reach you for click & pick up.");
       return;
     }
     setBusy(true);
@@ -147,7 +147,7 @@ export default function CheckoutClient() {
                     { id: "delivery" as const, label: "Delivery", icon: Truck },
                     {
                       id: "collection" as const,
-                      label: "Click & collect",
+                      label: "Click & pick up",
                       icon: MapPin,
                     },
                   ] as const
@@ -227,13 +227,13 @@ export default function CheckoutClient() {
             ) : (
               <div className="sm:col-span-2 border border-vb-line bg-vb-mist/50 px-4 py-3 text-sm text-vb-ink">
                 <p className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-muted">
-                  Collect from
+                  Pick-up address
                 </p>
-                <p className="mt-1.5">
-                  {quote?.collectionLabel ?? "Vivaboss Fusion"}
+                <p className="mt-1.5 whitespace-pre-line font-medium">
+                  {quote?.collectionLabel ?? "Address confirmed after payment"}
                 </p>
                 <p className="mt-2 text-xs text-vb-muted">
-                  Free pickup. We’ll email you when your order is ready.
+                  Free click & pick up. We’ll email you when your order is ready.
                 </p>
               </div>
             )}
@@ -339,12 +339,12 @@ export default function CheckoutClient() {
             <div className="flex justify-between text-vb-muted">
               <span>
                 {method === "collection"
-                  ? "Click & collect"
+                  ? "Click & pick up"
                   : shipping === 0
-                    ? "Shipping"
+                    ? "Delivery"
                     : quote?.bandLabel
-                      ? `Shipping · ${quote.bandLabel}`
-                      : "Shipping · UK standard"}
+                      ? `Delivery · ${quote.bandLabel}`
+                      : "Delivery · UK standard"}
               </span>
               <span>
                 {shipping == null
@@ -361,7 +361,7 @@ export default function CheckoutClient() {
           </div>
           <p className="mt-2 text-xs text-vb-muted">
             {method === "collection"
-              ? "No shipping charge for pickup."
+              ? "No delivery charge for click & pick up."
               : postcodeReady
                 ? "Includes UK delivery."
                 : "Enter your postcode for Highlands, Islands, or Northern Ireland."}
@@ -386,7 +386,7 @@ export default function CheckoutClient() {
                 />
               )}
               {method === "collection"
-                ? "Collect when we email you"
+                ? "Pick up when we email you"
                 : "UK delivery with tracking"}
             </li>
             <li className="flex items-center gap-2">

@@ -115,13 +115,13 @@ function buildTimeline(order: Tracked): TimelineStep[] {
     },
     {
       key: "shipped",
-      label: collect ? "Ready to collect" : "Shipped",
+      label: collect ? "Ready for pick up" : "Shipped",
       detail: order.shippedAt ? formatWhen(order.shippedAt) : null,
       state: shipState,
     },
     {
       key: "delivered",
-      label: collect ? "Collected" : "Delivered",
+      label: collect ? "Picked up" : "Delivered",
       detail: null,
       state: delivered ? "done" : "upcoming",
     },
@@ -286,15 +286,15 @@ export default function OrderTrackForm({
           <h2 className="mt-2 font-heading text-xl font-bold uppercase tracking-tight text-vb-ink capitalize">
             {order.fulfillmentMethod === "collection" &&
             order.status === "shipped"
-              ? "Ready to collect"
+              ? "Ready for pick up"
               : order.fulfillmentMethod === "collection" &&
                   order.status === "delivered"
-                ? "Collected"
+                ? "Picked up"
                 : order.status.replace(/_/g, " ")}
           </h2>
           <p className="mt-1 text-sm text-vb-muted">
             {order.fulfillmentMethod === "collection"
-              ? `Collect from ${order.shipTo}`
+              ? `Pick up from ${order.shipTo}`
               : `Ship to ${order.shipTo}`}
           </p>
 
@@ -347,8 +347,8 @@ export default function OrderTrackForm({
           <div className="mt-3 flex justify-between text-sm">
             <span className="text-vb-muted">
               {order.fulfillmentMethod === "collection"
-                ? "Click & collect · Free"
-                : `Shipping ${formatGbp(Number(order.shippingGbp))}`}
+                ? "Click & pick up · Free"
+                : `Delivery ${formatGbp(Number(order.shippingGbp))}`}
             </span>
             <span className="font-heading font-semibold">
               Total {formatGbp(Number(order.totalGbp))}

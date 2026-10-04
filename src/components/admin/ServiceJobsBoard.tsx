@@ -96,7 +96,7 @@ export default function ServiceJobsBoard() {
       {!loading && !error && filtered.length === 0 && (
         <AdminEmptyState
           title="No service jobs"
-          body="Bookings from /services/book appear here."
+          body="Service booking requests appear here."
         />
       )}
       {!loading && !error && filtered.length > 0 && (

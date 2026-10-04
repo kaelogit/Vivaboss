@@ -51,9 +51,8 @@ export default async function ShopCategoryPage({ params }: Props) {
               Nothing listed here yet
             </p>
             <p className="mx-auto mt-3 max-w-md text-sm text-vb-muted">
-              Products for this collection will appear once they&apos;re added in
-              admin (and Supabase is connected). Browse other collections in the
-              meantime.
+              Nothing in this collection right now. Browse another collection or
+              get in touch if you&apos;re looking for something specific.
             </p>
             <Link
               href="/shop"

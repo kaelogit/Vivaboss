@@ -10,7 +10,7 @@ export async function PATCH(request: Request, ctx: Ctx) {
 
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Supabase not configured." },
+      { error: "Service temporarily unavailable." },
       { status: 503 }
     );
   }
@@ -53,7 +53,7 @@ export async function DELETE(_request: Request, ctx: Ctx) {
 
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Supabase not configured." },
+      { error: "Service temporarily unavailable." },
       { status: 503 }
     );
   }

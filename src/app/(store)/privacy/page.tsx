@@ -70,9 +70,9 @@ export default function PrivacyPage() {
             Sharing
           </h2>
           <p className="mt-3">
-            We use processors such as Supabase (database/auth/storage), Stripe
-            (payments), Resend (email), and Vercel (hosting). They process data
-            on our instructions. We do not sell your personal data.
+            We use trusted processors for hosting, payments, email, and data
+            storage. They process data on our instructions. We do not sell your
+            personal data.
           </p>
         </section>
         <section>

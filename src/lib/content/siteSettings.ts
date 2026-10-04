@@ -24,6 +24,8 @@ export type BrandSettings = {
 export type ShippingSettings = {
   ukWide: boolean;
   collectionEnabled: boolean;
+  /** Shown at checkout for click & pick up. Falls back to contact address. */
+  collectionAddress: string;
   defaultRateGbp: number | null;
   freeOverGbp: number | null;
   bands: ShippingBand[];
@@ -93,6 +95,7 @@ export function defaultShipping(): ShippingSettings {
   return {
     ukWide: true,
     collectionEnabled: true,
+    collectionAddress: "134 Clifton Road, Darlington DL1 5DY",
     defaultRateGbp: d.defaultRateGbp,
     freeOverGbp: d.freeOverGbp > 0 ? d.freeOverGbp : null,
     bands: d.bands.map((b) => ({ ...b, prefixes: [...b.prefixes] })),
@@ -217,6 +220,7 @@ export function parseShipping(value: Json | null | undefined): ShippingSettings 
   return {
     ukWide: asBool(r.ukWide, d.ukWide),
     collectionEnabled: asBool(r.collectionEnabled, d.collectionEnabled),
+    collectionAddress: asString(r.collectionAddress, d.collectionAddress),
     defaultRateGbp:
       r.defaultRateGbp === undefined
         ? d.defaultRateGbp

@@ -40,7 +40,7 @@ export default function AdminCategoriesPage() {
     <div>
       <AdminPageHeader
         title="Categories"
-        description="Fashion, Personalised, Smart Home, Home & DIY — seeded from migration."
+        description="Fashion, Personalised, Smart Home, and Home & DIY."
       />
 
       {loading && <AdminTableSkeleton rows={4} cols={4} />}
@@ -50,7 +50,7 @@ export default function AdminCategoriesPage() {
       {!loading && !error && categories.length === 0 && (
         <AdminEmptyState
           title="No categories"
-          body="Run the init migration to seed the four shop categories."
+          body="Shop categories will show here once they are set up."
         />
       )}
       {!loading && !error && categories.length > 0 && (

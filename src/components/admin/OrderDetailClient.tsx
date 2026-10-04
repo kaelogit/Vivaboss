@@ -163,14 +163,14 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
       } else if (data.shippedEmailSent) {
         setNotice(
           order?.fulfillment_method === "collection"
-            ? "Ready to collect — email sent to the customer."
+            ? "Ready for pick up — email sent to the customer."
             : "Shipped — tracking email sent to the customer."
         );
       } else if (status === "shipped" && notifyShipped) {
         setNotice(
           order?.fulfillment_method === "collection"
-            ? "Saved as ready to collect, but the email did not send. Check RESEND_API_KEY."
-            : "Saved as shipped, but the email did not send. Check RESEND_API_KEY."
+            ? "Saved as ready for pick up, but the email did not send."
+            : "Saved as shipped, but the email did not send."
         );
       }
     } catch (err) {
@@ -293,8 +293,8 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
               <div className="flex justify-between text-vb-muted">
                 <span>
                   {order.fulfillment_method === "collection"
-                    ? "Click & collect"
-                    : "Shipping"}
+                    ? "Click & pick up"
+                    : "Delivery"}
                 </span>
                 <span>
                   {order.fulfillment_method === "collection" ||
@@ -357,7 +357,7 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
               <p className="pt-3 text-vb-muted">
                 <span className="mb-1 block font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-ink">
                   {order.fulfillment_method === "collection"
-                    ? "Click & collect"
+                    ? "Click & pick up"
                     : "Delivery"}
                 </span>
                 {order.address_line1}
@@ -406,10 +406,10 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
                 {STATUSES.map((s) => (
                   <option key={s} value={s}>
                     {order.fulfillment_method === "collection" && s === "shipped"
-                      ? "ready to collect"
+                      ? "ready for pick up"
                       : order.fulfillment_method === "collection" &&
                           s === "delivered"
-                        ? "collected"
+                        ? "picked up"
                         : s.replace(/_/g, " ")}
                   </option>
                 ))}
@@ -470,7 +470,7 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
                   onChange={(e) => setNotifyShipped(e.target.checked)}
                 />
                 {order.fulfillment_method === "collection"
-                  ? "Email customer ready-to-collect update"
+                  ? "Email customer ready-for-pick-up update"
                   : "Email customer shipping / tracking update"}
               </label>
             )}

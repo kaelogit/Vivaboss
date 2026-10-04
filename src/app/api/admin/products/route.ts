@@ -14,7 +14,7 @@ export async function GET() {
 
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Supabase service role not configured.", products: [] },
+      { error: "Service temporarily unavailable.", products: [] },
       { status: 503 }
     );
   }
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Supabase service role not configured." },
+      { error: "Service temporarily unavailable." },
       { status: 503 }
     );
   }

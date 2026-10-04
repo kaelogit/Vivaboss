@@ -89,11 +89,6 @@ export default function ProductsList() {
           Cannot load products
         </p>
         <p className="mt-3 text-sm text-vb-muted">{error}</p>
-        <p className="mt-3 text-xs text-vb-muted">
-          Run migration{" "}
-          <code className="text-vb-ink">20260314130000_products.sql</code> and
-          ensure service role keys are in <code>.env.local</code>.
-        </p>
       </div>
     );
   }
@@ -131,8 +126,7 @@ export default function ProductsList() {
             No products yet
           </p>
           <p className="mt-3 text-sm text-vb-muted">
-            Create your first product, or run the products migration for demo
-            seeds.
+            Create your first product to start the catalogue.
           </p>
           <Link
             href="/admin/products/new"

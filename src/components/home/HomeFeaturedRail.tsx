@@ -16,9 +16,8 @@ export default function HomeFeaturedRail({ products }: Props) {
             Featured pieces
           </h2>
           <p className="mt-4 max-w-lg text-vb-muted">
-            Catalogue pieces appear here once products are live in admin. Until
-            then, browse the collections above — fashion, personalised, smart
-            home, and home & DIY are ready.
+            Browse the shop collections — fashion, personalised, smart home, and
+            home & DIY.
           </p>
           <Link
             href="/shop"

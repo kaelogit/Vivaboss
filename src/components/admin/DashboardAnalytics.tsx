@@ -388,8 +388,7 @@ export default function DashboardAnalytics({
           Analytics unavailable
         </p>
         <p className="mx-auto mt-3 max-w-md text-sm text-vb-muted">
-          Connect Supabase with a service role key to load live revenue and
-          pipeline charts.
+          Analytics could not be loaded. Try again in a moment.
         </p>
       </div>
     );

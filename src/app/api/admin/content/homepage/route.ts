@@ -14,7 +14,7 @@ export async function GET() {
   if (auth instanceof NextResponse) return auth;
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Supabase not configured.", content: defaultHomepage() },
+      { error: "Service temporarily unavailable.", content: defaultHomepage() },
       { status: 503 }
     );
   }
@@ -30,7 +30,7 @@ export async function PUT(request: Request) {
   const auth = await requireAdminApi();
   if (auth instanceof NextResponse) return auth;
   if (!hasAdminClient()) {
-    return NextResponse.json({ error: "Supabase not configured." }, { status: 503 });
+    return NextResponse.json({ error: "Service temporarily unavailable." }, { status: 503 });
   }
 
   let body: unknown;

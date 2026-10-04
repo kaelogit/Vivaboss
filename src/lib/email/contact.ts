@@ -21,7 +21,7 @@ export async function sendContactEmails(input: {
       "[email] RESEND_API_KEY missing — skipped contact notify to",
       admins.join(", ")
     );
-    throw new Error("Email is not configured (RESEND_API_KEY).");
+    throw new Error("Email is temporarily unavailable.");
   }
 
   const resend = getResend();

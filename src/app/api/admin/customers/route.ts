@@ -21,7 +21,7 @@ export async function GET() {
   if (auth instanceof NextResponse) return auth;
   if (!hasAdminClient()) {
     return NextResponse.json(
-      { error: "Supabase not configured.", customers: [] },
+      { error: "Service temporarily unavailable.", customers: [] },
       { status: 503 }
     );
   }

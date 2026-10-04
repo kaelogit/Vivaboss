@@ -83,7 +83,7 @@ export default function FaqContentClient() {
     <div>
       <AdminPageHeader
         title="FAQ"
-        description="Q&A items stored in site_settings (key: faq). Public FAQ prefers this over marketing defaults."
+        description="FAQ questions and answers shown on the public site."
       />
       {loading && <AdminFormSkeleton />}
       {!loading && !items && error && (

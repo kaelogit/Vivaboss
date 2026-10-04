@@ -104,7 +104,7 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
     : hasPreorder
       ? `Payment received. Pre-order pieces typically take ${PREORDER_LEAD}.`
       : isCollection
-        ? "Payment received. We’ll email you when your order is ready to collect."
+        ? "Payment received. We’ll email you when your order is ready for pick up."
         : "Payment received. A confirmation email is on its way.";
 
   return (
@@ -129,7 +129,7 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
           </p>
           <p className="mt-3 text-sm capitalize text-vb-muted">
             {status.replace(/_/g, " ")}
-            {isCollection ? " · Click & collect" : ""}
+            {isCollection ? " · Click & pick up" : ""}
             {total != null ? ` · ${formatGbp(total)}` : ""}
           </p>
           {email && (
@@ -173,7 +173,7 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
             <div className="mt-4 space-y-1 text-sm text-vb-muted">
               {isCollection ? (
                 <p className="flex justify-between">
-                  <span>Click & collect</span>
+                  <span>Click & pick up</span>
                   <span>Free</span>
                 </p>
               ) : shipping != null && shipping > 0 ? (

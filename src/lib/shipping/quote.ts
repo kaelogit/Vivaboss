@@ -44,7 +44,7 @@ export async function quoteUkShipping(
     }
     return {
       shippingGbp: 0,
-      bandLabel: "Click & collect",
+      bandLabel: "Click & pick up",
       totalGbp: Math.round(subtotal * 100) / 100,
       method: "collection" as const,
       collectionEnabled: true,

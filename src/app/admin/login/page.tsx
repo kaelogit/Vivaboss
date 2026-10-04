@@ -45,14 +45,11 @@ export default async function AdminLoginPage({
           {!configured && (
             <div className="mt-6 border border-vb-line bg-vb-mist p-4 text-sm text-vb-muted">
               <p className="font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-ink">
-                Setup required
+                Sign-in unavailable
               </p>
               <p className="mt-2">
-                Add Supabase keys to{" "}
-                <code className="text-vb-ink">.env.local</code>, run the
-                migration, then promote your user to{" "}
-                <code className="text-vb-ink">admin</code>. See{" "}
-                <code className="text-vb-ink">docs/SUPABASE_SETUP.md</code>.
+                Admin sign-in is not available right now. Contact the site
+                operator if you need access.
               </p>
               {allowAdminPreview() && (
                 <p className="mt-3">
@@ -69,8 +66,7 @@ export default async function AdminLoginPage({
           {(params.error === "forbidden" ||
             (session && !(await isAdminUser(session.id)))) && (
             <p className="mt-4 text-sm text-vb-danger" role="alert">
-              That account is signed in but is not an admin. Promote the user in{" "}
-              <code>profiles.role</code>, then refresh.
+              That account is signed in but does not have admin access.
             </p>
           )}
 

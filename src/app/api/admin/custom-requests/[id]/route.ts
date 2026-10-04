@@ -196,7 +196,7 @@ export async function POST(request: Request, { params }: Params) {
     } catch (err) {
       console.error("custom quote email failed", err);
       return NextResponse.json(
-        { error: "Could not send quote email. Check RESEND_API_KEY." },
+        { error: "Could not send quote email." },
         { status: 500 }
       );
     }
@@ -205,7 +205,7 @@ export async function POST(request: Request, { params }: Params) {
 
   if (!hasStripe()) {
     return NextResponse.json(
-      { error: "Stripe is not configured." },
+      { error: "Payments are temporarily unavailable." },
       { status: 503 }
     );
   }

@@ -19,7 +19,7 @@ export type CollectionPoint = {
   label: string;
 };
 
-/** Fallback when contact address has no usable UK postcode. */
+/** Fallback when no usable UK pick-up address is set. */
 const FALLBACK_COLLECTION = {
   line1: "134 Clifton Road",
   city: "Darlington",
@@ -49,24 +49,13 @@ function extractUkPostcode(text: string): string | null {
   }
 }
 
-/** Resolve the click & collect point from contact settings. */
-export async function resolveCollectionPoint(): Promise<CollectionPoint> {
-  const contact = await getPublicContact();
-  const raw = contact.address.trim();
-  const postcodeFromAddress = extractUkPostcode(raw);
+function pointFromAddress(raw: string): CollectionPoint | null {
+  const trimmed = raw.trim();
+  if (!trimmed || isPlaceholderAddress(trimmed)) return null;
 
-  if (!raw || isPlaceholderAddress(raw)) {
-    return {
-      addressLine1: FALLBACK_COLLECTION.line1,
-      addressLine2: "Vivaboss Fusion — click & collect",
-      city: FALLBACK_COLLECTION.city,
-      postcode: FALLBACK_COLLECTION.postcode,
-      label: `${FALLBACK_COLLECTION.line1}, ${FALLBACK_COLLECTION.city} ${FALLBACK_COLLECTION.postcode}`,
-    };
-  }
-
+  const postcodeFromAddress = extractUkPostcode(trimmed);
   if (postcodeFromAddress && isValidUkPostcode(postcodeFromAddress)) {
-    const withoutPc = raw
+    const withoutPc = trimmed
       .replace(new RegExp(postcodeFromAddress.replace(/\s+/g, "\\s*"), "i"), "")
       .replace(/,\s*,/g, ",")
       .replace(/,\s*$/, "")
@@ -78,22 +67,40 @@ export async function resolveCollectionPoint(): Promise<CollectionPoint> {
     const city =
       parts.length > 1 ? parts[parts.length - 1]! : FALLBACK_COLLECTION.city;
     const line1 = parts[0] || FALLBACK_COLLECTION.line1;
-    const line2 =
-      parts.length > 2 ? parts.slice(1, -1).join(", ") : null;
+    const line2 = parts.length > 2 ? parts.slice(1, -1).join(", ") : null;
     return {
       addressLine1: line1,
       addressLine2: line2,
       city,
       postcode: postcodeFromAddress,
-      label: raw,
+      label: trimmed,
     };
   }
 
   return {
-    addressLine1: raw,
-    addressLine2: "Vivaboss Fusion — click & collect",
+    addressLine1: trimmed,
+    addressLine2: "Vivaboss Fusion — click & pick up",
     city: FALLBACK_COLLECTION.city,
     postcode: FALLBACK_COLLECTION.postcode,
-    label: `${raw} · ${FALLBACK_COLLECTION.city} ${FALLBACK_COLLECTION.postcode}`,
+    label: `${trimmed} · ${FALLBACK_COLLECTION.city} ${FALLBACK_COLLECTION.postcode}`,
+  };
+}
+
+/** Resolve the pick-up point: shipping setting first, then contact address. */
+export async function resolveCollectionPoint(): Promise<CollectionPoint> {
+  const shipping = await loadShippingSettings();
+  const fromShipping = pointFromAddress(shipping.collectionAddress);
+  if (fromShipping) return fromShipping;
+
+  const contact = await getPublicContact();
+  const fromContact = pointFromAddress(contact.address);
+  if (fromContact) return fromContact;
+
+  return {
+    addressLine1: FALLBACK_COLLECTION.line1,
+    addressLine2: "Vivaboss Fusion — click & pick up",
+    city: FALLBACK_COLLECTION.city,
+    postcode: FALLBACK_COLLECTION.postcode,
+    label: `${FALLBACK_COLLECTION.line1}, ${FALLBACK_COLLECTION.city} ${FALLBACK_COLLECTION.postcode}`,
   };
 }
