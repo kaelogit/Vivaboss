@@ -536,6 +536,9 @@ type CourierJobsTable = {
   Relationships: [];
 };
 
+/** Service arms that accept reviews (not the full ServiceJobType enum). */
+export type ReviewServiceType = "home_repair" | "smart_home_install";
+
 type ReviewsTable = {
   Row: {
     id: string;
@@ -544,6 +547,7 @@ type ReviewsTable = {
     body: string;
     email: string | null;
     product_id: string | null;
+    service_type: ReviewServiceType | null;
     is_published: boolean;
     created_at: string;
     updated_at: string;
@@ -555,6 +559,7 @@ type ReviewsTable = {
     body: string;
     email?: string | null;
     product_id?: string | null;
+    service_type?: ReviewServiceType | null;
     is_published?: boolean;
     created_at?: string;
     updated_at?: string;

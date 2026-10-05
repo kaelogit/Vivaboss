@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import SectionIntro from "@/components/store/SectionIntro";
+import ScopedReviewsSection from "@/components/store/ScopedReviewsSection";
 import {
   ClosingCta,
   HowItWorks,
@@ -14,6 +15,7 @@ import {
   marketingImages,
 } from "@/lib/content/marketingImages";
 import { whatsappHref } from "@/lib/navigation";
+import { listPublishedReviews } from "@/lib/reviews/queries";
 import { isWhatsAppLive } from "@/lib/site";
 
 export const metadata = {
@@ -22,8 +24,9 @@ export const metadata = {
     "Furniture and TV installation, painting, plumbing fixes, electrical fittings and more — Vivaboss home repairs UK-wide.",
 };
 
-export default function HomeServicesPage() {
+export default async function HomeServicesPage() {
   const waLive = isWhatsAppLive();
+  const reviews = await listPublishedReviews({ serviceType: "home_repair" });
 
   return (
     <main>
@@ -180,6 +183,14 @@ export default function HomeServicesPage() {
           </div>
         </div>
       </section>
+
+      <ScopedReviewsSection
+        title="Home service reviews"
+        description="Feedback from people who booked a home repair or improvement visit."
+        reviews={reviews}
+        serviceType="home_repair"
+        emptyMessage="No home service reviews yet — be the first to share."
+      />
 
       <ClosingCta
         title="Book a home visit"

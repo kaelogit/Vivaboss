@@ -11,7 +11,7 @@ export default async function AdminReviewsPage() {
     <div>
       <AdminPageHeader
         title="Reviews"
-        description="Approve new submissions to publish them, hide anything that shouldn’t stay live, or delete permanently."
+        description="Site, product, and service reviews — filter by status or scope, then approve, hide, or delete."
       />
       <ReviewsAdminClient reviews={reviews} />
     </div>

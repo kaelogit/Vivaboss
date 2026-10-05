@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient, hasAdminClient } from "@/lib/supabase/admin";
+import { isReviewServiceType } from "@/lib/reviews/scope";
 
 type Body = {
   authorName: string;
@@ -7,13 +8,14 @@ type Body = {
   body: string;
   email?: string;
   productId?: string;
+  serviceType?: string;
 };
 
 export async function POST(request: Request) {
   try {
     if (!hasAdminClient()) {
       return NextResponse.json(
-        { error: "Reviews are not available until the database is connected." },
+        { error: "Reviews are temporarily unavailable. Please try again later." },
         { status: 503 }
       );
     }
@@ -24,6 +26,7 @@ export async function POST(request: Request) {
     const rating = Number(payload.rating);
     const email = payload.email?.trim().toLowerCase() || null;
     const productId = payload.productId?.trim() || null;
+    const rawService = payload.serviceType?.trim() || null;
 
     if (!authorName || authorName.length < 2) {
       return NextResponse.json(
@@ -50,7 +53,40 @@ export async function POST(request: Request) {
       );
     }
 
+    let serviceType: "home_repair" | "smart_home_install" | null = null;
+    if (rawService) {
+      if (!isReviewServiceType(rawService)) {
+        return NextResponse.json(
+          { error: "Invalid service for this review." },
+          { status: 400 }
+        );
+      }
+      serviceType = rawService;
+    }
+
+    if (productId && serviceType) {
+      return NextResponse.json(
+        { error: "Choose either a product or a service review, not both." },
+        { status: 400 }
+      );
+    }
+
     const supabase = createAdminClient();
+
+    if (productId) {
+      const { data: product, error: productError } = await supabase
+        .from("products")
+        .select("id")
+        .eq("id", productId)
+        .maybeSingle();
+      if (productError || !product) {
+        return NextResponse.json(
+          { error: "That product could not be found." },
+          { status: 400 }
+        );
+      }
+    }
+
     const { data, error } = await supabase
       .from("reviews")
       .insert({
@@ -59,6 +95,7 @@ export async function POST(request: Request) {
         body: body.slice(0, 2000),
         email,
         product_id: productId,
+        service_type: serviceType,
         is_published: false,
       })
       .select("id")

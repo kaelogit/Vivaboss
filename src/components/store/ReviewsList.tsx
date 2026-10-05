@@ -4,9 +4,12 @@ import type { PublicReview } from "@/lib/reviews/queries";
 export default function ReviewsList({
   reviews,
   emptyMessage = "No reviews yet — be the first to share how Vivaboss looked after you.",
+  showScope = false,
 }: {
   reviews: PublicReview[];
   emptyMessage?: string;
+  /** Show Site / product / service caption under each review. */
+  showScope?: boolean;
 }) {
   if (!reviews.length) {
     return (
@@ -21,6 +24,11 @@ export default function ReviewsList({
       {reviews.map((review) => (
         <li key={review.id} className="py-7 sm:py-8">
           <ReviewStars rating={review.rating} />
+          {showScope && review.scope_label && (
+            <p className="mt-2 font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-vb-accent">
+              {review.scope_label}
+            </p>
+          )}
           <p className="mt-3 text-sm leading-relaxed text-vb-ink sm:text-[15px]">
             “{review.body}”
           </p>

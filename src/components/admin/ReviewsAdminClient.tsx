@@ -3,9 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Eye, EyeOff, Loader2, Star, Trash2 } from "lucide-react";
-import type { Review } from "@/types/database";
+import type { AdminReview } from "@/lib/reviews/queries";
+import { cn } from "@/lib/utils";
 
-type Filter = "all" | "pending" | "published";
+type StatusFilter = "all" | "pending" | "published";
+type ScopeFilter = "all" | "site" | "products" | "services";
 
 function Stars({ rating }: { rating: number }) {
   return (
@@ -15,9 +17,7 @@ function Stars({ rating }: { rating: number }) {
           key={n}
           size={12}
           className={
-            n <= rating
-              ? "fill-vb-accent text-vb-accent"
-              : "text-vb-line"
+            n <= rating ? "fill-vb-accent text-vb-accent" : "text-vb-line"
           }
         />
       ))}
@@ -25,39 +25,53 @@ function Stars({ rating }: { rating: number }) {
   );
 }
 
-function statusLabel(review: Review): string {
+function statusLabel(review: AdminReview): string {
   if (review.is_published) return "Published";
   return "Pending / hidden";
+}
+
+function scopeOf(review: AdminReview): ScopeFilter {
+  if (review.product_id) return "products";
+  if (review.service_type) return "services";
+  return "site";
 }
 
 export default function ReviewsAdminClient({
   reviews: initial,
 }: {
-  reviews: Review[];
+  reviews: AdminReview[];
 }) {
   const router = useRouter();
   const [reviews, setReviews] = useState(initial);
-  const [filter, setFilter] = useState<Filter>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [scopeFilter, setScopeFilter] = useState<ScopeFilter>("all");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
-    switch (filter) {
-      case "pending":
-        return reviews.filter((r) => !r.is_published);
-      case "published":
-        return reviews.filter((r) => r.is_published);
-      default:
-        return reviews;
-    }
-  }, [reviews, filter]);
+    return reviews.filter((r) => {
+      if (statusFilter === "pending" && r.is_published) return false;
+      if (statusFilter === "published" && !r.is_published) return false;
+      if (scopeFilter !== "all" && scopeOf(r) !== scopeFilter) return false;
+      return true;
+    });
+  }, [reviews, statusFilter, scopeFilter]);
 
-  const counts = useMemo(() => {
+  const statusCounts = useMemo(() => {
     const pending = reviews.filter((r) => !r.is_published).length;
     return {
       all: reviews.length,
       pending,
       published: reviews.length - pending,
+    };
+  }, [reviews]);
+
+  const scopeCounts = useMemo(() => {
+    return {
+      all: reviews.length,
+      site: reviews.filter((r) => scopeOf(r) === "site").length,
+      products: reviews.filter((r) => scopeOf(r) === "products").length,
+      services: reviews.filter((r) => scopeOf(r) === "services").length,
     };
   }, [reviews]);
 
@@ -70,11 +84,22 @@ export default function ReviewsAdminClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_published }),
       });
-      const data = (await res.json()) as { review?: Review; error?: string };
+      const data = (await res.json()) as {
+        review?: AdminReview;
+        error?: string;
+      };
       if (!res.ok) throw new Error(data.error ?? "Update failed.");
       if (data.review) {
         setReviews((prev) =>
-          prev.map((r) => (r.id === id ? data.review! : r))
+          prev.map((r) => {
+            if (r.id !== id) return r;
+            return {
+              ...r,
+              ...data.review!,
+              product_name: r.product_name,
+              scope_label: r.scope_label,
+            };
+          })
         );
       }
       router.refresh();
@@ -109,17 +134,24 @@ export default function ReviewsAdminClient({
           No reviews yet
         </p>
         <p className="mx-auto mt-3 max-w-md text-sm text-vb-muted">
-          When customers submit reviews, they land here as pending until you
-          approve them for the public site.
+          When customers submit reviews (site, product, or service), they land
+          here as pending until you approve them.
         </p>
       </div>
     );
   }
 
-  const tabs: { key: Filter; label: string; count: number }[] = [
-    { key: "all", label: "All", count: counts.all },
-    { key: "pending", label: "Pending", count: counts.pending },
-    { key: "published", label: "Published", count: counts.published },
+  const statusTabs: { key: StatusFilter; label: string; count: number }[] = [
+    { key: "all", label: "All", count: statusCounts.all },
+    { key: "pending", label: "Pending", count: statusCounts.pending },
+    { key: "published", label: "Published", count: statusCounts.published },
+  ];
+
+  const scopeTabs: { key: ScopeFilter; label: string; count: number }[] = [
+    { key: "all", label: "All scopes", count: scopeCounts.all },
+    { key: "site", label: "Site", count: scopeCounts.site },
+    { key: "products", label: "Products", count: scopeCounts.products },
+    { key: "services", label: "Services", count: scopeCounts.services },
   ];
 
   return (
@@ -130,17 +162,36 @@ export default function ReviewsAdminClient({
         </p>
       )}
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        {tabs.map((tab) => (
+      <div className="mb-3 flex flex-wrap gap-2">
+        {statusTabs.map((tab) => (
           <button
             key={tab.key}
             type="button"
-            onClick={() => setFilter(tab.key)}
-            className={`h-9 border px-3 font-heading text-[10px] font-semibold uppercase tracking-[0.16em] ${
-              filter === tab.key
+            onClick={() => setStatusFilter(tab.key)}
+            className={cn(
+              "h-9 border px-3 font-heading text-[10px] font-semibold uppercase tracking-[0.16em]",
+              statusFilter === tab.key
                 ? "border-vb-ink bg-vb-ink text-vb-paper"
                 : "border-vb-line bg-vb-white text-vb-ink hover:border-vb-ink"
-            }`}
+            )}
+          >
+            {tab.label} ({tab.count})
+          </button>
+        ))}
+      </div>
+
+      <div className="mb-4 flex flex-wrap gap-2">
+        {scopeTabs.map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => setScopeFilter(tab.key)}
+            className={cn(
+              "h-9 border px-3 font-heading text-[10px] font-semibold uppercase tracking-[0.16em]",
+              scopeFilter === tab.key
+                ? "border-vb-accent bg-vb-accent-soft text-vb-accent"
+                : "border-vb-line bg-vb-white text-vb-ink hover:border-vb-ink"
+            )}
           >
             {tab.label} ({tab.count})
           </button>
@@ -171,12 +222,14 @@ export default function ReviewsAdminClient({
                         {review.email}
                       </span>
                     )}
+                    <span className="bg-vb-mist px-2 py-0.5 font-heading text-[10px] font-semibold uppercase tracking-[0.12em] text-vb-ink">
+                      {review.scope_label}
+                    </span>
                     <span
-                      className={`text-[10px] font-heading font-semibold uppercase tracking-[0.14em] ${
-                        review.is_published
-                          ? "text-vb-accent"
-                          : "text-vb-muted"
-                      }`}
+                      className={cn(
+                        "text-[10px] font-heading font-semibold uppercase tracking-[0.14em]",
+                        review.is_published ? "text-vb-accent" : "text-vb-muted"
+                      )}
                     >
                       {statusLabel(review)}
                     </span>

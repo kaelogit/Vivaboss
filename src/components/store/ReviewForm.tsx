@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { Loader2, Star } from "lucide-react";
+import type { ReviewServiceType } from "@/lib/reviews/scope";
 
 export default function ReviewForm({
   productId,
+  serviceType,
   onSubmitted,
 }: {
   productId?: string;
+  serviceType?: ReviewServiceType;
   onSubmitted?: () => void;
 }) {
   const [authorName, setAuthorName] = useState("");
@@ -32,7 +35,8 @@ export default function ReviewForm({
           email: email || undefined,
           rating,
           body,
-          productId,
+          productId: productId || undefined,
+          serviceType: serviceType || undefined,
         }),
       });
       const data = (await res.json()) as { error?: string };
@@ -72,7 +76,10 @@ export default function ReviewForm({
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5 border border-vb-line bg-vb-white p-5 sm:p-6">
+    <form
+      onSubmit={submit}
+      className="space-y-5 border border-vb-line bg-vb-white p-5 sm:p-6"
+    >
       <div>
         <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.2em] text-vb-muted">
           Your rating
@@ -121,7 +128,10 @@ export default function ReviewForm({
 
       <label className="block text-sm">
         <span className="font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
-          Email <span className="normal-case tracking-normal text-vb-muted/70">(optional)</span>
+          Email{" "}
+          <span className="normal-case tracking-normal text-vb-muted/70">
+            (optional)
+          </span>
         </span>
         <input
           type="email"

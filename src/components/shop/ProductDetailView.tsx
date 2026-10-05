@@ -2,11 +2,13 @@ import Link from "next/link";
 import ProductBuyBox from "@/components/shop/ProductBuyBox";
 import ProductCard from "@/components/shop/ProductCard";
 import ProductGallery from "@/components/shop/ProductGallery";
+import ScopedReviewsSection from "@/components/store/ScopedReviewsSection";
 import { formatGbp, saleCompareAt, saleDiscountPercent, saleSaveGbp } from "@/lib/products/money";
 import type {
   ProductDetail,
   ProductWithCategory,
 } from "@/lib/products/queries";
+import type { PublicReview } from "@/lib/reviews/queries";
 
 function optionLabels(product: ProductDetail) {
   return product.custom_fields.map((field) => field.label.trim()).filter(Boolean);
@@ -43,9 +45,11 @@ const promises = [
 export default function ProductDetailView({
   product,
   related,
+  reviews,
 }: {
   product: ProductDetail;
   related: ProductWithCategory[];
+  reviews: PublicReview[];
 }) {
   const price = Number(product.price_gbp);
   const compare = saleCompareAt(price, product.compare_at_gbp);
@@ -315,6 +319,14 @@ export default function ProductDetailView({
           </ul>
         </div>
       </section>
+
+      <ScopedReviewsSection
+        title={`Reviews of ${product.name}`}
+        description="Notes from people who bought this piece."
+        reviews={reviews}
+        productId={product.id}
+        emptyMessage="No reviews for this product yet — be the first to share."
+      />
 
       {related.length > 0 && (
         <section className="bg-vb-white py-16 sm:py-20">

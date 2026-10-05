@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import SectionIntro from "@/components/store/SectionIntro";
+import ScopedReviewsSection from "@/components/store/ScopedReviewsSection";
 import {
   ClosingCta,
   HowItWorks,
@@ -14,6 +15,7 @@ import {
   smartHomeGallery,
 } from "@/lib/content/marketingImages";
 import { whatsappHref } from "@/lib/navigation";
+import { listPublishedReviews } from "@/lib/reviews/queries";
 import { isWhatsAppLive } from "@/lib/site";
 
 export const metadata = {
@@ -22,8 +24,11 @@ export const metadata = {
     "Smart locks, cameras, doorbells, lighting and Wi‑Fi setup across the UK. Shop hardware and book Vivaboss installation.",
 };
 
-export default function SmartHomeServicesPage() {
+export default async function SmartHomeServicesPage() {
   const waLive = isWhatsAppLive();
+  const reviews = await listPublishedReviews({
+    serviceType: "smart_home_install",
+  });
 
   return (
     <main>
@@ -177,6 +182,14 @@ export default function SmartHomeServicesPage() {
           ))}
         </div>
       </section>
+
+      <ScopedReviewsSection
+        title="Smart home reviews"
+        description="Feedback from people who booked smart home setup or installation."
+        reviews={reviews}
+        serviceType="smart_home_install"
+        emptyMessage="No smart home reviews yet — be the first to share."
+      />
 
       <ClosingCta
         title="Book smart-home setup"

@@ -4,6 +4,7 @@ import {
   getProductBySlug,
   listRelatedProducts,
 } from "@/lib/products/queries";
+import { listPublishedReviews } from "@/lib/reviews/queries";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -25,6 +26,11 @@ export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
-  const related = await listRelatedProducts(product, 4);
-  return <ProductDetailView product={product} related={related} />;
+  const [related, reviews] = await Promise.all([
+    listRelatedProducts(product, 4),
+    listPublishedReviews({ productId: product.id }),
+  ]);
+  return (
+    <ProductDetailView product={product} related={related} reviews={reviews} />
+  );
 }

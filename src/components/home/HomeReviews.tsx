@@ -38,6 +38,7 @@ export default function HomeReviews({ reviews }: { reviews: PublicReview[] }) {
         <div className="mt-10" data-vb-reveal="up" data-vb-reveal-delay={80}>
           <ReviewsList
             reviews={reviews}
+            showScope
             emptyMessage="No reviews yet — give a review and be the first."
           />
         </div>

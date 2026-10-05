@@ -41,7 +41,7 @@ export default async function ReviewsPage() {
               </a>
             </div>
             <div className="mt-8">
-              <ReviewsList reviews={reviews} />
+              <ReviewsList reviews={reviews} showScope />
             </div>
           </div>
 
@@ -51,7 +51,8 @@ export default async function ReviewsPage() {
               Share your experience
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-vb-muted">
-              A name, a star rating, and a short note — that’s all we need.
+              General feedback about Vivaboss. For a specific product or
+              service, leave a review on that page.
             </p>
             <div className="mt-6">
               <ReviewForm />
