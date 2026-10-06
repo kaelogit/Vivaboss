@@ -321,11 +321,9 @@ export default function ProductDetailView({
       </section>
 
       <ScopedReviewsSection
-        title={`Reviews of ${product.name}`}
-        description="Notes from people who bought this piece."
+        title="Reviews"
         reviews={reviews}
         productId={product.id}
-        emptyMessage="No reviews for this product yet — be the first to share."
       />
 
       {related.length > 0 && (

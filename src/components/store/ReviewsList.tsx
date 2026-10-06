@@ -1,14 +1,14 @@
+import Image from "next/image";
 import ReviewStars from "@/components/store/ReviewStars";
 import type { PublicReview } from "@/lib/reviews/queries";
 
 export default function ReviewsList({
   reviews,
-  emptyMessage = "No reviews yet — be the first to share how Vivaboss looked after you.",
+  emptyMessage = "No reviews yet.",
   showScope = false,
 }: {
   reviews: PublicReview[];
   emptyMessage?: string;
-  /** Show Site / product / service caption under each review. */
   showScope?: boolean;
 }) {
   if (!reviews.length) {
@@ -32,6 +32,17 @@ export default function ReviewsList({
           <p className="mt-3 text-sm leading-relaxed text-vb-ink sm:text-[15px]">
             “{review.body}”
           </p>
+          {review.image_url && (
+            <div className="relative mt-4 aspect-[4/3] max-w-sm overflow-hidden bg-vb-mist">
+              <Image
+                src={review.image_url}
+                alt=""
+                fill
+                sizes="(max-width: 640px) 100vw, 384px"
+                className="object-cover"
+              />
+            </div>
+          )}
           <p className="mt-3 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
             {review.author_name}
             <span className="mx-2 text-vb-line">·</span>

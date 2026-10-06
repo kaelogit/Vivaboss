@@ -548,6 +548,7 @@ type ReviewsTable = {
     email: string | null;
     product_id: string | null;
     service_type: ReviewServiceType | null;
+    image_path: string | null;
     is_published: boolean;
     created_at: string;
     updated_at: string;
@@ -560,6 +561,7 @@ type ReviewsTable = {
     email?: string | null;
     product_id?: string | null;
     service_type?: ReviewServiceType | null;
+    image_path?: string | null;
     is_published?: boolean;
     created_at?: string;
     updated_at?: string;

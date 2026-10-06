@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { Eye, EyeOff, Loader2, Star, Trash2 } from "lucide-react";
 import type { AdminReview } from "@/lib/reviews/queries";
 import { cn } from "@/lib/utils";
@@ -98,6 +99,7 @@ export default function ReviewsAdminClient({
               ...data.review!,
               product_name: r.product_name,
               scope_label: r.scope_label,
+              image_url: r.image_url,
             };
           })
         );
@@ -237,6 +239,22 @@ export default function ReviewsAdminClient({
                   <p className="mt-3 text-sm leading-relaxed text-vb-ink">
                     {review.body}
                   </p>
+                  {review.image_url && (
+                    <a
+                      href={review.image_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative mt-3 block aspect-[4/3] w-40 overflow-hidden bg-vb-mist"
+                    >
+                      <Image
+                        src={review.image_url}
+                        alt=""
+                        fill
+                        sizes="160px"
+                        className="object-cover"
+                      />
+                    </a>
+                  )}
                   <p className="mt-2 text-xs text-vb-muted">
                     {new Date(review.created_at).toLocaleString("en-GB")}
                   </p>

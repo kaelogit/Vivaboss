@@ -185,11 +185,9 @@ export default async function HomeServicesPage() {
       </section>
 
       <ScopedReviewsSection
-        title="Home service reviews"
-        description="Feedback from people who booked a home repair or improvement visit."
+        title="Reviews"
         reviews={reviews}
         serviceType="home_repair"
-        emptyMessage="No home service reviews yet — be the first to share."
       />
 
       <ClosingCta

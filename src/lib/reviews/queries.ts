@@ -3,6 +3,7 @@ import { createAdminClient, hasAdminClient } from "@/lib/supabase/admin";
 import { hasPublicSupabaseConfig } from "@/lib/supabase/config";
 import type { Review, ReviewServiceType } from "@/types/database";
 import { reviewScopeLabel } from "@/lib/reviews/scope";
+import { reviewMediaPublicUrl } from "@/lib/storage/reviewMedia";
 
 export type PublicReview = Pick<
   Review,
@@ -13,14 +14,17 @@ export type PublicReview = Pick<
   | "created_at"
   | "product_id"
   | "service_type"
+  | "image_path"
 > & {
   product_name?: string | null;
   scope_label?: string;
+  image_url?: string | null;
 };
 
 export type AdminReview = Review & {
   product_name: string | null;
   scope_label: string;
+  image_url: string | null;
 };
 
 export async function listPublishedReviews(options?: {
@@ -37,7 +41,7 @@ export async function listPublishedReviews(options?: {
     let query = supabase
       .from("reviews")
       .select(
-        "id, author_name, rating, body, created_at, product_id, service_type, products(name)"
+        "id, author_name, rating, body, created_at, product_id, service_type, image_path, products(name)"
       )
       .eq("is_published", true)
       .order("created_at", { ascending: false });
@@ -69,6 +73,8 @@ export async function listPublishedReviews(options?: {
         created_at: row.created_at,
         product_id: row.product_id,
         service_type: row.service_type,
+        image_path: row.image_path,
+        image_url: reviewMediaPublicUrl(row.image_path),
         product_name: productName,
         scope_label: reviewScopeLabel({
           productName,
@@ -105,6 +111,7 @@ export async function listAllReviewsForAdmin(): Promise<AdminReview[]> {
         productId: review.product_id,
         serviceType: review.service_type,
       }),
+      image_url: reviewMediaPublicUrl(review.image_path),
     };
   });
 }

@@ -184,11 +184,9 @@ export default async function SmartHomeServicesPage() {
       </section>
 
       <ScopedReviewsSection
-        title="Smart home reviews"
-        description="Feedback from people who booked smart home setup or installation."
+        title="Reviews"
         reviews={reviews}
         serviceType="smart_home_install"
-        emptyMessage="No smart home reviews yet — be the first to share."
       />
 
       <ClosingCta

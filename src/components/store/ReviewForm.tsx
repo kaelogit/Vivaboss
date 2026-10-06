@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Loader2, Star } from "lucide-react";
+import { useRef, useState } from "react";
+import Image from "next/image";
+import { Loader2, Star, X } from "lucide-react";
 import type { ReviewServiceType } from "@/lib/reviews/scope";
 
 export default function ReviewForm({
@@ -13,20 +14,56 @@ export default function ReviewForm({
   serviceType?: ReviewServiceType;
   onSubmitted?: () => void;
 }) {
+  const fileRef = useRef<HTMLInputElement>(null);
   const [authorName, setAuthorName] = useState("");
   const [email, setEmail] = useState("");
   const [rating, setRating] = useState(5);
   const [hover, setHover] = useState(0);
   const [body, setBody] = useState("");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+
+  const clearPhoto = () => {
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoFile(null);
+    setPhotoPreview(null);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const onPhotoChange = (file: File | null) => {
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    if (!file) {
+      setPhotoFile(null);
+      setPhotoPreview(null);
+      return;
+    }
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
     setError(null);
     try {
+      let imagePath: string | undefined;
+      if (photoFile) {
+        const form = new FormData();
+        form.append("file", photoFile);
+        const up = await fetch("/api/upload/review", {
+          method: "POST",
+          body: form,
+        });
+        const upData = (await up.json()) as { path?: string; error?: string };
+        if (!up.ok || !upData.path) {
+          throw new Error(upData.error ?? "Photo upload failed.");
+        }
+        imagePath = upData.path;
+      }
+
       const res = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -37,6 +74,7 @@ export default function ReviewForm({
           body,
           productId: productId || undefined,
           serviceType: serviceType || undefined,
+          imagePath,
         }),
       });
       const data = (await res.json()) as { error?: string };
@@ -46,6 +84,7 @@ export default function ReviewForm({
       setEmail("");
       setBody("");
       setRating(5);
+      clearPhoto();
       onSubmitted?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not send review.");
@@ -61,8 +100,7 @@ export default function ReviewForm({
           Thank you
         </p>
         <p className="mt-3 text-sm text-vb-muted">
-          Thanks — your review is pending approval and will appear once we
-          publish it.
+          Your review is pending approval.
         </p>
         <button
           type="button"
@@ -153,9 +191,46 @@ export default function ReviewForm({
           rows={4}
           maxLength={2000}
           className="mt-1.5 w-full border border-vb-line bg-vb-paper px-3 py-2 text-sm outline-none ring-vb-accent focus:ring-1"
-          placeholder="Tell others what stood out — craft, service, delivery…"
+          placeholder="What stood out?"
         />
       </label>
+
+      <div>
+        <span className="font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
+          Photo{" "}
+          <span className="normal-case tracking-normal text-vb-muted/70">
+            (optional)
+          </span>
+        </span>
+        {photoPreview ? (
+          <div className="relative mt-1.5 aspect-[4/3] max-w-xs overflow-hidden border border-vb-line bg-vb-mist">
+            <Image
+              src={photoPreview}
+              alt=""
+              fill
+              sizes="320px"
+              className="object-cover"
+              unoptimized
+            />
+            <button
+              type="button"
+              onClick={clearPhoto}
+              className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center bg-vb-ink/80 text-vb-paper"
+              aria-label="Remove photo"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ) : (
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={(e) => onPhotoChange(e.target.files?.[0] ?? null)}
+            className="mt-1.5 block w-full text-sm text-vb-muted file:mr-3 file:border-0 file:bg-vb-ink file:px-3 file:py-2 file:font-heading file:text-[10px] file:font-semibold file:uppercase file:tracking-[0.14em] file:text-vb-paper"
+          />
+        )}
+      </div>
 
       {error && <p className="text-sm text-vb-danger">{error}</p>}
 

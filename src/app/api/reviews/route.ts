@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient, hasAdminClient } from "@/lib/supabase/admin";
 import { isReviewServiceType } from "@/lib/reviews/scope";
+import { isReviewMediaPath } from "@/lib/storage/reviewMedia";
 
 type Body = {
   authorName: string;
@@ -9,13 +10,14 @@ type Body = {
   email?: string;
   productId?: string;
   serviceType?: string;
+  imagePath?: string;
 };
 
 export async function POST(request: Request) {
   try {
     if (!hasAdminClient()) {
       return NextResponse.json(
-        { error: "Reviews are temporarily unavailable. Please try again later." },
+        { error: "Reviews are temporarily unavailable." },
         { status: 503 }
       );
     }
@@ -27,6 +29,7 @@ export async function POST(request: Request) {
     const email = payload.email?.trim().toLowerCase() || null;
     const productId = payload.productId?.trim() || null;
     const rawService = payload.serviceType?.trim() || null;
+    const imagePath = payload.imagePath?.trim() || null;
 
     if (!authorName || authorName.length < 2) {
       return NextResponse.json(
@@ -49,6 +52,12 @@ export async function POST(request: Request) {
     if (body.length > 2000) {
       return NextResponse.json(
         { error: "Review is too long (max 2000 characters)." },
+        { status: 400 }
+      );
+    }
+    if (imagePath && !isReviewMediaPath(imagePath)) {
+      return NextResponse.json(
+        { error: "Invalid photo upload." },
         { status: 400 }
       );
     }
@@ -96,6 +105,7 @@ export async function POST(request: Request) {
         email,
         product_id: productId,
         service_type: serviceType,
+        image_path: imagePath,
         is_published: false,
       })
       .select("id")
