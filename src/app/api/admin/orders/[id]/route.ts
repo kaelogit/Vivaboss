@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/apiAuth";
 import { createAdminClient, hasAdminClient } from "@/lib/supabase/admin";
+import { syncOrderPaymentFromStripe } from "@/lib/orders/syncStripePayment";
 import type { OrderStatus } from "@/types/database";
 
 type Params = { params: Promise<{ id: string }> };
@@ -27,6 +28,13 @@ export async function GET(_request: Request, { params }: Params) {
   const { id } = await params;
   const supabase = createAdminClient();
 
+  let paymentSynced = false;
+  try {
+    paymentSynced = await syncOrderPaymentFromStripe(id);
+  } catch (err) {
+    console.error("syncOrderPaymentFromStripe", err);
+  }
+
   const { data: order, error } = await supabase
     .from("orders")
     .select("*")
@@ -50,7 +58,45 @@ export async function GET(_request: Request, { params }: Params) {
     order,
     items: items ?? [],
     serviceJobs: serviceJobs ?? [],
+    paymentSynced,
   });
+}
+
+export async function DELETE(_request: Request, { params }: Params) {
+  const auth = await requireAdminApi();
+  if (auth instanceof NextResponse) return auth;
+  if (!hasAdminClient()) {
+    return NextResponse.json({ error: "Not configured." }, { status: 503 });
+  }
+
+  const { id } = await params;
+  const supabase = createAdminClient();
+
+  const { data: existing } = await supabase
+    .from("orders")
+    .select("id, status, inventory_applied")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!existing) {
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  }
+
+  if (existing.inventory_applied) {
+    try {
+      const { restoreOrderInventory } = await import("@/lib/orders/inventory");
+      await restoreOrderInventory(id, "order_cancelled");
+    } catch (err) {
+      console.error("inventory restore before delete failed", err);
+    }
+  }
+
+  const { error } = await supabase.from("orders").delete().eq("id", id);
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true });
 }
 
 export async function PATCH(request: Request, { params }: Params) {

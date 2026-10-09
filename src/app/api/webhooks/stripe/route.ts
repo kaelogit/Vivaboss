@@ -32,18 +32,34 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
-  if (event.type === "checkout.session.completed") {
+  if (
+    event.type === "checkout.session.completed" ||
+    event.type === "checkout.session.async_payment_succeeded"
+  ) {
     const session = event.data.object as Stripe.Checkout.Session;
     const orderId = session.metadata?.order_id;
-    if (orderId) {
-      await markOrderPaid({
-        orderId,
-        stripeCheckoutSessionId: session.id,
-        stripePaymentIntentId:
-          typeof session.payment_intent === "string"
-            ? session.payment_intent
-            : session.payment_intent?.id ?? null,
-      });
+    const paid =
+      session.payment_status === "paid" ||
+      session.payment_status === "no_payment_required" ||
+      event.type === "checkout.session.async_payment_succeeded";
+
+    if (orderId && paid) {
+      try {
+        await markOrderPaid({
+          orderId,
+          stripeCheckoutSessionId: session.id,
+          stripePaymentIntentId:
+            typeof session.payment_intent === "string"
+              ? session.payment_intent
+              : session.payment_intent?.id ?? null,
+        });
+      } catch (err) {
+        console.error("markOrderPaid webhook failed", err);
+        return NextResponse.json(
+          { error: "Failed to mark order paid." },
+          { status: 500 }
+        );
+      }
     }
   }
 

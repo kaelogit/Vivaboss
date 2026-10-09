@@ -45,7 +45,13 @@ export async function markOrderPaid(input: {
     if (input.stripePaymentIntentId) {
       patch.stripe_payment_intent_id = input.stripePaymentIntentId;
     }
-    await supabase.from("orders").update(patch).eq("id", input.orderId);
+    const { error: paidError } = await supabase
+      .from("orders")
+      .update(patch)
+      .eq("id", input.orderId);
+    if (paidError) {
+      throw new Error(paidError.message);
+    }
   } else {
     const patch: OrderUpdate = {};
     if (input.stripeCheckoutSessionId) {
@@ -55,7 +61,13 @@ export async function markOrderPaid(input: {
       patch.stripe_payment_intent_id = input.stripePaymentIntentId;
     }
     if (Object.keys(patch).length) {
-      await supabase.from("orders").update(patch).eq("id", input.orderId);
+      const { error: patchError } = await supabase
+        .from("orders")
+        .update(patch)
+        .eq("id", input.orderId);
+      if (patchError) {
+        throw new Error(patchError.message);
+      }
     }
   }
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { AdminDetailSkeleton } from "@/components/admin/AdminSkeleton";
@@ -80,6 +81,7 @@ const STATUSES: OrderStatus[] = [
 ];
 
 export default function OrderDetailClient({ orderId }: { orderId: string }) {
+  const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [serviceJobs, setServiceJobs] = useState<ServiceJobLink[]>([]);
@@ -93,6 +95,7 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -102,6 +105,7 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
           order?: Order;
           items?: Item[];
           serviceJobs?: ServiceJobLink[];
+          paymentSynced?: boolean;
           error?: string;
         };
         if (!res.ok) throw new Error(data.error ?? "Failed to load.");
@@ -115,11 +119,38 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
           setTrackingCarrier(data.order.tracking_carrier ?? "");
           setTrackingUrl(data.order.tracking_url ?? "");
         }
+        if (data.paymentSynced) {
+          setNotice("Stripe payment confirmed — status updated to paid.");
+        }
       })
       .catch((err: unknown) =>
         setError(err instanceof Error ? err.message : "Failed to load.")
       )
       .finally(() => setLoading(false));
+  };
+
+  const remove = async () => {
+    if (
+      !confirm(
+        "Delete this order permanently? This cannot be undone."
+      )
+    ) {
+      return;
+    }
+    setDeleting(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "DELETE",
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(data.error ?? "Delete failed.");
+      router.push("/admin/orders");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Delete failed.");
+      setDeleting(false);
+    }
   };
 
   useEffect(load, [orderId]);
@@ -483,7 +514,7 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
             <button
               type="button"
               onClick={() => void save()}
-              disabled={saving}
+              disabled={saving || deleting}
               className="mt-4 inline-flex h-10 items-center bg-vb-ink px-4 font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-paper disabled:opacity-60"
             >
               {saving ? (
@@ -497,6 +528,30 @@ export default function OrderDetailClient({ orderId }: { orderId: string }) {
                   : "Save & email shipped"
               ) : (
                 "Save"
+              )}
+            </button>
+          </section>
+
+          <section className="border border-vb-line bg-vb-white p-5">
+            <h2 className="font-heading text-xs font-semibold uppercase tracking-[0.16em] text-vb-muted">
+              Danger zone
+            </h2>
+            <p className="mt-2 text-sm text-vb-muted">
+              Permanently remove this order from the list.
+            </p>
+            <button
+              type="button"
+              onClick={() => void remove()}
+              disabled={deleting || saving}
+              className="mt-4 inline-flex h-10 items-center border border-vb-danger/40 px-4 font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-danger hover:bg-vb-danger hover:text-white disabled:opacity-60"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting…
+                </>
+              ) : (
+                "Delete order"
               )}
             </button>
           </section>

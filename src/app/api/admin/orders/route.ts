@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/apiAuth";
 import { createAdminClient, hasAdminClient } from "@/lib/supabase/admin";
+import { syncOrderPaymentFromStripe } from "@/lib/orders/syncStripePayment";
 
 export async function GET() {
   const auth = await requireAdminApi();
@@ -13,6 +14,22 @@ export async function GET() {
   }
 
   const supabase = createAdminClient();
+
+  // Catch paid checkouts that never flipped from unpaid (webhook miss).
+  const { data: pending } = await supabase
+    .from("orders")
+    .select("id")
+    .eq("status", "pending_payment")
+    .not("stripe_checkout_session_id", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (pending?.length) {
+    await Promise.allSettled(
+      pending.map((row) => syncOrderPaymentFromStripe(row.id))
+    );
+  }
+
   const { data, error } = await supabase
     .from("orders")
     .select(

@@ -5,6 +5,7 @@ import {
   getSiteUrl,
   getStripe,
   hasStripe,
+  stripeSafeImageUrl,
   toPence,
 } from "@/lib/stripe";
 import { quoteUkShipping } from "@/lib/shipping/quote";
@@ -277,7 +278,9 @@ export async function POST(request: Request) {
             unit_amount: toPence(p.unit),
             product_data: {
               name: p.isPreorder ? `${p.name} (Pre-order)` : p.name,
-              images: p.image ? [p.image] : undefined,
+              ...(stripeSafeImageUrl(p.image)
+                ? { images: [stripeSafeImageUrl(p.image)!] }
+                : {}),
             },
           },
         })),

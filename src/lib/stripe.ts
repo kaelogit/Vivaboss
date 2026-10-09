@@ -16,10 +16,24 @@ export function hasStripe(): boolean {
 }
 
 export function getSiteUrl() {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "http://localhost:3000"
-  );
+  const raw =
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000";
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  return withProtocol.replace(/\/$/, "");
+}
+
+/** Stripe Checkout only accepts absolute https image URLs. */
+export function stripeSafeImageUrl(
+  value: string | null | undefined
+): string | undefined {
+  if (!value?.trim()) return undefined;
+  try {
+    const url = new URL(value.trim());
+    if (url.protocol !== "https:") return undefined;
+    return url.toString();
+  } catch {
+    return undefined;
+  }
 }
 
 import { getDefaultShippingConfig, resolveShippingGbp } from "@/lib/shipping";

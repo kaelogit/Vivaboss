@@ -48,7 +48,13 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
     if (session_id && hasStripe()) {
       try {
         const session = await getStripe().checkout.sessions.retrieve(session_id);
-        if (session.payment_status === "paid") {
+        const sessionOrderId = session.metadata?.order_id;
+        const matches =
+          !sessionOrderId || sessionOrderId === orderId;
+        const paid =
+          session.payment_status === "paid" ||
+          session.payment_status === "no_payment_required";
+        if (matches && paid) {
           await markOrderPaid({
             orderId,
             stripeCheckoutSessionId: session.id,
@@ -58,8 +64,8 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
                 : null,
           });
         }
-      } catch {
-        // Webhook remains fallback
+      } catch (err) {
+        console.error("success page markOrderPaid failed", err);
       }
     }
 
