@@ -4,13 +4,17 @@ import { hasAdminClient } from "@/lib/supabase/admin";
 import { getStripe, hasStripe } from "@/lib/stripe";
 import { markOrderPaid } from "@/lib/orders/markPaid";
 
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   if (!hasStripe() || !hasAdminClient()) {
+    console.error("[stripe webhook] Stripe or Supabase not configured");
     return NextResponse.json({ error: "Not configured." }, { status: 503 });
   }
 
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  const secret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
   if (!secret) {
+    console.error("[stripe webhook] Missing STRIPE_WEBHOOK_SECRET");
     return NextResponse.json(
       { error: "Missing STRIPE_WEBHOOK_SECRET." },
       { status: 503 }
@@ -29,6 +33,7 @@ export async function POST(request: Request) {
     event = stripe.webhooks.constructEvent(body, signature, secret);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Invalid signature.";
+    console.error("[stripe webhook] signature failed", message);
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
@@ -44,6 +49,8 @@ export async function POST(request: Request) {
       event.type === "checkout.session.async_payment_succeeded";
 
     if (orderId && paid) {
+      // Acknowledge delivery even if fulfilment hits a transient error —
+      // success page + admin Stripe sync recover unpaid rows.
       try {
         await markOrderPaid({
           orderId,
@@ -54,11 +61,7 @@ export async function POST(request: Request) {
               : session.payment_intent?.id ?? null,
         });
       } catch (err) {
-        console.error("markOrderPaid webhook failed", err);
-        return NextResponse.json(
-          { error: "Failed to mark order paid." },
-          { status: 500 }
-        );
+        console.error("[stripe webhook] markOrderPaid failed", err);
       }
     }
   }
