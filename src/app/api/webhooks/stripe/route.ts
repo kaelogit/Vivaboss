@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import type Stripe from "stripe";
 import { hasAdminClient } from "@/lib/supabase/admin";
 import { getStripe, hasStripe } from "@/lib/stripe";
 import { markOrderPaid } from "@/lib/orders/markPaid";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   if (!hasStripe() || !hasAdminClient()) {
@@ -49,20 +50,24 @@ export async function POST(request: Request) {
       event.type === "checkout.session.async_payment_succeeded";
 
     if (orderId && paid) {
-      // Acknowledge delivery even if fulfilment hits a transient error —
-      // success page + admin Stripe sync recover unpaid rows.
-      try {
-        await markOrderPaid({
-          orderId,
-          stripeCheckoutSessionId: session.id,
-          stripePaymentIntentId:
-            typeof session.payment_intent === "string"
-              ? session.payment_intent
-              : session.payment_intent?.id ?? null,
-        });
-      } catch (err) {
-        console.error("[stripe webhook] markOrderPaid failed", err);
-      }
+      const stripeCheckoutSessionId = session.id;
+      const stripePaymentIntentId =
+        typeof session.payment_intent === "string"
+          ? session.payment_intent
+          : session.payment_intent?.id ?? null;
+
+      // Return 2xx immediately; fulfil after so Stripe never times out.
+      after(async () => {
+        try {
+          await markOrderPaid({
+            orderId,
+            stripeCheckoutSessionId,
+            stripePaymentIntentId,
+          });
+        } catch (err) {
+          console.error("[stripe webhook] markOrderPaid failed", err);
+        }
+      });
     }
   }
 
