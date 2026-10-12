@@ -16,8 +16,10 @@ export function hasStripe(): boolean {
 }
 
 export function getSiteUrl() {
+  // Prefer www — apex redirects to www (308) and Stripe webhooks do not follow redirects.
   const raw =
-    process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000";
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    "https://www.vivabossfusion.co.uk";
   const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
   return withProtocol.replace(/\/$/, "");
 }

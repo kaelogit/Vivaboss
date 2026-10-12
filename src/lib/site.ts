@@ -14,7 +14,7 @@ export const siteConfig = {
   domain: "vivabossfusion.co.uk",
   siteUrl:
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "https://vivabossfusion.co.uk",
+    "https://www.vivabossfusion.co.uk",
   /** Short service-arms cue under the brand. */
   homepageLine: "Craft. Home. Delivery.",
   /** Brand promise — footer / supporting copy. */
