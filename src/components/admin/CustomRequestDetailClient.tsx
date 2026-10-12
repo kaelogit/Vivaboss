@@ -7,6 +7,7 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { AdminDetailSkeleton } from "@/components/admin/AdminSkeleton";
 import StorageLink from "@/components/admin/StorageLink";
 import { formatGbp } from "@/lib/products/money";
+import { paymentFeeTransparencyText } from "@/lib/payments/fees";
 import type { CustomRequest, CustomRequestStatus, Json } from "@/types/database";
 
 const STATUSES: CustomRequestStatus[] = [
@@ -667,7 +668,11 @@ export default function CustomRequestDetailClient({
                           request.quote_amount_gbp != null
                             ? ` (${formatGbp(Number(request.quote_amount_gbp))})`
                             : ""
-                        }: ${meta.checkoutUrl}`
+                        }: ${meta.checkoutUrl}\n\n${paymentFeeTransparencyText(
+                          request.quote_amount_gbp != null
+                            ? Number(request.quote_amount_gbp)
+                            : null
+                        )}`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"

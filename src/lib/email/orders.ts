@@ -9,6 +9,7 @@ import {
   resolveAdminNotifyEmails,
 } from "@/lib/email/client";
 import { getSiteUrl } from "@/lib/stripe";
+import { paymentFeeTransparencyText } from "@/lib/payments/fees";
 
 export async function sendOrderEmails(orderId: string): Promise<void> {
   if (!hasResend()) {
@@ -332,6 +333,11 @@ export async function sendCustomQuoteEmail(requestId: string): Promise<void> {
   const checkoutUrl =
     typeof snapshot.checkout_url === "string" ? snapshot.checkout_url : null;
 
+  const quoteAmount = Number(req.quote_amount_gbp);
+  const feeNote = `<p style="color:#666;font-size:12px;margin-top:12px;">${escapeHtml(
+    paymentFeeTransparencyText(quoteAmount)
+  )}</p>`;
+
   const payBlock = checkoutUrl
     ? `
         <p style="margin:28px 0 12px;">
@@ -340,8 +346,10 @@ export async function sendCustomQuoteEmail(requestId: string): Promise<void> {
           </a>
         </p>
         <p style="color:#666;font-size:12px;">Or copy this link: <a href="${checkoutUrl}">${checkoutUrl}</a></p>
+        ${feeNote}
       `
     : `
+        ${feeNote}
         <p style="margin-top:24px;color:#666;font-size:13px;">
           Next we’ll send a secure Stripe pay link to this email. Questions? Reply here or visit
           <a href="${site}/contact">${site.replace(/^https?:\/\//, "")}/contact</a>.
@@ -441,6 +449,11 @@ export async function sendCustomPayLinkEmail(
           </a>
         </p>
         <p style="color:#666;font-size:12px;">This is a secure Stripe checkout. If the button doesn’t work, use:<br/><a href="${checkoutUrl}">${checkoutUrl}</a></p>
+        <p style="color:#666;font-size:12px;margin-top:12px;">${escapeHtml(
+          paymentFeeTransparencyText(
+            req.quote_amount_gbp != null ? Number(req.quote_amount_gbp) : null
+          )
+        )}</p>
         <p style="margin-top:24px;color:#666;font-size:13px;">Questions? <a href="${site}/contact">Contact Vivaboss</a>.</p>
       </div>
     `,

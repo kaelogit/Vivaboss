@@ -16,6 +16,9 @@ import {
   type FulfillmentMethod,
 } from "@/components/shop/useShippingQuote";
 import { cn } from "@/lib/utils";
+import { cardFeeGbp, klarnaFeeGbp } from "@/lib/payments/fees";
+
+type FeePreviewMethod = "card" | "klarna";
 
 export default function CheckoutClient() {
   const searchParams = useSearchParams();
@@ -30,6 +33,7 @@ export default function CheckoutClient() {
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [feePreview, setFeePreview] = useState<FeePreviewMethod>("card");
   const [fulfillment, setFulfillment] =
     useState<FulfillmentMethod>("delivery");
 
@@ -52,6 +56,10 @@ export default function CheckoutClient() {
   const postcodeReady = isValidUkPostcode(postcode);
   const shipping = quote?.shippingGbp ?? null;
   const total = quote?.totalGbp ?? null;
+  // Prefer full total; fall back to subtotal so the fee preview isn't blank while quoting.
+  const feeBase = total ?? subtotal;
+  const feeEstimate =
+    feePreview === "klarna" ? klarnaFeeGbp(feeBase) : cardFeeGbp(feeBase);
 
   useEffect(() => setReady(true), []);
 
@@ -366,10 +374,64 @@ export default function CheckoutClient() {
                 ? "Includes UK delivery."
                 : "Enter your postcode for Highlands, Islands, or Northern Ireland."}
           </p>
+
+          <div className="mt-5 border-t border-vb-line pt-4">
+            <p className="font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-vb-muted">
+              Payment fee estimate
+            </p>
+            <div
+              className="mt-2 grid grid-cols-2 gap-2"
+              role="group"
+              aria-label="Payment method for fee estimate"
+            >
+              {(
+                [
+                  { id: "card" as const, label: "Card" },
+                  { id: "klarna" as const, label: "Klarna" },
+                ] as const
+              ).map((opt) => {
+                const active = feePreview === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setFeePreview(opt.id)}
+                    className={cn(
+                      "border px-3 py-2.5 font-heading text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors",
+                      active
+                        ? "border-vb-ink bg-vb-ink text-vb-paper"
+                        : "border-vb-line bg-vb-white text-vb-ink hover:border-vb-ink"
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-3 flex justify-between gap-3 text-sm text-vb-muted">
+              <span>
+                {feePreview === "klarna"
+                  ? "Klarna fee (est. 4.5% + £0.20)"
+                  : "Card fee (est. 1.5% + £0.20)"}
+              </span>
+              <span className="shrink-0">{formatGbp(feeEstimate)}</span>
+            </div>
+            {total == null && method === "delivery" && (
+              <p className="mt-1 text-[11px] text-vb-muted">
+                Based on bag subtotal until delivery is confirmed.
+              </p>
+            )}
+            <p className="mt-2 text-xs text-vb-muted">
+              Estimated Stripe processing cost — absorbed by Vivaboss. You still
+              pay {total == null ? "the order total" : formatGbp(total)}.
+            </p>
+          </div>
+
           <ul className="mt-5 space-y-2.5 border-t border-vb-line pt-4 text-xs text-vb-muted">
             <li className="flex items-center gap-2">
               <Lock size={14} className="shrink-0 text-vb-accent" aria-hidden />
-              Secure card payment
+              Secure card & Klarna
             </li>
             <li className="flex items-center gap-2">
               {method === "collection" ? (
